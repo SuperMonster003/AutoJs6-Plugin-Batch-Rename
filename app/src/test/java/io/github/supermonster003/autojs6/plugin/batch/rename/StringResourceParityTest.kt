@@ -71,7 +71,7 @@ class StringResourceParityTest {
         )
         // The host reads the instruction by name across packages; without tools:keep, shrinkResources removes it.
         val keep = RepositoryFiles.xml("app/src/main/res/raw/keep.xml")
-        assertEquals("@raw/plugin_instruction", keep.getAttributeNS("http://schemas.android.com/tools", "keep"))
+        assertTrue("@raw/plugin_instruction" in keep.getAttributeNS("http://schemas.android.com/tools", "keep").split(','))
     }
 
     @Test

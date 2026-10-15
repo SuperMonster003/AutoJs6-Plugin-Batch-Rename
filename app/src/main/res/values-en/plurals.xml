@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="one">%d item renamed</item>
+        <item quantity="other">%d items renamed</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="one">%d item restored</item>
+        <item quantity="other">%d items restored</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="one">%d selected item</item>
+        <item quantity="other">%d selected items</item>
+    </plurals>
+</resources>

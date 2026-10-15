@@ -2,12 +2,18 @@
 
     <uses-permission android:name="org.autojs.permission.PLUGIN" />
 
+    <!-- The host settings provider (theme color, night mode, language) of AutoJs6 (roadmap D24). -->
+    <queries>
+        <package android:name="org.autojs.autojs6" />
+    </queries>
+
     <!-- No launcher entry and no storage permission: the host renames files on the plugin's behalf (roadmap D3 / D4). -->
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:label="@string/app_name"
+        android:enableOnBackInvokedCallback="true"
         android:supportsRtl="true"
         android:icon="@mipmap/ic_icon_studio_application"
         android:roundIcon="@mipmap/ic_icon_studio_application">
@@ -39,15 +45,16 @@
         </activity>
 
         <!--
-            File manager entry (roadmap D10 / D23): the host starts it for the rename actions of the catalog.
-            Placeholder until roadmap P4.2; every catalog activity needs the EXECUTE + DEFAULT filter, or the
-            host silently drops its actions.
+            File manager entry (roadmap D10 / D23): the host starts the rename screen for the three catalog actions.
+            Every catalog activity needs the EXECUTE + DEFAULT filter, or the host silently drops its actions.
         -->
         <activity
             android:name=".BatchRenameActivity"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/Theme.BatchRename"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION_EXECUTE" />
                 <category android:name="android.intent.category.DEFAULT" />

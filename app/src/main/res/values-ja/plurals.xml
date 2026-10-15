@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="other">%d 件の名前を変更しました</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="other">%d 件を復元しました</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="other">%d 件を選択</item>
+    </plurals>
+</resources>

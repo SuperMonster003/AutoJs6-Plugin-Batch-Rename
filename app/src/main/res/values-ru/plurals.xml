@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="one">Переименован %d элемент</item>
+        <item quantity="few">Переименовано %d элемента</item>
+        <item quantity="many">Переименовано %d элементов</item>
+        <item quantity="other">Переименовано %d элемента</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="one">Восстановлен %d элемент</item>
+        <item quantity="few">Восстановлено %d элемента</item>
+        <item quantity="many">Восстановлено %d элементов</item>
+        <item quantity="other">Восстановлено %d элемента</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="one">Выбран %d элемент</item>
+        <item quantity="few">Выбрано %d элемента</item>
+        <item quantity="many">Выбрано %d элементов</item>
+        <item quantity="other">Выбрано %d элемента</item>
+    </plurals>
+</resources>

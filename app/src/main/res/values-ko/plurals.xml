@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="other">%d개 항목의 이름을 바꿨습니다</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="other">%d개 항목을 복원했습니다</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="other">%d개 선택됨</item>
+    </plurals>
+</resources>

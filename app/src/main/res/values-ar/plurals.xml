@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="zero">لم تتم إعادة تسمية أي عنصر</item>
+        <item quantity="one">تمت إعادة تسمية عنصر واحد</item>
+        <item quantity="two">تمت إعادة تسمية عنصرين</item>
+        <item quantity="few">تمت إعادة تسمية %d عناصر</item>
+        <item quantity="many">تمت إعادة تسمية %d عنصرا</item>
+        <item quantity="other">تمت إعادة تسمية %d عنصر</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="zero">لم تتم استعادة أي عنصر</item>
+        <item quantity="one">تمت استعادة عنصر واحد</item>
+        <item quantity="two">تمت استعادة عنصرين</item>
+        <item quantity="few">تمت استعادة %d عناصر</item>
+        <item quantity="many">تمت استعادة %d عنصرا</item>
+        <item quantity="other">تمت استعادة %d عنصر</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="zero">لا توجد عناصر محددة</item>
+        <item quantity="one">عنصر واحد محدد</item>
+        <item quantity="two">عنصران محددان</item>
+        <item quantity="few">%d عناصر محددة</item>
+        <item quantity="many">%d عنصرا محددا</item>
+        <item quantity="other">%d عنصر محدد</item>
+    </plurals>
+</resources>

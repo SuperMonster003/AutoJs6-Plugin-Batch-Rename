@@ -29,7 +29,9 @@ class ManifestContractTest {
     @Test
     fun `the plugin permission is the only permission and nothing else is requested`() {
         assertEquals(listOf(PLUGIN_PERMISSION), manifest.children("uses-permission").map { it.android("name") })
-        assertTrue("no package queries: the plugin never looks up other apps", manifest.children("queries").isEmpty())
+        // The only app the plugin looks up is the host, for its appearance settings (roadmap D24).
+        val queries = manifest.children("queries").flatMap { it.children("package") }.map { it.android("name") }
+        assertEquals("only the host package is queried", listOf("org.autojs.autojs6"), queries)
         assertTrue("no uses-sdk override: SDK levels come from version.properties", manifest.children("uses-sdk").isEmpty())
         assertTrue("no feature requirements", manifest.children("uses-feature").isEmpty())
     }

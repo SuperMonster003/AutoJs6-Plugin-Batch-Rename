@@ -36,6 +36,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionCapabilityKeys
 import org.autojs.plugin.explorer.api.ExplorerActionCatalogKeys
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionPluginIds
+import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.ExplorerArchiveOpenKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveOpenValues
 import org.autojs.plugin.explorer.api.IExplorerActionPlugin
@@ -175,7 +176,7 @@ class BatchRenamePluginContractTest {
     }
 
     @Test
-    fun explorerActionServiceAnswersTheExplorerIdentityAndAnEmptyCatalog() {
+    fun explorerActionServiceAnswersTheExplorerIdentityAndTheRenameCatalog() {
         val serviceInfo = discoverSingleService(ExplorerActionPluginActions.EXPLORER_ACTION, Intent.CATEGORY_DEFAULT, BatchRenameExplorerActionService::class.java.name)
         assertNull("the Explorer Action registry reads the host floor from getInfo()", serviceInfo.metaData?.get(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
         withBoundService(serviceInfo) { binder ->
@@ -193,7 +194,16 @@ class BatchRenamePluginContractTest {
             @Suppress("DEPRECATION")
             val actions = catalog.getParcelableArrayList<Bundle>(ExplorerActionCatalogKeys.ACTIONS)
             assertNotNull("the catalog carries an explicit action list", actions)
-            assertTrue("no action until roadmap P4.1", actions!!.isEmpty())
+            // The three rename actions of roadmap D23, read-only, opening the rename activity, declaring targetRename.
+            assertEquals(listOf("batch-rename-selection", "batch-rename-directory", "batch-rename-single"), actions!!.map { it.getString(ExplorerActionCatalogKeys.ID) })
+            actions.forEach { action ->
+                assertTrue(action.getBoolean(ExplorerActionCatalogKeys.TARGET_RENAME))
+                assertEquals(ExplorerActionValues.ACCESS_READ_ONLY, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
+                assertEquals(ExplorerActionValues.PRESENTATION_ACTIVITY, action.getInt(ExplorerActionCatalogKeys.PRESENTATION))
+                assertEquals(BatchRenameActivity::class.java.name, action.getString(ExplorerActionCatalogKeys.ACTIVITY_CLASS_NAME))
+                val label = context.resources.getIdentifier(action.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME), "string", context.packageName)
+                assertTrue("the host loads the label by name", label != 0)
+            }
 
             // openArchiveV11(source, request) is the fourth transaction; this plugin never opens archives.
             val archive = transactBundle(binder, IExplorerActionPlugin.DESCRIPTOR, IBinder.FIRST_CALL_TRANSACTION + 3) { data ->

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="message_renamed">
+        <item quantity="one">%d élément renommé</item>
+        <item quantity="many">%d éléments renommés</item>
+        <item quantity="other">%d éléments renommés</item>
+    </plurals>
+    <plurals name="message_restored">
+        <item quantity="one">%d élément restauré</item>
+        <item quantity="many">%d éléments restaurés</item>
+        <item quantity="other">%d éléments restaurés</item>
+    </plurals>
+    <plurals name="subtitle_selected_items">
+        <item quantity="one">%d élément sélectionné</item>
+        <item quantity="many">%d éléments sélectionnés</item>
+        <item quantity="other">%d éléments sélectionnés</item>
+    </plurals>
+</resources>
