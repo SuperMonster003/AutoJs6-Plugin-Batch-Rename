@@ -41,6 +41,12 @@ class PluginRuntimeInfoTest {
         // Roadmap D28: one universal APK, so no ABI restriction is reported to the Plugin Center.
         assertEquals(emptyList<String>(), fields.supportedAbis)
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, fields.requiredHostVersion)
+        assertEquals(5431L, BatchRenamePlugin.REQUIRED_HOST_VERSION)
+        // Contract v1 capabilities; no optional feature is advertised before the engine exists (roadmap P2).
+        assertEquals(1, fields.contractVersion)
+        assertEquals(emptyList<String>(), fields.features)
+        assertEquals(2000, fields.maxItems)
+        assertEquals("ecmascript", fields.regexDialect)
     }
 
     @Test

@@ -66,7 +66,7 @@ Batch Rename 插件為 AutoJs6 提供批量重新命名能力, 功能參照 Powe
 
 ******
 
-1. 將 AutoJs6 升級到內部版本號 5352 (6.8.0) 或更高版本.
+1. 將 AutoJs6 升級到內部版本號 5431 (6.8.0) 或更高版本.
 2. 在 AutoJs6 的插件中心安裝 Batch Rename, 或從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases) 下載 APK 安裝, 然後在插件中心授權並啟用.
 3. 在檔案管理器中長按進入多選後點擊 "批量重新命名", 或在腳本中呼叫 `files.batchRename`.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `提示` 開發預覽: 插件可以被 AutoJs6 識別, 重新命名介面, 檔案管理器入口與 files.batchRename 腳本 API 尚未交付
-- `提示` 需要 AutoJs6 6.8.0 (5352) 或更高版本 (準確的最低版本號待宿主側改動落地後回填)
+- `提示` 需要 AutoJs6 6.8.0 (5431) 或更高版本 (準確的最低版本號待宿主側改動落地後回填)
 - `新增` 插件骨架: Wake 啟用協議, 插件中心身份服務, 腳本能力服務與檔案管理器動作服務 (動作目錄暫為空)
 - `新增` 10 種語言的 README, 插件中心說明與更新日誌, 由 JSON 源檔案統一生成
 - `依賴` 附加 Jetpack Compose BOM 版本 2026.09.00

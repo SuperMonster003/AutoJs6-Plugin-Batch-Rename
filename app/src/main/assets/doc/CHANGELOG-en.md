@@ -9,7 +9,7 @@
 ###### 2026/10/15
 
 * `Hint` Development preview: AutoJs6 recognizes the plugin, while the rename screen, the file manager entries and the files.batchRename script API are not delivered yet
-* `Hint` Requires AutoJs6 6.8.0 (5352) or later (the exact minimum build is filled in once the host-side changes land)
+* `Hint` Requires AutoJs6 6.8.0 (5431) or later (the exact minimum build is filled in once the host-side changes land)
 * `Feature` Plugin skeleton: Wake activation, the Plugin Center identity service, the script capability service and the file manager action service (empty action catalog for now)
 * `Feature` README, Plugin Center instructions and changelog in 10 languages, generated from JSON sources
 * `Dependency` Attach Jetpack Compose BOM 2026.09.00

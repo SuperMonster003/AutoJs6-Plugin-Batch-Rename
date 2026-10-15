@@ -66,7 +66,7 @@ Batch Rename プラグインは, PowerToys の [PowerRename](https://learn.micro
 
 ******
 
-1. AutoJs6 をビルド 5352 (6.8.0) 以降に更新します.
+1. AutoJs6 をビルド 5431 (6.8.0) 以降に更新します.
 2. AutoJs6 のプラグインセンターから Batch Rename をインストールするか, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases) から APK をダウンロードしてインストールし, プラグインセンターで許可して有効にします.
 3. ファイルマネージャーで長押しして項目を選択し "一括で名前を変更" をタップするか, スクリプトで `files.batchRename` を呼び出します.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `ヒント` 開発プレビュー: AutoJs6 はプラグインを認識しますが, 名前変更画面, ファイルマネージャーの入口, files.batchRename スクリプト API はまだ提供されていません
-- `ヒント` AutoJs6 6.8.0 (5352) 以降が必要です (正確な最小ビルド番号はホスト側の変更が取り込まれた後に補完されます)
+- `ヒント` AutoJs6 6.8.0 (5431) 以降が必要です (正確な最小ビルド番号はホスト側の変更が取り込まれた後に補完されます)
 - `機能` プラグインの骨格: Wake による有効化, プラグインセンター向け識別サービス, スクリプト向け機能サービス, ファイルマネージャー向けアクションサービス (アクション一覧は現在空)
 - `機能` JSON ソースから生成される 10 言語の README, プラグインセンターの説明, 更新履歴
 - `依存関係` Jetpack Compose BOM 2026.09.00 を追加

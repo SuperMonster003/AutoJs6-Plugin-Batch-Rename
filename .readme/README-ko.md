@@ -66,7 +66,7 @@ Batch Rename 플러그인은 PowerToys의 [PowerRename](https://learn.microsoft.
 
 ******
 
-1. AutoJs6을 빌드 5352 (6.8.0) 이상으로 업데이트합니다.
+1. AutoJs6을 빌드 5431 (6.8.0) 이상으로 업데이트합니다.
 2. AutoJs6 플러그인 센터에서 Batch Rename을 설치하거나 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases)에서 APK를 내려받아 설치한 뒤, 플러그인 센터에서 승인하고 활성화합니다.
 3. 파일 관리자에서 길게 눌러 항목을 선택하고 "일괄 이름 변경"을 누르거나, 스크립트에서 `files.batchRename`을 호출합니다.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `힌트` 개발 미리보기: AutoJs6이 플러그인을 인식하지만, 이름 변경 화면, 파일 관리자 진입점, files.batchRename 스크립트 API는 아직 제공되지 않습니다
-- `힌트` AutoJs6 6.8.0 (5352) 이상이 필요합니다 (정확한 최소 빌드 번호는 호스트 쪽 변경이 반영된 뒤 채워집니다)
+- `힌트` AutoJs6 6.8.0 (5431) 이상이 필요합니다 (정확한 최소 빌드 번호는 호스트 쪽 변경이 반영된 뒤 채워집니다)
 - `기능` 플러그인 골격: Wake 활성화, 플러그인 센터 식별 서비스, 스크립트 기능 서비스, 파일 관리자 동작 서비스 (동작 목록은 현재 비어 있음)
 - `기능` JSON 원본에서 생성되는 10개 언어의 README, 플러그인 센터 설명, 변경 로그
 - `의존성` Jetpack Compose BOM 2026.09.00 추가

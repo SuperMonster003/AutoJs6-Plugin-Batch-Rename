@@ -66,7 +66,7 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 
 ******
 
-1. Update AutoJs6 to build 5352 (6.8.0) or later.
+1. Update AutoJs6 to build 5431 (6.8.0) or later.
 2. Install Batch Rename from the AutoJs6 Plugin Center, or download the APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), then authorize and enable it in the Plugin Center.
 3. Long-press in the file manager to select items and tap "Batch rename", or call `files.batchRename` in a script.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 _2026/10/15_
 
 - `Hint` Development preview: AutoJs6 recognizes the plugin, while the rename screen, the file manager entries and the files.batchRename script API are not delivered yet
-- `Hint` Requires AutoJs6 6.8.0 (5352) or later (the exact minimum build is filled in once the host-side changes land)
+- `Hint` Requires AutoJs6 6.8.0 (5431) or later (the exact minimum build is filled in once the host-side changes land)
 - `Feature` Plugin skeleton: Wake activation, the Plugin Center identity service, the script capability service and the file manager action service (empty action catalog for now)
 - `Feature` README, Plugin Center instructions and changelog in 10 languages, generated from JSON sources
 - `Dependency` Attach Jetpack Compose BOM 2026.09.00

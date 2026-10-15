@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.os.Build
 import android.os.Bundle
+import org.autojs.plugin.batchrename.api.BatchRenameCapabilityKeys
+import org.autojs.plugin.batchrename.api.BatchRenameContract
+import org.autojs.plugin.batchrename.api.BatchRenameLimits
 import org.autojs.plugin.common.api.PluginCapabilityKeys
 import org.autojs.plugin.common.api.PluginInfo
 import org.autojs.plugin.explorer.api.ExplorerActionCapabilityKeys
@@ -27,6 +30,11 @@ internal data class PluginRuntimeFields(
     /** Empty means "any ABI" (roadmap D28). zh-CN: 空列表表示 "不限 ABI" (路线图 D28). */
     val supportedAbis: List<String>,
     val requiredHostVersion: Long,
+    /** Batch Rename contract version and limits advertised to the host (contract v1). zh-CN: 向宿主声明的契约版本与上限. */
+    val contractVersion: Int,
+    val features: List<String>,
+    val maxItems: Int,
+    val regexDialect: String,
 )
 
 /**
@@ -57,6 +65,10 @@ internal fun pluginRuntimeFields(
     versionDate = versionDate,
     supportedAbis = emptyList(),
     requiredHostVersion = BatchRenamePlugin.REQUIRED_HOST_VERSION,
+    contractVersion = BatchRenameContract.CONTRACT_VERSION,
+    features = BatchRenamePlugin.FEATURES,
+    maxItems = BatchRenameLimits.MAX_ITEMS_PER_PLAN,
+    regexDialect = BatchRenameContract.REGEX_DIALECT_ECMASCRIPT,
 )
 
 /**
@@ -79,6 +91,10 @@ internal fun PluginRuntimeFields.toPluginInfo(): PluginInfo = PluginInfo().also 
     info.supportedAbis = supportedAbis.toTypedArray()
     info.capabilities = Bundle().apply {
         putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, requiredHostVersion)
+        putInt(BatchRenameCapabilityKeys.CONTRACT_VERSION, contractVersion)
+        putStringArray(BatchRenameCapabilityKeys.FEATURES, features.toTypedArray())
+        putInt(BatchRenameCapabilityKeys.MAX_ITEMS, maxItems)
+        putString(BatchRenameCapabilityKeys.REGEX_DIALECT, regexDialect)
     }
 }
 

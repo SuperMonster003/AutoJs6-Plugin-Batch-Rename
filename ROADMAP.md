@@ -205,7 +205,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | 宿主契约包 | `org.autojs.plugin.batchrename.api` |
 | 宿主桥接包 | `org.autojs.autojs.core.plugin.batchrename` |
 | 脚本 API | `files.batchRename` (`$files.batchRename` 同对象) |
-| `{REQUIRES_HOST_VERSION}` | P0.1 占位 5352 (当前宿主 versionCode), 待回填 (D26) |
+| `{REQUIRES_HOST_VERSION}` | P1.3 临时值 5431 (宿主 `dcc5bd98d`, P0.1 的占位为 5352), P5.4 按宿主最终提交回填 (D26) |
 | 向导目录 | `PluginInstallWizardCatalog` `FILE_MANAGER` 分类, `official("batch.rename")`, 回退标题 `Batch Rename` |
 | `plugin_description` (zh-Hans) | `使用查找替换, 正则表达式, 计数器与日期变量批量重命名文件与文件夹` (句尾无点号, 不含 "AutoJs6"; P0.1 定稿, 10 语言见 `values*/strings.xml`) |
 | 发布文件名 | `autojs6-plugin-batch-rename-v{VERSION_NAME}-{CRC32}.apk` (单 Universal APK, D28) |
@@ -219,7 +219,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | 阶段 | 版本 | 主题 | 状态 |
 | --- | --- | --- | --- |
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
-| P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 未开始 |
+| P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 进行中 (P1.1 - P1.3 已完成, 2026-10-15) |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 未开始 |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
@@ -244,7 +244,7 @@ P0 (骨架)
 - R3 `py D:/idea-projects/prepush_check.py` 通过 (文档校验, `check_repository.py`, 构建号容差, Gradle 单元测试); 附录 F 设备矩阵中每台在线设备完成冒烟 (安装, 激活, 三处入口各一次, 脚本 `plan` / `apply` / `undo` 各一次), 记录型号 / API / APK 摘要.
 - R4 release APK 经 `appendDigestToReleasedFiles` 收集, 原生库 16 KB 对齐校验通过, 生成 `SHA256SUMS`, 创建轻量 tag `vX.Y.Z` 与 GitHub Release (APK + SHA256SUMS), 复核下载产物哈希.
 - R5 官方索引: `official-repositories.json` 加入 `AutoJs6-Plugin-Batch-Rename` (首次), `release-manifests/.../<versionCode>.json` 登记 (`supportedAbis`, `requiresHostVersion` 与实际一致), 运行 `tools/generate_official_plugin_index.py` 与索引仓库的 `generate_markdown.py`.
-- R6 宿主侧有改动时, 宿主 `.changelog` 10 种语言与 `docs/dev/` 同步, 并说明最低宿主版本变化; 文档, d.ts, 离线文档, Ace 四仓库按各自 `AGENTS.md` 生成, 版本号递增并提交.
+- R6 宿主侧有改动时, 宿主 `.changelog` (6.8.0 只写 `lang_zh-Hans.json`, 其他语言由维护者同步) 与 `docs/dev/` 同步, 并说明最低宿主版本变化; 文档, d.ts, 离线文档, Ace 四仓库按各自 `AGENTS.md` 生成, 版本号递增并提交.
 
 ---
 
@@ -294,11 +294,12 @@ P0 (骨架)
 
 ### P1.3 注册, 协议文档, changelog 与版本回填
 
-- [ ] (宿主) `AndroidManifest.xml` `<queries>` 加入 `org.autojs.plugin.BATCH_RENAME`; `InstalledPluginRepository.queryDeclaredPluginServices` 与 `discoverPackage` 两张表加入 `BatchRenamePluginHost.ACTION_BATCH_RENAME`; `PluginInstallWizardCatalog` `FILE_MANAGER` 分类加入 `entry(official("batch.rename"), "Batch Rename", FILE_MANAGER, standard = true)`; ProGuard / R8 keep 规则; 插件中心的分类图标与排序检查.
-- [ ] (宿主) `core/plugin/batchrename/BatchRenamePluginHost` (`AidlPluginHost` 薄封装, `plan(context, request)`, 以 `MediainfoPluginHost` 为模板), 暂不被脚本 API 调用.
-- [ ] (宿主) `docs/dev/batch-rename-plugin-protocol-v1.md` (契约目的, 请求 / 响应 Bundle 结构, 上限, 错误码, 流水线顺序 D16, 与 explorer-action v25 的分工 D13).
-- [ ] (宿主) `.changelog` 10 种语言 6.8.0 条目: `feature` "文件管理器支持批量重命名 (多选工具栏 / 文件夹菜单 / 重命名对话框 \"更多\" 菜单, 需安装 Batch Rename 插件)" 与 "files.batchRename 模块 ..." (后者在 P3 落地时补全), `improvement` 插件中心新增 Batch Rename 条目. 措辞按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md`, 不写协议号与 Binder 细节.
-- [ ] (宿主) 临时 `REQUIRES_HOST_VERSION` 回填到插件 Manifest / `PluginRuntimeInfo` / README (D26).
+- [x] (宿主) Manifest `<queries>` 加入 `org.autojs.plugin.BATCH_RENAME` (category `batch-rename`); `InstalledPluginRepository` 的服务查询表与 `discoverPackage` 映射加入 `BatchRenamePluginHost.ACTION_BATCH_RENAME`; `PluginCenterViewModel` 的 engine -> action 表与 `PluginCenterFragment` 的探测分派加入 Batch Rename (三服务包的条目仍以通用 INFO 端点为准, 默认启用); `PluginInstallWizardCatalog` `FILE_MANAGER` 分类末尾加入 `entry(official("batch.rename"), "Batch Rename", FILE_MANAGER)`; R8 keep 规则由契约模块的 `consumer-rules.pro` 提供 (P1.1), app 无需另加. 证据: 宿主提交 `dcc5bd98d` (本地, 待维护者合并; `VERSION_BUILD=3779`, versionCode 5431); 新增 `PluginCenterBatchRenameRegistrationTest` (engine 解析, INFO 端点优先, 默认启用, 向导分类) 与向导目录计数 48 项, 宿主插件中心 JVM 测试 155 项与 explorer 118 项通过. 偏差: 向导条目未设 `standard = true` (只在文件管理分类中列出, 不随标准方案自动安装), 是否纳入标准方案由维护者决定.
+- [x] (宿主) `core/plugin/batchrename/BatchRenamePluginHost` (`AidlPluginHost` 薄封装: `discover`, `probe`, `queryServiceCount`, `plan(context, request)` 先确认插件声明的契约版本在宿主支持范围内再调用, RemoteException 后不重试; `contractVersionOf`), 暂不被脚本 API 调用. 证据: 同上.
+- [x] (宿主) `docs/dev/batch-rename-plugin-protocol-v1.md` (目的, 发现, Binder 接口, 请求与选项, 应答, 上限, 宿主职责, 状态). 证据: 同上.
+- [x] (插件) 临时 `REQUIRES_HOST_VERSION` 回填为 5431 (D26, 即宿主 `dcc5bd98d` 的 versionCode, 首个同时包含契约, 协议 v25 与注册的构建): `app/build.gradle.kts` 的 `requiredHostVersion` (Manifest meta-data 经 `@string/plugin_requires_host_version` 引用), `BatchRenamePlugin.REQUIRED_HOST_VERSION`, `.readme/common.json` 及其生成的 README / changelog / `plugin_instruction`. 证据: 本条所在提交; `PluginRuntimeInfoTest` 冻结 5431 并比对构建脚本与 `common.json`; `generate_markdown.py --check` 与 `check_repository.py` 通过. 原文把本条标为 "(宿主)", 实际改动都在插件仓库.
+- [x] (插件) 能力服务提前实现为真实的 `IBatchRenamePlugin.Stub`: `getInfo()` 返回批量重命名身份及契约能力 (`batchRenameContractVersion=1`, `batchRenameFeatures` 为空数组, `batchRenameMaxItems=2000`, `batchRenameRegexDialect=ecmascript`), INFO 服务上报同一组能力; `plan()` 在引擎接入前不猜测方案: 缺少请求返回 `INVALID_REQUEST`, 契约版本不受支持返回 `UNSUPPORTED_CONTRACT_VERSION`, 其余返回 `INTERNAL_ERROR`, 均回传 `contractVersion` 且不带 `items`. 证据: 本条所在提交; JVM 守卫 26 项; 设备契约测试 7 项 (含 `getInfo` 与 `plan` 的显式 Parcel 往返) 在 Sony XQ-AT72 (QV710AF65F, API 31) 与 Sony G8441 (BH900ASK9E, API 28) 通过. 偏差: 原计划在 P4.1 实现; 宿主插件中心按 engine 经能力服务探测插件, 占位 Binder 会让探测失败, 因此与注册同步提前. `batchRenameFeatures` 待 P2 引擎接入后按实际实现填写 (P4.1).
+- 偏差: 宿主 changelog 条目不在本步写入. 按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md` 第 3.2 节, 中间形态 (只有注册而无可用入口) 不单列, 改为随用户可感知的行为一并记录: 管理器路径见 P4.4, `files.batchRename` 见 P3.2. 宿主 6.8.0 changelog 只写简体中文 (`lang_zh-Hans.json`), 其他语言由维护者同步.
 
 ### P1.4 宿主入口 (D10)
 
@@ -353,7 +354,7 @@ P0 (骨架)
 - [ ] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle.
 - [ ] (宿主) `BatchRenameExecutor.apply(plan, policy, progress)`: 重新校验每项 (存在, `lastModified` / `length` 未变, 否则 `stale`), 深度降序, 两阶段改名, `overwrite` 受害文件先进回收站, 逐项结果, 进度回调, 已改名文件的 `relocateHistory` (版本历史) 与 `notifyFileChanged`; `undo(batchId)`: 逆序恢复, 占用检查, 回收站受害文件恢复.
 - [ ] (宿主) `BatchRenameJournalStore`: JSON 持久化, 20 批上限与淘汰, 损坏文件跳过并记日志, 批次 id 为随机不可猜测字符串; `history(limit)` 读取.
-- [ ] (宿主) `ExplorerActionHostSession` v25 四个方法接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验.
+- [ ] (宿主) `ExplorerActionHostSession` v25 五个方法 (含 `listRenameParent`) 接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验.
 - [ ] (测试) 宿主 JVM: 临时目录下的执行器用例 (交换, 仅大小写, 父子同批, 单项失败不回滚, stale 跳过, 撤销后再撤销报 `UNDO_UNAVAILABLE`, 日志淘汰); v25 session 用例 (非法 `relativePath` 逃逸拒绝, 跨 session 批次不可撤销).
 - [ ] (测试) instrumentation `ExplorerActionRenameV25InstrumentationTest` (以 `ExplorerActionTargetTrashV24InstrumentationTest` 为模板): 真实插件 APK 或测试桩 catalog, `renameEntries` 往返, 撤销, 进程重启后 `listRenameBatches` 仍可见.
 
@@ -362,7 +363,7 @@ P0 (骨架)
 - [ ] (宿主) `augment/files/BatchRename.kt`: `keys = listOf(AugmentableKey("batchRename", withDollarPrefix = false))`, `Augmentable` + `Invokable`; `ScriptRuntime.kt:1044` 改为 `Files(this).augment(target, files).also { BatchRename(this).augment(it) }`; `selfAssignmentFunctions`: `plan`, `apply`, `undo`, `history`, `isAvailable`, `planAsync`, `applyAsync`, `undoAsync`; 参数守卫 (`ArgumentGuards`), `RegExp` 对象提取 (`NativeRegExp` 的 `source` / `flags`), `onProgress` 在脚本线程回调, 返回 `NativeObject` (plan / result / history 结构见附录 B.3), `BatchRenameErrorMapper` 映射错误码与插件中心引导文案.
 - [ ] (宿主) Async 变体: 复用宿主既有 Promise 桥接 (与其他 `xxxAsync` 方法一致), 后台线程执行, 异常转 reject.
 - [ ] (测试) 宿主 JVM: 参数规范化 (字符串 / 数组 / RegExp / 非法类型), 默认值, 错误码映射, plan 对象 `excluded` 回传; instrumentation: 安装插件后在真机上 `plan` / `apply` / `undo` / `history` 往返, 未安装时 `isAvailable()` 为 `false` 且 `plan` 抛 `PLUGIN_UNAVAILABLE`.
-- [ ] (宿主) `.changelog` 10 语言补全 `files.batchRename` 条目 (参阅 项目文档 链接), `docs/dev/batch-rename-plugin-protocol-v1.md` 补充脚本路径章节.
+- [ ] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 补全 `files.batchRename` 条目 (参阅 项目文档 链接; 其他语言由维护者同步), `docs/dev/batch-rename-plugin-protocol-v1.md` 补充脚本路径章节.
 
 ---
 
@@ -372,7 +373,7 @@ P0 (骨架)
 
 ### P4.1 服务与 catalog (D23)
 
-- [ ] (插件) `BatchRenamePluginService`: `getInfo()` (`PluginRuntimeInfo` 纯数据 + Android 读取, `supportedAbis = emptyArray()`, capabilities 含 `requiresHostVersion`, `batchRenameContractVersion`, `explorerActionProtocolVersion`, `batchRenameFeatures`), `plan()` 经 `BundleCodec` 调引擎, 并发安全, 无状态.
+- [ ] (插件) `BatchRenamePluginService`: `getInfo()` 与契约能力已在 P1.3 实现 (`explorerActionProtocolVersion` 只由管理器服务上报); 本条把 `plan()` 从 `planWithoutEngine` 改为经 `BundleCodec` 调引擎 (并发安全, 无状态), 并让 `BatchRenamePlugin.FEATURES` 声明引擎实际实现的功能.
 - [ ] (插件) `BatchRenameExplorerActionService`: `getActionCatalog()` 三个动作 (D23), 协议 25, `getInfo()` 与能力服务一致; `BatchRenameActivity` 的 `EXPLORER_ACTION_EXECUTE` 入口解析请求 (目标, session token, 协议版本), 协议低于 25 时显示本地化错误并退出.
 - [ ] (测试) JVM: catalog 快照测试, `ExplorerActionManifestTest` (每个 catalog Activity 带 EXECUTE + DEFAULT); instrumentation `BatchRenamePluginContractTest`: action / category 发现只命中一个服务, 显式绑定与 descriptor, `getInfo` 字段, `plan` happy path / 非法参数 / 超限, 绑定解绑不泄漏.
 
@@ -395,6 +396,7 @@ P0 (骨架)
 
 - [ ] (测试) 三处入口在 API 24 AVD, API 28 / 33 / 35 真机上各走一遍: 多选 (文件 + 文件夹混合, 含子文件夹), 文件夹菜单 (含 / 不含子文件夹), 重命名对话框 "更多" (单文件与单文件夹); 撤销后文件名与版本历史均恢复; 宿主列表即时刷新.
 - [ ] (测试) 失败路径: 插件未安装 / 未启用 / 版本过低 / 宿主协议 24 (旧宿主) / 目标在执行前被删除 / 可移动存储 (FAT32) 上仅大小写改名.
+- [ ] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 条目 (由 P1.3 移入; 其他语言由维护者同步): `feature` 文件管理器支持批量重命名 (多选工具栏 / 文件夹菜单 / 重命名对话框 "更多" 菜单, 需要安装 Batch Rename 插件), 插件中心与安装向导的 Batch Rename 条目并入同一条或列为 `improvement`. 措辞按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md`, 不写协议号与 Binder 细节.
 
 ---
 

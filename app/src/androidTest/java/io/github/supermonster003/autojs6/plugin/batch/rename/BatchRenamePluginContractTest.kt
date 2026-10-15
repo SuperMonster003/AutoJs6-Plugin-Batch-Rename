@@ -14,6 +14,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.autojs.plugin.batchrename.api.BatchRenameCapabilityKeys
+import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
+import org.autojs.plugin.batchrename.api.BatchRenameRequestKeys
+import org.autojs.plugin.batchrename.api.BatchRenameResultKeys
+import org.autojs.plugin.batchrename.api.IBatchRenamePlugin
 import org.autojs.plugin.common.api.IPluginInfoProvider
 import org.autojs.plugin.common.api.PluginActions
 import org.autojs.plugin.common.api.PluginCapabilityKeys
@@ -102,27 +107,32 @@ class BatchRenamePluginContractTest {
             assertEquals(IPluginInfoProvider.DESCRIPTOR, binder.interfaceDescriptor)
             val info = transactPluginInfo(binder, IPluginInfoProvider.DESCRIPTOR)
             assertIdentity(info, expectedEngine = BatchRenamePlugin.ENGINE)
-            assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION), requireNotNull(info.capabilities).keySet())
-            assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, info.capabilities!!.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
+            assertContractCapabilities(requireNotNull(info.capabilities))
         }
     }
 
     @Test
-    fun capabilityServiceIsDiscoverableAndRejectsCallsUntilTheContractLands() {
+    fun capabilityServiceAnswersTheContractIdentityAndRefusesPlansWithoutTheEngine() {
         val serviceInfo = discoverSingleService(BatchRenamePlugin.SERVICE_ACTION, BatchRenamePlugin.SERVICE_CATEGORY, BatchRenamePluginService::class.java.name)
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION.toString(), serviceInfo.metaData?.get(PluginCapabilityKeys.REQUIRES_HOST_VERSION)?.toString())
         withBoundService(serviceInfo) { binder ->
-            assertEquals(BatchRenamePlugin.CAPABILITY_DESCRIPTOR, binder.interfaceDescriptor)
-            // Placeholder until roadmap P1.1 / P4.1: every transaction is refused instead of answered with guesses.
-            val data = Parcel.obtain()
-            val reply = Parcel.obtain()
-            try {
-                data.writeInterfaceToken(BatchRenamePlugin.CAPABILITY_DESCRIPTOR)
-                assertFalse(binder.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, 0))
-            } finally {
-                data.recycle()
-                reply.recycle()
+            assertEquals(IBatchRenamePlugin.DESCRIPTOR, binder.interfaceDescriptor)
+            // getInfo() is the first transaction of IBatchRenamePlugin; the host probes the package through it.
+            val info = transactPluginInfo(binder, IBatchRenamePlugin.DESCRIPTOR)
+            assertIdentity(info, expectedEngine = BatchRenamePlugin.ENGINE)
+            assertContractCapabilities(requireNotNull(info.capabilities))
+
+            // plan(request) is the second transaction; before the engine exists every request gets a contract error.
+            fun plan(contractVersion: Int): Bundle = transactBundle(binder, IBatchRenamePlugin.DESCRIPTOR, IBinder.FIRST_CALL_TRANSACTION + 1) { data ->
+                data.writeInt(1)
+                Bundle().apply { putInt(BatchRenameRequestKeys.CONTRACT_VERSION, contractVersion) }.writeToParcel(data, 0)
             }
+            val supported = plan(contractVersion = 1)
+            assertEquals(BatchRenameErrorCodes.INTERNAL_ERROR, supported.getString(BatchRenameResultKeys.ERROR_CODE))
+            assertEquals(BatchRenamePluginService.ENGINE_UNAVAILABLE_MESSAGE, supported.getString(BatchRenameResultKeys.ERROR_MESSAGE))
+            assertEquals(1, supported.getInt(BatchRenameResultKeys.CONTRACT_VERSION))
+            assertFalse("a failed call carries no plan", supported.containsKey(BatchRenameResultKeys.ITEMS))
+            assertEquals(BatchRenameErrorCodes.UNSUPPORTED_CONTRACT_VERSION, plan(contractVersion = 99).getString(BatchRenameResultKeys.ERROR_CODE))
         }
     }
 
@@ -182,6 +192,21 @@ class BatchRenamePluginContractTest {
         System.loadLibrary("androidx.graphics.path")
     }
 
+    private fun assertContractCapabilities(capabilities: Bundle) {
+        assertEquals(
+            setOf(
+                PluginCapabilityKeys.REQUIRES_HOST_VERSION, BatchRenameCapabilityKeys.CONTRACT_VERSION, BatchRenameCapabilityKeys.FEATURES,
+                BatchRenameCapabilityKeys.MAX_ITEMS, BatchRenameCapabilityKeys.REGEX_DIALECT,
+            ),
+            capabilities.keySet(),
+        )
+        assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, capabilities.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
+        assertEquals(1, capabilities.getInt(BatchRenameCapabilityKeys.CONTRACT_VERSION))
+        assertArrayEquals(emptyArray<String>(), capabilities.getStringArray(BatchRenameCapabilityKeys.FEATURES))
+        assertEquals(2000, capabilities.getInt(BatchRenameCapabilityKeys.MAX_ITEMS))
+        assertEquals("ecmascript", capabilities.getString(BatchRenameCapabilityKeys.REGEX_DIALECT))
+    }
+
     private fun assertIdentity(info: PluginInfo, expectedEngine: String) {
         val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
         val expectedVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -207,7 +232,7 @@ class BatchRenamePluginContractTest {
         assertArrayEquals(emptyArray<String>(), requireNotNull(info.supportedAbis) { "supportedAbis must not be null" })
     }
 
-    /** `getInfo()` is the first transaction of both IPluginInfoProvider and IExplorerActionPlugin. */
+    /** `getInfo()` is the first transaction of IPluginInfoProvider, IBatchRenamePlugin and IExplorerActionPlugin. */
     private fun transactPluginInfo(binder: IBinder, descriptor: String): PluginInfo {
         val data = Parcel.obtain()
         val reply = Parcel.obtain()

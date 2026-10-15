@@ -66,7 +66,7 @@ El plugin es un APK que se instala por separado y no tiene icono en el lanzador.
 
 ******
 
-1. Actualice AutoJs6 a la compilación 5352 (6.8.0) o posterior.
+1. Actualice AutoJs6 a la compilación 5431 (6.8.0) o posterior.
 2. Instale Batch Rename desde el centro de plugins de AutoJs6, o descargue el APK desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), y luego autorícelo y actívelo en el centro de plugins.
 3. En el administrador de archivos, mantenga pulsado para seleccionar elementos y toque "Cambiar nombre por lotes", o llame a `files.batchRename` en un script.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ Los planes, las decisiones de diseño y el progreso se registran como lista de v
 _2026/10/15_
 
 - `Aviso` Versión preliminar de desarrollo: AutoJs6 reconoce el plugin, pero la pantalla de cambio de nombre, las entradas del administrador de archivos y la API de script files.batchRename aún no están disponibles
-- `Aviso` Requiere AutoJs6 6.8.0 (5352) o posterior (el número mínimo exacto de compilación se completará cuando se integren los cambios del lado del host)
+- `Aviso` Requiere AutoJs6 6.8.0 (5431) o posterior (el número mínimo exacto de compilación se completará cuando se integren los cambios del lado del host)
 - `Función` Esqueleto del plugin: activación Wake, servicio de identidad del centro de plugins, servicio de capacidad para scripts y servicio de acciones del administrador de archivos (catálogo de acciones vacío por ahora)
 - `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas, generados a partir de fuentes JSON
 - `Dependencia` Se agrega Jetpack Compose BOM 2026.09.00

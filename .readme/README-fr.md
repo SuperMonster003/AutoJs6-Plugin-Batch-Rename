@@ -66,7 +66,7 @@ Le plugin est un APK installé séparément, sans icône de lanceur. Il offre de
 
 ******
 
-1. Mettez à jour AutoJs6 vers la build 5352 (6.8.0) ou ultérieure.
+1. Mettez à jour AutoJs6 vers la build 5431 (6.8.0) ou ultérieure.
 2. Installez Batch Rename depuis le centre de plugins d'AutoJs6, ou téléchargez l'APK depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), puis autorisez-le et activez-le dans le centre de plugins.
 3. Dans le gestionnaire de fichiers, appuyez longuement pour sélectionner des éléments puis touchez "Renommer par lot", ou appelez `files.batchRename` dans un script.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 _2026/10/15_
 
 - `Note` Aperçu de développement: AutoJs6 reconnaît le plugin, mais l'écran de renommage, les entrées du gestionnaire de fichiers et l'API de script files.batchRename ne sont pas encore livrés
-- `Note` Nécessite AutoJs6 6.8.0 (5352) ou ultérieur (le numéro de build minimal exact sera renseigné une fois les changements côté hôte intégrés)
+- `Note` Nécessite AutoJs6 6.8.0 (5431) ou ultérieur (le numéro de build minimal exact sera renseigné une fois les changements côté hôte intégrés)
 - `Fonctionnalité` Squelette du plugin: activation Wake, service d'identité du centre de plugins, service de capacité pour les scripts et service d'actions du gestionnaire de fichiers (catalogue d'actions vide pour l'instant)
 - `Fonctionnalité` README, instructions du centre de plugins et journal des modifications en 10 langues, générés à partir de sources JSON
 - `Dépendance` Ajout de Jetpack Compose BOM 2026.09.00

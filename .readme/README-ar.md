@@ -66,7 +66,7 @@
 
 ******
 
-1. حدث AutoJs6 إلى البناء 5352 (6.8.0) أو أحدث.
+1. حدث AutoJs6 إلى البناء 5431 (6.8.0) أو أحدث.
 2. ثبت Batch Rename من مركز الإضافات في AutoJs6, أو نزل ملف APK من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), ثم امنحه الإذن وفعله في مركز الإضافات.
 3. في مدير الملفات اضغط مطولا لتحديد العناصر ثم اضغط "إعادة التسمية الدفعية", أو استدع `files.batchRename` في سكربت.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `تلميح` معاينة تطوير: يتعرف AutoJs6 على الإضافة, بينما لم تسلم شاشة إعادة التسمية ونقاط الدخول في مدير الملفات وواجهة برمجة السكربتات files.batchRename بعد
-- `تلميح` يتطلب AutoJs6 6.8.0 (5352) أو أحدث (يستكمل رقم البناء الأدنى الدقيق بعد اعتماد تغييرات جانب المضيف)
+- `تلميح` يتطلب AutoJs6 6.8.0 (5431) أو أحدث (يستكمل رقم البناء الأدنى الدقيق بعد اعتماد تغييرات جانب المضيف)
 - `ميزة` هيكل الإضافة: التفعيل عبر Wake وخدمة هوية مركز الإضافات وخدمة القدرات للسكربتات وخدمة إجراءات مدير الملفات (قائمة الإجراءات فارغة حاليا)
 - `ميزة` README وتعليمات مركز الإضافات وسجل التغييرات بعشر لغات, مولدة من مصادر JSON
 - `تبعية` إرفاق Jetpack Compose BOM 2026.09.00

@@ -66,7 +66,7 @@
 
 ******
 
-1. Обновите AutoJs6 до сборки 5352 (6.8.0) или новее.
+1. Обновите AutoJs6 до сборки 5431 (6.8.0) или новее.
 2. Установите Batch Rename из центра плагинов AutoJs6 или скачайте APK со страницы [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), затем разрешите и включите его в центре плагинов.
 3. В файловом менеджере выделите элементы долгим нажатием и выберите "Пакетное переименование" или вызовите `files.batchRename` в скрипте.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `Подсказка` Предварительная сборка для разработки: AutoJs6 распознает плагин, но экран переименования, пункты файлового менеджера и скриптовый API files.batchRename еще не готовы
-- `Подсказка` Требуется AutoJs6 6.8.0 (5352) или новее (точный минимальный номер сборки будет указан после внесения изменений на стороне хоста)
+- `Подсказка` Требуется AutoJs6 6.8.0 (5431) или новее (точный минимальный номер сборки будет указан после внесения изменений на стороне хоста)
 - `Функция` Каркас плагина: активация через Wake, служба идентификации для центра плагинов, служба возможностей для скриптов и служба действий файлового менеджера (каталог действий пока пуст)
 - `Функция` README, описание для центра плагинов и журнал изменений на 10 языках, генерируемые из JSON-исходников
 - `Зависимость` Добавлен Jetpack Compose BOM 2026.09.00

@@ -66,7 +66,7 @@ Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參�
 
 ******
 
-1. 將 AutoJs6 升級到內部版本號 5352 (6.8.0) 或更新版本.
+1. 將 AutoJs6 升級到內部版本號 5431 (6.8.0) 或更新版本.
 2. 在 AutoJs6 的外掛程式中心安裝 Batch Rename, 或從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases) 下載 APK 安裝, 然後在外掛程式中心授權並啟用.
 3. 在檔案管理員中長按進入多選後點選 "批次重新命名", 或在指令碼中呼叫 `files.batchRename`.
 
@@ -158,7 +158,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5352
+minimum host build: 5431
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -183,7 +183,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 _2026/10/15_
 
 - `提示` 開發預覽: 外掛程式可以被 AutoJs6 識別, 重新命名介面, 檔案管理員入口與 files.batchRename 指令碼 API 尚未交付
-- `提示` 需要 AutoJs6 6.8.0 (5352) 或更新版本 (準確的最低版本號待宿主端變更落地後回填)
+- `提示` 需要 AutoJs6 6.8.0 (5431) 或更新版本 (準確的最低版本號待宿主端變更落地後回填)
 - `新增` 外掛程式骨架: Wake 啟用協定, 外掛程式中心身分服務, 指令碼能力服務與檔案管理員動作服務 (動作目錄暫時為空)
 - `新增` 10 種語言的 README, 外掛程式中心說明與更新日誌, 由 JSON 來源檔案統一產生
 - `相依性` 附加 Jetpack Compose BOM 版本 2026.09.00

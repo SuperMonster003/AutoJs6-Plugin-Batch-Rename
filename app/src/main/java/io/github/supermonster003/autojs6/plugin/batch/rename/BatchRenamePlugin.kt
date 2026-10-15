@@ -26,12 +26,19 @@ internal object BatchRenamePlugin {
     const val CAPABILITY_DESCRIPTOR = IBatchRenamePlugin.DESCRIPTOR
 
     /**
-     * Placeholder minimum host build (roadmap D26), mirrored by `plugin_requires_host_version` in
-     * `app/build.gradle.kts`; P1.3 and P5.4 replace both together.
-     * zh-CN: 最低宿主构建号占位值 (路线图 D26), 与 `app/build.gradle.kts` 中的 `plugin_requires_host_version` 一致; P1.3 与
-     * P5.4 同时替换两者.
+     * Minimum host build (roadmap D26): the first build with the contract, protocol v25 and the Plugin Center
+     * registration. Mirrored by `plugin_requires_host_version` in `app/build.gradle.kts`; P5.4 sets the final value.
+     * zh-CN: 最低宿主构建号 (路线图 D26): 首个包含契约, 协议 v25 与插件中心注册的宿主构建号. 与 `app/build.gradle.kts` 中的
+     * `plugin_requires_host_version` 一致; P5.4 回填最终值.
      */
-    const val REQUIRED_HOST_VERSION = 5352L
+    const val REQUIRED_HOST_VERSION = 5431L
+
+    /**
+     * Optional contract features this build implements (`BatchRenameValues.FEATURES`). Empty until the engine of
+     * roadmap P2 is wired in; the host never relies on a feature that is not advertised.
+     * zh-CN: 本构建实现的可选契约功能. 路线图 P2 的引擎接入之前为空; 宿主不会依赖未声明的功能.
+     */
+    val FEATURES: List<String> = emptyList()
 
     /**
      * Explorer Action protocol the catalog declares: v25 adds `targetRename` and the rename dialog placement
