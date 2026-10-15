@@ -221,7 +221,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 已完成 (2026-10-15; 服务的 `plan` 已接入引擎) |
-| P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
+| P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 进行中 (P3.1 已完成 2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
 | P6 | 1.1.0 | 候选: EXIF / XMP 变量, 预设, 宿主重命名历史页面, 其他 | 未开始 |
@@ -352,15 +352,15 @@ P0 (骨架)
 
 ### P3.1 执行器与日志 (D20, D21, D30)
 
-- [ ] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle.
-- [ ] (宿主) `BatchRenameExecutor.apply(plan, policy, progress)`: 重新校验每项 (存在, `lastModified` / `length` 未变, 否则 `stale`), 深度降序, 两阶段改名, `overwrite` 受害文件先进回收站, 逐项结果, 进度回调, 已改名文件的 `relocateHistory` (版本历史) 与 `notifyFileChanged`; `undo(batchId)`: 逆序恢复, 占用检查, 回收站受害文件恢复.
-- [ ] (宿主) `BatchRenameJournalStore`: JSON 持久化, 20 批上限与淘汰, 损坏文件跳过并记日志, 批次 id 为随机不可猜测字符串; `history(limit)` 读取.
-- [ ] (宿主) `ExplorerActionHostSession` v25 五个方法 (含 `listRenameParent`) 接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验; 执行与撤销后刷新文件管理器 (同 v24 `targetTrash` 的 `notifyWorkspaceChanged`), 这是重命名对话框等入口 "插件返回后刷新列表" 的唯一来源 (P1.4).
-- [ ] (测试) 宿主 JVM: 临时目录下的执行器用例 (交换, 仅大小写, 父子同批, 单项失败不回滚, stale 跳过, 撤销后再撤销报 `UNDO_UNAVAILABLE`, 日志淘汰); v25 session 用例 (非法 `relativePath` 逃逸拒绝, 跨 session 批次不可撤销).
-- [ ] (测试) instrumentation `ExplorerActionRenameV25InstrumentationTest` (以 `ExplorerActionTargetTrashV24InstrumentationTest` 为模板): 真实插件 APK 或测试桩 catalog, `renameEntries` 往返, 撤销, 进程重启后 `listRenameBatches` 仍可见.
+- [x] (宿主) `BatchRenameExecutor.apply(plan, policy, progress)`: 重新校验每项 (存在, `lastModified` / `length` 未变, 否则 `stale`), 深度降序, 两阶段改名, `overwrite` 受害文件先进回收站, 逐项结果, 进度回调, 已改名文件的 `relocateHistory` (版本历史) 与 `notifyFileChanged`; `undo(batchId)`: 逆序恢复, 占用检查, 回收站受害文件恢复. 证据: 宿主提交 `3bcd17aba` (本地, 待维护者合并; `VERSION_BUILD=3783`, versionCode 5435), `core/plugin/batchrename/BatchRenameExecutor.kt`; 宿主 JVM `BatchRenameExecutorTest` 16 项通过. 偏差: (1) 签名为 `execute(operations, source, pluginUid, allOrNothing, scope, progress)`: 冲突策略只存在于插件方案中 (附录 C.2), 执行器只执行确切名称, `overwrite` 按条目给出, 不再接收 `plan` / `policy`; (2) 两阶段不读方案中的 `twoPhase`, 由执行器按文件系统重新判定 (仅大小写不同, 新名称被本批另一条目占用), 临时名为 `.batch-rename-<批次 id 末 12 位>-<序号>.tmp` (D20 原写含原名, 可能超过 255 字节); (3) 同一深度的最终改名按轮次进行直到没有条目可以移动, 链, 交换与循环都不依赖请求顺序; (4) 撤销按深度升序 (目录先于其中条目), 每条记录保存改名那一刻的路径, 等价于 D20 的 "逆序"; 目录只复核存在与类型 (子项改名会改变目录的修改时间); 原名被占用或 I/O 失败的条目为 `recoveryRequired`, 障碍消除后可再次撤销; (5) 文件管理器在每批之后整体刷新一次 (`Explorers.workspace().refreshAll()`, 与 v24 `targetTrash` 相同), 不逐文件 `notifyFileChanged`; (6) 记录中的路径映射按每段至多一条规则处理, 目录交换时其下已改名条目的位置也正确 (JVM 用例覆盖).
+- [x] (宿主) `BatchRenameJournalStore`: JSON 持久化, 20 批上限与淘汰, 损坏文件跳过并记日志, 批次 id 为随机不可猜测字符串; `history(limit)` 读取. 证据: 同上, `BatchRenameJournalStore.kt` (Gson 树 API, 格式 1, 先写临时文件再改名). 偏差: (1) 位置为 `noBackupFilesDir/batch-rename/journals` (D21 原写 `filesDir`): 日志含绝对路径, 不应进入备份; (2) 20 批上限按所有者分别计算 (脚本一份, 每个插件 UID 一份), 一个插件不能挤掉脚本或其他插件的批次; (3) 读取接口为 `list()` (最新在前) 与 `load(batchId)`, 条数限制由调用方施加 (`history(limit)` 随 P3.2); (4) 记录额外保存来源, 插件 UID, 会话父目录 (`scope`), 逐项 `renamed` 标志与管理器的目标 id / 相对路径.
+- [x] (宿主) `ExplorerActionHostSession` v25 五个方法 (含 `listRenameParent`) 接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验; 执行与撤销后刷新文件管理器 (同 v24 `targetTrash` 的 `notifyWorkspaceChanged`), 这是重命名对话框等入口 "插件返回后刷新列表" 的唯一来源 (P1.4). 证据: 同上; `BatchRenameHostServices` (进程级执行器与日志, 脚本与会话共用) 与 `AndroidBatchRenameEnvironment` (宿主回收站, 版本历史, 刷新); `ExplorerActionHostInputAccess` 在可改名的会话中记录 `listChildren` 返回的后代 (类型, 修改时间, 大小), 改名与撤销后目标与记录随之移动; 协议文档 `explorer-action-protocol-v25.md` 的 Status, 重命名, 历史与撤销, 验证各节已改写. 偏差: (1) 结果条目只含 `RENAME_ITEM_STATE` 与 `RENAME_NEW_RELATIVE_PATH`, 按请求顺序排列, 不重复目标 id 与相对路径 (2000 项时可省下约一半 Parcel 体积); 协议文档提醒客户端按 `Parcel.dataSize()` 拆分过大的请求 (每个请求成为单独批次); (2) 历史按插件 UID 与会话父目录精确匹配 (原写 "会话目标之下"), 范围外的批次 id 一律答 `RENAME_BATCH_STATE_UNKNOWN`, 不抛异常; `listRenameBatches` 只返回摘要, 不含条目; (3) 畸形请求 (条目数, 缺键, 未知目标, 重复条目, 文件目标带相对路径, 路径逃逸或符号链接, 未列出的后代) 整体抛 `IllegalArgumentException` 且不改名; 非法新名称按条目报告为 `NOT_RENAMED`; 同一会话同一时刻只允许一个改名或撤销; (4) `create()` 可注入执行器 (测试用私有日志).
+- [x] (测试) 宿主 JVM: 临时目录下的执行器用例 (交换, 仅大小写, 父子同批, 单项失败不回滚, stale 跳过, 撤销后再撤销报 `UNDO_UNAVAILABLE`, 日志淘汰); v25 session 用例 (非法 `relativePath` 逃逸拒绝, 跨 session 批次不可撤销). 证据: `BatchRenameExecutorTest` 16 项 (交换, 循环, 链, 仅大小写, 父子同批与撤销, 目录交换携带已改名子项, 单项失败不回滚, stale, allOrNothing, 覆盖经回收站并撤销, 原名被占用后重试撤销, 进度, 按所有者淘汰与损坏文件跳过, 范围与 `renamed` 标志持久化) 与 explorer 包既有用例共 138 项通过. 偏差: (1) "撤销后再撤销报 `UNDO_UNAVAILABLE`" 是脚本 API 的错误映射, 随 P3.2 测试; 执行器层面验证为已恢复的批次保持 `RESTORED` 且 `undoable` 为假; (2) 会话依赖 Binder 调用方 UID 与 `Os.stat`, 宿主 JVM 测试没有 Robolectric, 两个 session 用例改在下一条 instrumentation 中覆盖.
+- [x] (测试) instrumentation `ExplorerActionRenameV25InstrumentationTest` (以 `ExplorerActionTargetTrashV24InstrumentationTest` 为模板): 真实插件 APK 或测试桩 catalog, `renameEntries` 往返, 撤销, 进程重启后 `listRenameBatches` 仍可见. 证据 (E3, 2026-10-15): 7 项在 `AVD_API_24` (emulator-5590) 与 `AVD_API_35_16K` (emulator-5594) 上全部通过: 父目录分页与文件系统特征, 未列出的后代被拒, 目标与列出的后代改名后会话跟随 (目标 id 不变, 记录移到新相对路径), 逐项结果 (被占用, 非法, stale, allOrNothing, 交换, 仅大小写), 畸形请求与路径逃逸, 覆盖经真实宿主回收站并撤销, 历史按插件与父目录限定且新日志实例仍可见, 未声明 `targetRename` 与已关闭的会话, 默认接线写入宿主日志并刷新文件管理器; 变异检查 (去掉改名后的会话跟随, 去掉历史的 UID 限定) 使对应用例失败, 恢复后重新通过. 偏差: 会话在测试进程内创建 (与 v24 模板相同), 未经真实插件 APK, 跨进程往返随 P4 的插件界面验证; "进程重启" 以同一目录上的新日志与执行器实例模拟.
 
 ### P3.2 脚本 API `files.batchRename` (D2, D9, D27)
 
+- [ ] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle. (原列于 P3.1, 只有脚本路径使用, 随脚本 API 实现)
 - [ ] (宿主) `augment/files/BatchRename.kt`: `keys = listOf(AugmentableKey("batchRename", withDollarPrefix = false))`, `Augmentable` + `Invokable`; `ScriptRuntime.kt:1044` 改为 `Files(this).augment(target, files).also { BatchRename(this).augment(it) }`; `selfAssignmentFunctions`: `plan`, `apply`, `undo`, `history`, `isAvailable`, `planAsync`, `applyAsync`, `undoAsync`; 参数守卫 (`ArgumentGuards`), `RegExp` 对象提取 (`NativeRegExp` 的 `source` / `flags`), `onProgress` 在脚本线程回调, 返回 `NativeObject` (plan / result / history 结构见附录 B.3), `BatchRenameErrorMapper` 映射错误码与插件中心引导文案.
 - [ ] (宿主) Async 变体: 复用宿主既有 Promise 桥接 (与其他 `xxxAsync` 方法一致), 后台线程执行, 异常转 reject.
 - [ ] (测试) 宿主 JVM: 参数规范化 (字符串 / 数组 / RegExp / 非法类型), 默认值, 错误码映射, plan 对象 `excluded` 回传; instrumentation: 安装插件后在真机上 `plan` / `apply` / `undo` / `history` 往返, 未安装时 `isAvailable()` 为 `false` 且 `plan` 抛 `PLUGIN_UNAVAILABLE`.
@@ -657,8 +657,8 @@ P1.2 已落地 (宿主 `95c9f0455`), 以宿主 `docs/dev/explorer-action-protoco
 
 - `listRenameParent`: 请求目标共同父目录的条目 (`ITEMS` 中只有 `DISPLAY_NAME` 与 `KIND`), `NEXT_OFFSET`, `COMPLETE`, 外加 `RENAME_CASE_INSENSITIVE` 与 `RENAME_RESTRICTED_CHARACTERS`.
 - `renameEntries` 请求: `RENAME_ENTRIES` (1 至 2000 个 Bundle: `RENAME_TARGET_ID`, `RELATIVE_PATH` (空为目标本身, 否则为目录目标下经 `listChildren` 规则校验的后代), `RENAME_NEW_NAME` (单段, 至多 255 个 UTF-8 字节), 可选 `RENAME_OVERWRITE`), 可选 `RENAME_ALL_OR_NOTHING`. 冲突策略只存在于插件方案中, 宿主执行确切名称并重新校验.
-- 响应: `RENAME_BATCH_ID`, `RENAME_BATCH_STATE` (`COMMITTED` / `PARTIAL` / `REJECTED`, 撤销后 `RESTORED`), `RENAME_RENAMED_COUNT`, `RENAME_NOT_RENAMED_COUNT`, 逐条 `RENAME_TARGET_ID`, `RELATIVE_PATH`, `RENAME_NEW_RELATIVE_PATH`, `RENAME_ITEM_STATE` (`RENAMED` / `NOT_RENAMED` / `STALE`, 撤销后 `RESTORED` / `RECOVERY_REQUIRED`).
-- 历史: 按插件 UID 与会话目标限定, 每个插件至多保留 20 批 (与 `files.batchRename` 共用日志, D21).
+- 响应: `RENAME_BATCH_ID`, `RENAME_BATCH_STATE` (`COMMITTED` / `PARTIAL` / `REJECTED`, 撤销后 `RESTORED` / `RECOVERY_REQUIRED`), 创建与更新时间, `RENAME_RENAMED_COUNT`, `RENAME_NOT_RENAMED_COUNT`, `RENAME_RESTORED_COUNT`, `RENAME_ENTRIES` 按请求顺序逐条给出 `RENAME_ITEM_STATE` (`RENAMED` / `NOT_RENAMED` / `STALE`, 撤销后 `RESTORED` / `STALE` / `RECOVERY_REQUIRED`) 与 `RENAME_NEW_RELATIVE_PATH` (P3.1 起不再重复目标 id 与相对路径, 插件按位置对应). 畸形请求整体抛 `IllegalArgumentException` 且不改名; 请求在一次 Binder 事务中传输, 过大时由插件拆分 (每个请求成为单独批次).
+- 历史: 按插件 UID 与会话父目录限定 (范围外的批次 id 答 `RENAME_BATCH_STATE_UNKNOWN`), `listRenameBatches` 只返回摘要; 脚本与每个插件各至多保留 20 批 (共用 `noBackupFilesDir/batch-rename/journals`, D21).
 
 ---
 
