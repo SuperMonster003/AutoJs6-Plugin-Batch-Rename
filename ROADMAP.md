@@ -3,7 +3,7 @@
 更新日期: 2026-10-15
 
 本文是 `AutoJs6-Plugin-Batch-Rename` (显示名 `Batch Rename`; 参照 [PowerToys PowerRename](https://github.com/microsoft/PowerToys/tree/main/src/modules/powerrename) 的功能集与交互, 为 AutoJs6 文件管理器与脚本提供批量重命名能力; 脚本侧挂载为 `files.batchRename`, 无启动器图标) 的可执行状态表.
-以 2026-10-15 的宿主本地代码快照 (`AutoJs6 master@944f6fe5cf`, `VERSION_NAME=6.8.0` 尚未发布, `VERSION_BUILD=3700` + `VERSION_CODE_OFFSET=1652`, 即 versionCode 5352; explorer-action 协议 v24; 宿主本地 Rhino `2.0.0-SNAPSHOT`), 平台版本插件 `1.9.1` 为起点, 每个条目均可独立 Check 并落地, 后续会话按阶段逐步推进.
+以 2026-10-15 的宿主本地代码快照 (`AutoJs6 master@944f6fe5cf`, P0.1 的契约 AAR 取自同日 `6c151c900e`, `VERSION_NAME=6.8.0` 尚未发布, `VERSION_BUILD=3700` + `VERSION_CODE_OFFSET=1652`, 即 versionCode 5352; explorer-action 协议 v24; 宿主本地 Rhino `2.0.0-SNAPSHOT`), 平台版本插件 `1.9.1` 为起点, 每个条目均可独立 Check 并落地, 后续会话按阶段逐步推进.
 不复制 PowerToys 的任何代码或资源 (PowerToys 为 MIT, 本仓库为 MPL-2.0), 只参照其公开文档 (`learn.microsoft.com/windows/powertoys/powerrename`, 2025-01-23 版) 描述的功能, 选项与变量语法 (附录 A).
 
 使用方式:
@@ -14,7 +14,7 @@
 4. 涉及宿主公开契约 (batch-rename 契约, explorer-action 协议, 脚本 API) 的条目, 完成后必须同步宿主 `docs/dev/`, 宿主 `.changelog` (10 种语言) 与本仓库 `.changelog`. 宿主侧提交只落本地, 由维护者合并与推送 (与 3-Maple Image 的做法一致).
 5. 第 1 节 "固定决策" 由维护者 2026-10-15 经三轮选择题确认, 后续阶段不再重新讨论; 第 2 节 "派生技术决策" 可在进入对应阶段前推翻 (推翻点已逐条标注), 之后视同固定; 附录 D "待决事项" 在进入对应阶段前由维护者拍板, 拍板结果回填到第 1 节或第 2 节.
 6. 本仓库骨架 (Gradle / Manifest / 资源 / CI) 在 P0.1 按 `D:/idea-projects/AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 生成, 其裁剪版即本仓库 `AGENTS.md`; 本插件没有独立启动入口 (D4), 因此 `AUTOJS6_PLUGIN_STANDALONE_SETTINGS_AGENTS.md` 不适用, 图标按 `AUTOJS6_PLUGIN_BLACK_N_WHITE_ADAPTIVE_ICON_AGENTS.md` 只生成基础 `mipmap/ic_launcher.png` 系列与 Icon Studio 系统图标 (`ic_icon_studio_application`, 2026-10-05 维护者要求); 工程约定 (构建, 资源, 文档生成, 提交计数, 推送前检查 `py D:/idea-projects/prepush_check.py`) 以 `AGENTS.md` 与 `D:/idea-projects/COMMON_AGENTS.md` 为准, 本文件只记录 "改什么" 与证据. 所有文案 (10 种语言) 只用 ASCII 标点.
-7. 2026-10-15 的首个会话只落盘路线图并 `git init` + 首次提交 (D12); P0.1 完成骨架后按 `AGENTS.md` 第 3 节的提交规则工作 (每笔提交前 `VERSION_BUILD = 提交数 + 1`, 首个含 `version.properties` 的提交写 2).
+7. 2026-10-15 的首个会话只落盘路线图并 `git init` + 首次提交 (D12); 同日 P0.1 完成骨架 (提交 `cd353e1`, `c84e840`, `629e0df`), 之后按 `AGENTS.md` 的提交规则工作 (每笔提交前 `VERSION_BUILD = 提交数 + 1`). 与全部官方插件仓库一致, `AGENTS.md` / `CLAUDE.md` 只在本地维护并被 `.gitignore` 忽略, 不入库.
 
 ---
 
@@ -198,15 +198,16 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | `{APP_NAME}` (不可翻译) | `Batch Rename` |
 | `{APPLICATION_ID}` / namespace | `io.github.supermonster003.autojs6.plugin.batch.rename` |
 | `{PLUGIN_ID}` / `{PLUGIN_ENGINE}` / `{PLUGIN_VARIANT}` | `batch-rename` / `batch-rename` / `default` |
+| 插件中心身份服务 | `BatchRenamePluginInfoService`, action `org.autojs.plugin.INFO`, category `batch-rename` (P0.1 新增, 参照 3-Shell Terminal 的 INFO + 能力 + 管理器三服务先例) |
 | 能力服务 | `BatchRenamePluginService`, action `org.autojs.plugin.BATCH_RENAME`, category `batch-rename` |
-| 管理器服务 | `BatchRenameExplorerActionService`, action `org.autojs.plugin.EXPLORER_ACTION`, category `android.intent.category.DEFAULT` (与 File Inspector 一致) |
-| `{CAPABILITY_API}` | `batch-rename-api` (宿主 `plugin-api/batch-rename-api`, AAR 复制到 `libs/batch-rename-api.aar`; 另需 `libs/common-plugin-api.aar`, `libs/explorer-action-api.aar`, Rhino slim jar) |
+| 管理器服务 | `BatchRenameExplorerActionService`, action `org.autojs.plugin.EXPLORER_ACTION`, category `android.intent.category.DEFAULT` (与 File Inspector 一致); `getInfo()` 的 engine 为 `explorer-action` |
+| `{CAPABILITY_API}` | `batch-rename-api` (宿主 `plugin-api/batch-rename-api`, AAR 复制到 `libs/batch-rename-api.aar` 并以 `implementation` 打包, 插件在自身进程中需要 AIDL stub; 另需 `libs/common-plugin-api.aar`, `libs/explorer-action-api.aar`, Rhino slim jar; 全部登记在 `locks/host-api-aars.lock`) |
 | 宿主契约包 | `org.autojs.plugin.batchrename.api` |
 | 宿主桥接包 | `org.autojs.autojs.core.plugin.batchrename` |
 | 脚本 API | `files.batchRename` (`$files.batchRename` 同对象) |
-| `{REQUIRES_HOST_VERSION}` | 待回填 (D26) |
+| `{REQUIRES_HOST_VERSION}` | P0.1 占位 5352 (当前宿主 versionCode), 待回填 (D26) |
 | 向导目录 | `PluginInstallWizardCatalog` `FILE_MANAGER` 分类, `official("batch.rename")`, 回退标题 `Batch Rename` |
-| `plugin_description` (zh-Hans) | `按查找替换, 正则, 计数器与日期变量批量重命名文件与文件夹` (句尾无点号, 不含 "AutoJs6") |
+| `plugin_description` (zh-Hans) | `使用查找替换, 正则表达式, 计数器与日期变量批量重命名文件与文件夹` (句尾无点号, 不含 "AutoJs6"; P0.1 定稿, 10 语言见 `values*/strings.xml`) |
 | 发布文件名 | `autojs6-plugin-batch-rename-v{VERSION_NAME}-{CRC32}.apk` (单 Universal APK, D28) |
 | 索引清单 | `release-manifests/io.github.supermonster003.autojs6.plugin.batch.rename/<versionCode>.json` |
 | 许可证 | MPL-2.0 (`LICENSE` 完整文本); `THIRD_PARTY_NOTICES.md` 记录 Rhino (MPL-2.0), Compose / AndroidX (Apache-2.0), 宿主 AAR (MPL-2.0) |
@@ -217,7 +218,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 
 | 阶段 | 版本 | 主题 | 状态 |
 | --- | --- | --- | --- |
-| P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 未开始 |
+| P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 进行中 (P0.1 已完成 2026-10-15; P0.2 测试与 CI 未开始) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 未开始 |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 未开始 |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
@@ -253,18 +254,18 @@ P0 (骨架)
 
 ### P0.1 构建链与身份
 
-- [ ] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 生成骨架: `settings.gradle.kts` (平台插件 `1.9.1` 或当时最新已发布版, 位于 `includeBuild("build-logic")` 之前), 根 `build.gradle.kts` (`com.android.application` 与 `org.jetbrains.kotlin.plugin.compose` 以平台属性声明并 `apply false`), `build-logic` (从 3-Maple Image / Pinyin 复制后精简, 含 `org.autojs.build.{utils,versions,signs,jvm-convention}`), `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD=2`, compileSdk / targetSdk 与宿主一致, minSdk 24, `OVERRIDDEN_*=NONE`), `.gitignore` / `sign.properties` / `app/sm003.jks` 从宿主复制并以 `git check-ignore` 验证. 验收: Temurin 模拟命令 `--no-daemon -Djava.vendor="Eclipse Adoptium" -Djava.vendor.version=Temurin-21.0.12.1+1 :app:assembleDebug :app:testDebugUnitTest` 只打印一段版本决策, 无 `checkAarMetadata` 错误.
-- [ ] (插件) `app/build.gradle.kts`: `buildFeatures { compose = true; aidl = true; resValues = true }`, Compose BOM 与 Material 3, `implementation(files("libs/common-plugin-api.aar"))`, `implementation(files("libs/explorer-action-api.aar"))`, `compileOnly(files("libs/batch-rename-api.aar"))` (P1.1 产出前先用草案 jar), Rhino slim jar (P2.1 决定来源后接入), release R8 + `shrinkResources`, 无 ABI 拆分 (D28, 理由注释), `appendDigestToReleasedFiles` 校验单 APK 并追加 CRC32, `verifySignedReleaseArtifacts` 校验原生库集合与 16 KB 对齐.
-- [ ] (插件) Manifest: `org.autojs.permission.PLUGIN`, `WAKE_ACTIVITY` + `WakeActivity`, `org.autojs.plugin.info.AUTHOR`, `requiresHostVersion` meta-data (D26 临时值), `NATIVE_PAGE_ALIGNMENT=16384`, `BatchRenamePluginService` (exported, PLUGIN 权限, action `org.autojs.plugin.BATCH_RENAME`, category `batch-rename`), `BatchRenameExplorerActionService` (action `org.autojs.plugin.EXPLORER_ACTION` + DEFAULT), `BatchRenameActivity` (exported, PLUGIN 权限, `EXPLORER_ACTION_EXECUTE` + DEFAULT, `excludeFromRecents=false`); 无 launcher; `allowBackup=false`. P0 阶段服务与 Activity 可为空实现, 但契约测试已覆盖.
-- [ ] (插件) 资源: 11 个 values 目录, `strings_donottranslate.xml` (`app_name`, `plugin_id` / `plugin_engine` / `plugin_variant` 经 `resValue`), `plugin_description` 10 语言 (5.4 的措辞), `plugin_author`; 基础 `mipmap/ic_launcher.png` 与 Icon Studio 系统图标 (`.icons/recipe.json` + `.python/generate_icon_studio.py --check`; 维护者源图到位前用临时源图并标记待替换, 附录 D Q1).
-- [ ] (插件) `.readme/` + `.changelog/` 10 语言 JSON 与模板, `.python/generate_markdown.py` (+ `.bat`, `--check`), `.python/check_repository.py` (从 Pinyin 复制后调整身份), 根 `README.md` 为简体中文; `LICENSE` MPL-2.0; `THIRD_PARTY_NOTICES.md`; `libs/README.md` + `locks/host-api-aars.lock` (各 AAR / jar 的来源提交与 SHA-256).
-- [ ] (插件) `AGENTS.md`: 参考规范裁剪版, 写明本仓库事实: 无独立入口, 无 ABI 拆分理由 (D28), 契约 AAR 与 Rhino jar 的锁定方式, 宿主提交只落本地, 验证顺序, 推送前检查.
+- [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 生成骨架: `settings.gradle.kts` (平台插件与 native-alignment 插件 `1.9.1`, 位于 `includeBuild("build-logic")` 之前), 根 `build.gradle.kts` (`com.android.application` 与 `org.jetbrains.kotlin.plugin.compose` 以平台属性声明并 `apply false`), `build-logic`, `version.properties` (`VERSION_NAME=1.0.0`, compileSdk / targetSdk 37 与宿主一致, minSdk 24, `OVERRIDDEN_*=NONE`, 首个含它的提交 `VERSION_BUILD=2`), Gradle Wrapper 9.5.0 (与 43 个插件仓库相同), `.gitignore` (由宿主版本裁剪) / `sign.properties` / `app/sm003.jks` 从宿主复制. 证据 (E1): 提交 `cd353e1`; Temurin 模拟命令 `--no-daemon -Djava.vendor="Eclipse Adoptium" -Djava.vendor.version=Temurin-21.0.12.1+1 :app:assembleDebug :app:testDebugUnitTest` 通过, 版本决策块只打印一次: Gradle 9.5.0 / AGP 9.3.3 (auto-specified) / Kotlin 2.3.20 (nearest-lower-matched) / KSP 2.3.12 / R8 8.13.19, 无 `checkAarMetadata` 错误; `git check-ignore` 确认 `sign.properties`, `app/sm003.jks`, `local.properties`, `AGENTS.md`, `*.pre-platform-versions.bak`, `releases/` 被忽略. 偏差: `build-logic` 改取 3-Block Compose 已精简的版本 (去掉 LibDeployer / 7z 解压 / 本地 AAR 注册及其 commons-compress / xz 依赖), 不再从 3-Maple Image / Pinyin 复制后精简.
+- [x] (插件) `app/build.gradle.kts`: `buildFeatures { compose = true; aidl = true; resValues = true }`, Compose BOM `2026.09.00` 与 Material 3, release R8 + `shrinkResources`, 无 ABI 拆分 (D28, 理由注释), `appendDigestToReleasedFiles` 收集单 APK 并追加 CRC32, `verifySignedReleaseArtifacts` 校验签名, APK 集合, 原生库集合与不压缩存储. 证据 (E1 + E5 预检): 提交 `cd353e1`; 宿主 AAR 由 `locks/host-api-aars.lock` 驱动 `implementation(files(...))`, 配置阶段对缺失 / 多余 / 摘要不符的 AAR 直接失败; `:app:appendDigestToReleasedFiles` 产出 `releases/autojs6-plugin-batch-rename-v1.0.0-c059b7b0.apk` (283,341 B, 骨架尚未引用 Compose 代码), 四个 `libandroidx.graphics.path.so` 均为 STORED 且 `Release.json` 16 KB 对齐通过. 偏差: (1) 契约 AAR 改为 `implementation` 而非原写的 `compileOnly`: 本插件是进程外 Binder 插件, 运行时需要 AIDL stub; `batch-rename-api.aar` 在 P1.1 产出后加入锁文件即可, 无需草案 jar; (2) Compose BOM 不管理 `androidx.activity`, `activity-compose` 显式固定为 1.12.2 (与 3-Maple Image 同一 BOM 下的版本); (3) Rhino slim jar 仍按计划在 P2.1 接入.
+- [x] (插件) Manifest: `org.autojs.permission.PLUGIN`, `WAKE_ACTIVITY` + `WakeActivity`, `org.autojs.plugin.info.AUTHOR`, 服务上的 `requiresHostVersion` meta-data (引用 `@string/plugin_requires_host_version`, D26 占位 5352), `NATIVE_PAGE_ALIGNMENT=16384`, `BatchRenamePluginInfoService` (INFO, category `batch-rename`), `BatchRenamePluginService` (`org.autojs.plugin.BATCH_RENAME`, category `batch-rename`, 在 P1.1 之前返回只携带 `IBatchRenamePlugin` 描述符的占位 Binder), `BatchRenameExplorerActionService` (`EXPLORER_ACTION` + DEFAULT, 协议 24 的空动作目录, engine `explorer-action`), `BatchRenameActivity` (PLUGIN 权限, `EXPLORER_ACTION_EXECUTE` + DEFAULT, P4.2 之前立即取消), 全部 exported 组件受 PLUGIN 权限保护; 无 launcher; `allowBackup=false` + `dataExtractionRules` + `fullBackupContent=false`; 无存储 / 网络权限. 证据: 提交 `c84e840` (图标引用在 `629e0df`); `aapt2 dump xmltree` 核对签名 release APK 的组件, 权限与 meta-data; 人工设备冒烟 (E3 级别的发现验证, 非 instrumentation): 签名 release APK 安装到 Sony XQ-AT72 (QV710AF65F, API 31) 与 Sony G8441 (BH900ASK9E, API 28), `cmd package query-services` 按三组正式 action / category 查询各自只命中预期组件, `org.autojs.permission.PLUGIN: granted=true` (与宿主签名一致), 验证后已卸载. 偏差: 新增 INFO 服务 (路线图原未列出), 使插件在 P1.3 注册 `BATCH_RENAME` 之前就能以批量重命名身份出现在插件中心. 未执行: Binder 往返, Manifest 契约自动化测试 (P0.2), ColorOS 激活实测.
+- [x] (插件) 资源: 11 个 values 目录的 `plugin_description` (5.4 的定稿措辞, 句尾无标点, 默认与 `values-en` 一致); `app_name` / `plugin_author` / `plugin_id` / `plugin_engine` / `plugin_variant` / `plugin_requires_host_version` / `plugin_version_date` 经 `resValue` 生成 (不另建 `strings_donottranslate.xml`), PluginInfo 从这些构建资源读取; 图标由 Icon Studio 1.3 (`.icons/recipe.json`, profile `catalog`, 透明背景, Optical geometry 归一化) 从两张临时源图 (`mipmap*/ic_launcher.png`, 三行名称条 + 右向箭头, 512 px, 亮 `#272727` / 暗 `#D8D8D8`, 同一 alpha) 生成插件中心与系统图标, Manifest 指向 `@mipmap/ic_icon_studio_application`; `raw/keep.xml` 保留跨包读取的 `@raw/plugin_instruction`. 证据: 提交 `c84e840` + `629e0df`; `generate_icon_studio.py --check` 校验 15 个资源; `aapt2 dump resources` 确认 release 包保留 `mipmap/ic_plugin_center`, `mipmap/ic_launcher`, `raw/plugin_instruction`, `color/ic_plugin_center_background` 与全部身份字符串 (加 `keep.xml` 前 `raw/plugin_instruction` 曾被资源收缩移除); `:app:lintDebug` 0 错误, 警告为 `IconDuplicates` x 2 (图标规范第 3 节认可的用途重复), `IconLauncherShape` x 2 (透明背景的兼容图标), `GradleDependency` x 2 与 Gradle 版本提示. 临时图稿待维护者源图替换 (附录 D Q1).
+- [x] (插件) `.readme/` + `.changelog/` 10 语言 JSON 与模板, `.python/generate_markdown.py` (+ `.bat`, `--check`, 取自 Pinyin), `.python/check_repository.py` (取自 Pinyin; 标点规则由固定的 CJK 字符表改为覆盖全部语言的非 ASCII 标点判定, 源文件不再含全角字面量), 根 `README.md` 为简体中文 (v1.0.0 记为开发预览, 下文功能为 1.0.0 设计目标); `LICENSE` MPL-2.0; `THIRD_PARTY_NOTICES.md`; `libs/README.md` + `locks/host-api-aars.lock`. 证据: 提交 `629e0df`; `generate_markdown.py` 生成 36 个产物且 `--check` 通过; `check_repository.py` 无错误; 已跟踪文本的非 ASCII 标点只出现在与其余 48 个仓库逐字节一致的 Icon Studio 便携内核 `icon_studio_runtime.py` 及 Gradle 上游 `gradlew` 中 (COMMON_AGENTS 的上游文件例外).
+- [x] (插件) `AGENTS.md`: 参考规范裁剪版, 写明本仓库事实: 三个服务与两个 Activity 的身份, 无独立入口, 无存储权限, 无 ABI 拆分理由 (D28), 契约 AAR 的锁定方式, 最低宿主版本的三处同步位置, 宿主提交只落本地, 验证顺序, 推送前检查. 证据: 本地文件 (与全部官方插件仓库一致被 `.gitignore` 忽略, 不入库).
 
 ### P0.2 测试与 CI
 
-- [ ] (插件) JVM 守卫: `ManifestContractTest` (权限, meta-data, Wake, 两个服务与 Activity 的 exported / permission / intent-filter, 无 launcher), `PluginRuntimeInfoTest` (PluginInfo 纯数据映射, `supportedAbis` 显式空数组, 身份常量对齐 `common.json` / Gradle), `StringResourceParityTest` (10 语言 + values-en 一致, 排序, 占位符), `ApplicationTextPunctuationTest` (全部语言 ASCII 标点), `HostApiAarLockTest`.
+- [ ] (插件) JVM 守卫: `ManifestContractTest` (权限, meta-data, Wake, 三个服务与两个 Activity 的 exported / permission / intent-filter, 无 launcher), `PluginRuntimeInfoTest` (PluginInfo 纯数据映射, `supportedAbis` 显式空数组, 身份常量对齐 `common.json` / Gradle), `StringResourceParityTest` (10 语言 + values-en 一致, 排序, 占位符), `ApplicationTextPunctuationTest` (全部语言 ASCII 标点), `HostApiAarLockTest`.
 - [ ] (插件) `.github/workflows/build.yml` (JVM 测试, debug / release 装配, lint, androidTest 装配; API 24 x86 与 API 35 x86_64 模拟器契约测试, 单行命令, 见 3-Block Compose 的 emulator-runner 教训) 与 `markdown.yml`; 未推送前只做本地语法与路径校验.
-- [ ] (插件) 初始提交按 "身份与构建骨架 / 契约与激活 / 资源与文档 / 测试与 CI" 拆分, 每笔提交前 `VERSION_BUILD = 提交数 + 1`, 最终 `|VERSION_BUILD - git rev-list --count HEAD| <= 10` 且工作区干净.
+- [ ] (插件) 初始提交按 "身份与构建骨架 / 契约与激活 / 资源与文档 / 测试与 CI" 拆分, 每笔提交前 `VERSION_BUILD = 提交数 + 1`, 最终 `|VERSION_BUILD - git rev-list --count HEAD| <= 10` 且工作区干净. 进度: 前三类已于 P0.1 落地 (`cd353e1` 构建骨架, `c84e840` 身份与激活, `629e0df` 资源与文档, 加路线图证据提交), 每笔提交时 `VERSION_BUILD` 均等于提交数; 测试与 CI 待本节完成.
 
 ---
 
@@ -694,11 +695,11 @@ interface IBatchRenamePlugin {
 
 | 项 | 值 |
 | --- | --- |
-| 宿主 | `AutoJs6 master@944f6fe5cf`, `VERSION_NAME=6.8.0` (未发布), versionCode 5352 |
+| 宿主 | `AutoJs6 master@944f6fe5cf` (P0.1 契约 AAR 取自 `6c151c900e`), `VERSION_NAME=6.8.0` (未发布), versionCode 5352 |
 | explorer-action 协议 | v24 (`ExplorerActionProtocol.VERSION`) |
 | 宿主 Rhino | `libs/org-mozilla-rhino-2_0_0-SNAPSHOT.jar` (命名组, 后行断言, `dotAll`, `sticky`, Unicode 属性已实现) |
 | 平台版本插件 | `1.9.1` |
-| 参照插件 | 3-Maple Image (Compose, explorer-action v24, 三处 catalog), Pinyin (无独立入口, `check_repository.py`), MediaInfo (可调用脚本模块与契约模板), 3-Block Compose (路线图与 P0 骨架写法) |
+| 参照插件 | 3-Maple Image (Compose, explorer-action v24, 三处 catalog, `verifySignedReleaseArtifacts`), Pinyin (无独立入口, `check_repository.py`, 文档生成器, Icon Studio 配方), MediaInfo (可调用脚本模块与契约模板), 3-Block Compose (路线图与 P0 骨架写法, 精简版 build-logic), 3-Shell Terminal (INFO + 能力 + 管理器三服务) |
 
 设备矩阵 (来自 `COMMON_AGENTS.md`; 2026-10-15 起已连接设备可自由安装 / 卸载官方插件):
 
