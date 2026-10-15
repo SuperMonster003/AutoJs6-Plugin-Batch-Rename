@@ -5,6 +5,8 @@ compose-bom = "2026.09.00"
 # The Compose BOM does not manage androidx.activity; this is the activity line 3-Maple Image ships with the same BOM.
 activity-compose = "1.12.2"
 core-ktx = "1.15.0"
+# Core library desugaring for Rhino on API 24 / 25 (java.time in NativeDate), the same release as the host.
+desugar = "2.1.5"
 foojay-resolver-convention = "1.0.0"
 junit = "4.13.2"
 kotlinx-coroutines-android = "1.11.0"
@@ -25,6 +27,7 @@ compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+desugar = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "test-junit-version" }

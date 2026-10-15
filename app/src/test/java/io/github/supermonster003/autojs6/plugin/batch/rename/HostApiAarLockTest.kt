@@ -29,9 +29,11 @@ class HostApiAarLockTest {
             assertTrue("$id: missing libs/${entry.file}", Files.isRegularFile(file))
             assertEquals("$id: digest drifted from the lock", entry.sha256, sha256(file))
         }
+        // The slim Rhino jar has its own lock (RhinoJarLockTest); nothing else may be staged.
+        val rhinoJar = Files.readAllLines(RepositoryFiles.path("locks/rhino-jar.lock")).single { it.startsWith("rhino.file=") }.substringAfter('=')
         Files.list(RepositoryFiles.path("libs")).use { files ->
             val staged = files.map { it.fileName.toString() }.filter { it.endsWith(".aar") || it.endsWith(".jar") }.sorted().toList()
-            assertEquals("libs/ holds exactly the locked artifacts", lock.values.map { it.file }.sorted(), staged)
+            assertEquals("libs/ holds exactly the locked artifacts", (lock.values.map { it.file } + rhinoJar).sorted(), staged)
         }
     }
 

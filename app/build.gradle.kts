@@ -50,6 +50,13 @@ android {
         resValue("string", "plugin_version_date", utils.getDateString("MMM d, yyyy", "GMT+08:00"))
     }
 
+    // Rhino initializes NativeDate, which uses java.time, in every scope (roadmap P2.1): API 24 / 25 need the desugared
+    // JDK library, as in the host. zh-CN: Rhino 在每个作用域中都会初始化使用 java.time 的 NativeDate (路线图 P2.1):
+    // API 24 / 25 需要脱糖的 JDK 类库, 与宿主相同.
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+    }
+
     testOptions { unitTests.isIncludeAndroidResources = true }
 
     lint {
@@ -167,8 +174,37 @@ val hostApiAars: List<File> = run {
     }
 }
 
+// The host's slim Rhino jar (roadmap P2.1 / D15), locked in locks/rhino-jar.lock: the regular expression engine runs
+// RegExp on the same NativeRegExp as AutoJs6 scripts. Only engine/regex may import org.mozilla.javascript
+// (RhinoImportGuardTest); R8 keeps the closure that package reaches.
+// zh-CN: 宿主的 slim Rhino jar (路线图 P2.1 / D15), 锁定在 locks/rhino-jar.lock 中: 正则引擎与 AutoJs6 脚本使用同一个
+// NativeRegExp 执行 RegExp. 只有 engine/regex 可以导入 org.mozilla.javascript (RhinoImportGuardTest); R8 只保留该包用到的部分.
+val rhinoJar: File = run {
+    val lockFile = rootProject.file("locks/rhino-jar.lock")
+    check(lockFile.isFile) { "Missing locks/rhino-jar.lock" }
+    val entries = lockFile.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .associate { line -> line.substringBefore('=') to line.substringAfter('=') }
+    check(entries.keys == setOf("format", "rhino.file", "rhino.sha256", "rhino.source")) { "Unexpected keys in locks/rhino-jar.lock" }
+    check(entries["format"] == "1") { "Unsupported Rhino jar lock format" }
+    val fileName = entries.getValue("rhino.file")
+    check(fileName == File(fileName).name && fileName.endsWith("-slim.jar")) { "Invalid rhino.file in locks/rhino-jar.lock" }
+    check(entries.getValue("rhino.source").matches(Regex("[0-9a-f]{40}"))) { "rhino.source must be the full host commit" }
+    val expected = entries.getValue("rhino.sha256")
+    check(expected.matches(Regex("[0-9a-f]{64}"))) { "Invalid rhino.sha256 in locks/rhino-jar.lock" }
+    val file = rootProject.file("libs/$fileName")
+    check(file.isFile) { "Missing libs/$fileName" }
+    val actual = MessageDigest.getInstance("SHA-256").digest(file.readBytes()).joinToString("") { "%02x".format(it) }
+    check(actual == expected) { "SHA-256 mismatch for $fileName: expected $expected, actual $actual" }
+    file
+}
+
 dependencies {
+    coreLibraryDesugaring(libs.desugar)
+
     implementation(files(hostApiAars))
+    implementation(files(rhinoJar))
 
     implementation(libs.core.ktx)
     implementation(libs.kotlinx.coroutines.android)

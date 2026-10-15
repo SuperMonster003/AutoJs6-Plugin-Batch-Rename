@@ -24,6 +24,19 @@ comes from host commit `95c9f0455` (protocol v25, roadmap P1.2): the `targetRena
 rename dialog placement and the five appended session transactions. Every v1-v24 transaction code is
 unchanged, and the plugin only implements `IExplorerActionPlugin`, whose order did not change.
 
+## Rhino jar (lock `../locks/rhino-jar.lock`, roadmap P2.1 / D15)
+
+`org-mozilla-rhino-2_0_0-SNAPSHOT-slim.jar` is the output of the host task `:app:slimRhinoJar`: the host's own Rhino
+2.0.0-SNAPSHOT build (`libs/org-mozilla-rhino-2_0_0-SNAPSHOT.jar`, last changed at host commit
+`ba2e7d30a24218bb6f9cb47c811bd636d18e2bea`) without JLine, the optimizer and the JFR components, exactly what the host
+packages and runs. SHA-256 `8c6f3369da55bf1f4dbb514e57a6e9ff098c1ba9a1a56fecb75e4e43ce528aaf`. It is MPL 2.0.
+
+The regular expression engine (`engine/regex`, the only package allowed to import `org.mozilla.javascript`,
+`RhinoJarLockTest`) evaluates `RegExp` and `String.prototype.replace` on its `NativeRegExp` in interpreted mode, so
+patterns and replacement strings behave exactly as in AutoJs6 scripts. R8 keeps only the closure that package reaches.
+Re-stage it with `.\gradlew.bat :app:slimRhinoJar` in the host and copy `app/build/slim-libs/<file>`, recording the
+host commit of the Rhino jar in the lock.
+
 ## Re-staging
 
 1. Build the release AAR in the host repository, for example

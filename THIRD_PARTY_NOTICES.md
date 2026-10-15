@@ -13,6 +13,15 @@ components below; their licenses apply to those components only.
 
 Provenance and SHA-256 digests are recorded in `locks/host-api-aars.lock` and `libs/README.md`.
 
+## Mozilla Rhino
+
+| Artifact | Source | License |
+| --- | --- | --- |
+| `libs/org-mozilla-rhino-2_0_0-SNAPSHOT-slim.jar` | The Rhino 2.0.0-SNAPSHOT build of AutoJs6 (https://github.com/SuperMonster003/Rhino-For-AutoJs6), derived from Mozilla Rhino (https://github.com/mozilla/rhino) | MPL-2.0 |
+
+The jar is the host's slim build without JLine, the optimizer and the JFR components; its provenance and SHA-256 are
+recorded in `locks/rhino-jar.lock` and `libs/README.md`.
+
 ## AndroidX and Kotlin libraries (Maven)
 
 | Library | Version | License |
@@ -22,6 +31,10 @@ Provenance and SHA-256 digests are recorded in `locks/host-api-aars.lock` and `l
 | AndroidX Core KTX (`androidx.core:core-ktx`) | 1.15.0 | Apache-2.0 |
 | Kotlin Coroutines (`org.jetbrains.kotlinx:kotlinx-coroutines-android`) | 1.11.0 | Apache-2.0 |
 | Kotlin standard library (`org.jetbrains.kotlin:kotlin-stdlib`, added by the Android Gradle Plugin) | follows the build's Kotlin version | Apache-2.0 |
+
+Android desugared JDK libraries: `com.android.tools:desugar_jdk_libs` 2.1.5 (https://github.com/google/desugar_jdk_libs,
+GNU General Public License version 2 with the Classpath Exception) provides `java.time` and other JDK APIs that Rhino
+needs on API 24 and 25 devices.
 
 Jetpack Compose `ui-graphics` depends on `androidx.graphics:graphics-path`, whose
 `libandroidx.graphics.path.so` (Apache-2.0) is packaged for arm64-v8a, armeabi-v7a, x86_64 and x86.

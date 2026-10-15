@@ -220,7 +220,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | --- | --- | --- | --- |
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
-| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 未开始 |
+| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 进行中 (P2.1 已完成, 2026-10-15) |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
@@ -317,9 +317,9 @@ P0 (骨架)
 
 ### P2.1 正则引擎 (D6, D15)
 
-- [ ] (插件) `JsRegexEngine` 接口 (`compile(source, flags)`, `replace(input, regex, replacement)`, `test`), `RhinoRegexEngine` 实现: 每线程一个 `Context` (`initSafeStandardObjects`), 通过 `String.prototype.replace` 求值, 替换串以 JS 字符串传入 (不经 JS 源码拼接, 避免注入); 编译错误映射为 `INVALID_OPTIONS` 并附 Rhino 的错误信息与位置.
-- [ ] (插件) Rhino 来源决策 (附录 D Q4): 先用宿主 `slimRhinoJar` 产物, SHA-256 入锁; 评估 Maven Central `org.mozilla:rhino` 最新版是否通过 P2.1 的特性对照 (命名组与 `$<name>`, 后行断言, `s` / `u` / `y`, Unicode 属性转义, `$&` `` $` `` `$'` `$$`, 超长输入, 灾难性回溯超时); R8 规则保证只保留 regexp 子集, 记录 release 体积.
-- [ ] (测试) `EcmaRegexParityTest`: 表驱动用例 (>= 60 条) 覆盖 PowerRename 文档示例 (附录 A 第 3 组) 与 ECMAScript 特性; 纯文本查找转义 (`.`, `$`, `(`, `\` 等); `matchAll` / `caseSensitive` 到 `g` / `i` 的映射; 捕获组引用在 "非全部匹配" 下的行为与文档一致.
+- [x] (插件) `engine/regex`: `JsRegexEngine` / `JsRegexSession` 接口 (`compile(source, flags)`, `test`, `replace`) 与 `RhinoRegexEngine` 实现: 所有线程共享一个以 `initSafeStandardObjects` 建立并封存的作用域, 每个会话在当前线程进入自己的 `Context` (解释模式, `VERSION_ECMASCRIPT`); 求值经三个固定的 JS 辅助函数 (`new RegExp`, `re.test`, `String.prototype.replace`), 用户文本只作为参数传递, 从不拼接进源码; 每次调用前 `lastIndex = 0`, 粘连与全局表达式对每个名称都从头匹配. 编译错误抛 `JsRegexSyntaxException` (Rhino 的 `details()`, P2.5 映射为 `INVALID_OPTIONS`). `JsRegexSyntax` 提供纯文本查找转义, 替换串字面化 (`$` -> `$$`) 与 `g` / `i` / `msuy` 标志拼装 (按 `RegExp.prototype.flags` 规范顺序, 非法或重复标志被拒). 证据: 本条所在提交. 偏差: (1) 接口改为会话形式, 一个方案或一次预览共享一个时间预算 (默认 2 s); Rhino 会把正则回溯计入指令观察器, `observeInstructionCount` 到期即以 `Error` 中止, 灾难性回溯 (`^(a+)+$` 对 40 个 `a`) 在预算处以 `JsRegexTimeoutException` 结束而不阻塞 Binder 线程; (2) 纯文本模式下替换串也按字面处理 (PowerRename 关闭正则时不解释 `$1`), 与 D15 "转义后走同一条正则路径" 一致.
+- [x] (插件) Rhino 来源决策 (附录 D Q4): 采用宿主 `slimRhinoJar` 产物 `libs/org-mozilla-rhino-2_0_0-SNAPSHOT-slim.jar`, 由 `locks/rhino-jar.lock` 以 SHA-256 `8c6f3369da55bf1f4dbb514e57a6e9ff098c1ba9a1a56fecb75e4e43ce528aaf` 锁定 (来源: 宿主提交 `ba2e7d30a` 的 Rhino jar), 构建在配置阶段校验; R8 只额外保留按名称反射加载的 `Interpreter` 与 `VMBridge_jdk18`. 评估 Maven Central `org.mozilla:rhino` 最新版 1.9.1 (2026-02): 同一张 V8 对照表通过 79 / 80, 失败项为 `u` 与 `i` 同时使用 (报 "invalid flag 'u and i'"), 而默认不区分大小写的查找加上 `u` 正是这一组合, 故不采用 (其 API 与宿主分支也不同). release 体积: 389,143 字节; 目前没有组件引用引擎, R8 会剔除 Rhino, 引擎接入服务后 (P2.5 / P4.1) 记录真实体积. 偏差: (1) 插件开启 core library desugaring (`desugar_jdk_libs` 2.1.5, 与宿主相同): Rhino 每次建作用域都初始化使用 `java.time` 的 `NativeDate`, API 24 / 25 缺少该类; (2) Rhino 用 `java.util.regex` 命名分组解析 `\p{...}`, Android 自 API 26 起才支持, 因此 API 24 / 25 上 Unicode 属性转义报语法错误 (`UNICODE_PROPERTIES_UNAVAILABLE`), 不再崩溃; 宿主脚本在 API 24 / 25 上同样受影响, 已另提 Rhino 分支修复任务, 修复后重新暂存 jar 并删除此回退.
+- [x] (测试) `EcmaRegexParityTest`: 80 条表驱动用例, 期望值全部由 Node.js 24 (V8) 以相同输入计算 (附录 A 第 3 组的 PowerRename 文档示例, `$1` `$10` `$<name>` `$&` `` $` `` `$'` `$$` 等替换模式, 未匹配的捕获组, `g` `i` `m` `s` `u` `y`, 命名组, 前后行断言, 反向引用, Unicode 属性与大小写折叠, 代理对, `test`), 15 条纯文本查找 (`.`, `$`, `(`, `\`, `[`, `|` 等转义与字面替换), `matchAll` / `caseSensitive` 到 `g` / `i` 的映射; `RhinoRegexEngineTest` 7 项 (语法错误, 时间预算, 粘连与全局重置, 会话归属, 嵌套会话, 8 线程并发, 1024 字符名称); `RhinoJarLockTest` 4 项 (锁与字节, slim 构建, 记录, 只有 `engine/regex` 导入 Rhino). 证据: 插件 JVM 测试 40 项通过; 变异检查 (替换串不转义, 去掉 `lastIndex` 重置) 均被捕获; 设备测试 `RhinoRegexEngineDeviceTest` 3 项在 AVD_API_24 (只读实例), Sony G8441 (API 28) 与 Sony XQ-AT72 (API 31) 通过, 契约测试同时通过 (各 10 项).
 
 ### P2.2 流水线, 变量与选项 (D16, D17)
 
@@ -668,7 +668,7 @@ P1.2 已落地 (宿主 `95c9f0455`), 以宿主 `docs/dev/explorer-action-protoco
 | Q1 | 图标源图: 维护者提供两张黑白源图 (亮色模式深色图案, 暗色模式浅色图案), 主题建议 "两行文本行与一个替换箭头" | P0.1 | 临时源图 + 标记待替换 |
 | Q2 | 撤销日志保留批次数 (默认 20) 与是否对脚本暴露清理方法 | P3.1 | 20 批, 不暴露清理 |
 | Q3 | 宿主是否增加 "重命名历史" 页面 (1.1.0) | P6 | 不做, 以 Snackbar 撤销与脚本 `history` 为准 |
-| Q4 | Rhino 来源: 宿主 slim jar (锁 SHA) 还是 Maven Central 发布版 | P2.1 | 宿主 slim jar |
+| Q4 | Rhino 来源: 宿主 slim jar (锁 SHA) 还是 Maven Central 发布版 | P2.1 | 已定 (P2.1): 宿主 slim jar; Maven Central 1.9.1 不支持 `u` 与 `i` 同时使用 |
 | Q5 | 单批上限 2000 是否足够; 超过时是否自动分批 (脚本路径) | P2.5 / P3.1 | 2000, 超限报错 |
 | Q6 | `target` 默认 `"all"` (与 PowerRename 一致) 还是 `"name"` (更保守) | P2.2 | `"all"` |
 | Q7 | 多选工具栏在插件缺失时是否显示安装引导条目 | P1.4 | 不显示 (沿用既有行为), 对话框 "更多" 显示 |
