@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_description">Batch renames files and folders with search and replace, regular expressions, counters and date variables</string>
+</resources>

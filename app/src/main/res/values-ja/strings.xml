@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_description">検索と置換, 正規表現, カウンター, 日付変数でファイルとフォルダーの名前を一括変更</string>
+</resources>

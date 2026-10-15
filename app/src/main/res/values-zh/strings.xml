@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_description">使用查找替换, 正则表达式, 计数器与日期变量批量重命名文件与文件夹</string>
+</resources>

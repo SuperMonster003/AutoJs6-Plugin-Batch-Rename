@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_description">찾기 및 바꾸기, 정규식, 카운터, 날짜 변수로 파일과 폴더 이름을 일괄 변경</string>
+</resources>

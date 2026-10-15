@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_description">Renomme des fichiers et des dossiers par lot avec rechercher-remplacer, expressions régulières, compteurs et variables de date</string>
+</resources>
