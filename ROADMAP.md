@@ -14,7 +14,7 @@
 4. 涉及宿主公开契约 (batch-rename 契约, explorer-action 协议, 脚本 API) 的条目, 完成后必须同步宿主 `docs/dev/`, 宿主 `.changelog` (10 种语言) 与本仓库 `.changelog`. 宿主侧提交只落本地, 由维护者合并与推送 (与 3-Maple Image 的做法一致).
 5. 第 1 节 "固定决策" 由维护者 2026-10-15 经三轮选择题确认, 后续阶段不再重新讨论; 第 2 节 "派生技术决策" 可在进入对应阶段前推翻 (推翻点已逐条标注), 之后视同固定; 附录 D "待决事项" 在进入对应阶段前由维护者拍板, 拍板结果回填到第 1 节或第 2 节.
 6. 本仓库骨架 (Gradle / Manifest / 资源 / CI) 在 P0.1 按 `D:/idea-projects/AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 生成, 其裁剪版即本仓库 `AGENTS.md`; 本插件没有独立启动入口 (D4), 因此 `AUTOJS6_PLUGIN_STANDALONE_SETTINGS_AGENTS.md` 不适用, 图标按 `AUTOJS6_PLUGIN_BLACK_N_WHITE_ADAPTIVE_ICON_AGENTS.md` 只生成基础 `mipmap/ic_launcher.png` 系列与 Icon Studio 系统图标 (`ic_icon_studio_application`, 2026-10-05 维护者要求); 工程约定 (构建, 资源, 文档生成, 提交计数, 推送前检查 `py D:/idea-projects/prepush_check.py`) 以 `AGENTS.md` 与 `D:/idea-projects/COMMON_AGENTS.md` 为准, 本文件只记录 "改什么" 与证据. 所有文案 (10 种语言) 只用 ASCII 标点.
-7. 2026-10-15 的首个会话只落盘路线图并 `git init` + 首次提交 (D12); 同日 P0.1 完成骨架 (提交 `cd353e1`, `c84e840`, `629e0df`), 之后按 `AGENTS.md` 的提交规则工作 (每笔提交前 `VERSION_BUILD = 提交数 + 1`). 与全部官方插件仓库一致, `AGENTS.md` / `CLAUDE.md` 只在本地维护并被 `.gitignore` 忽略, 不入库.
+7. 2026-10-15 的首个会话只落盘路线图并 `git init` + 首次提交 (D12); 同日 P0.1 完成骨架 (提交 `cd353e1`, `c84e840`, `629e0df`), P0.2 完成测试与 CI (提交 `1c99280`, `df5cb8b`), 之后按 `AGENTS.md` 的提交规则工作 (每笔提交前 `VERSION_BUILD = 提交数 + 1`). 与全部官方插件仓库一致, `AGENTS.md` / `CLAUDE.md` 只在本地维护并被 `.gitignore` 忽略, 不入库.
 
 ---
 
@@ -218,7 +218,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 
 | 阶段 | 版本 | 主题 | 状态 |
 | --- | --- | --- | --- |
-| P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 进行中 (P0.1 已完成 2026-10-15; P0.2 测试与 CI 未开始) |
+| P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 未开始 |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 未开始 |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
@@ -263,9 +263,10 @@ P0 (骨架)
 
 ### P0.2 测试与 CI
 
-- [ ] (插件) JVM 守卫: `ManifestContractTest` (权限, meta-data, Wake, 三个服务与两个 Activity 的 exported / permission / intent-filter, 无 launcher), `PluginRuntimeInfoTest` (PluginInfo 纯数据映射, `supportedAbis` 显式空数组, 身份常量对齐 `common.json` / Gradle), `StringResourceParityTest` (10 语言 + values-en 一致, 排序, 占位符), `ApplicationTextPunctuationTest` (全部语言 ASCII 标点), `HostApiAarLockTest`.
-- [ ] (插件) `.github/workflows/build.yml` (JVM 测试, debug / release 装配, lint, androidTest 装配; API 24 x86 与 API 35 x86_64 模拟器契约测试, 单行命令, 见 3-Block Compose 的 emulator-runner 教训) 与 `markdown.yml`; 未推送前只做本地语法与路径校验.
-- [ ] (插件) 初始提交按 "身份与构建骨架 / 契约与激活 / 资源与文档 / 测试与 CI" 拆分, 每笔提交前 `VERSION_BUILD = 提交数 + 1`, 最终 `|VERSION_BUILD - git rev-list --count HEAD| <= 10` 且工作区干净. 进度: 前三类已于 P0.1 落地 (`cd353e1` 构建骨架, `c84e840` 身份与激活, `629e0df` 资源与文档, 加路线图证据提交), 每笔提交时 `VERSION_BUILD` 均等于提交数; 测试与 CI 待本节完成.
+- [x] (插件) JVM 守卫: `ManifestContractTest` (唯一权限, application 属性, meta-data, Wake, 重命名 Activity, 三个服务的 action / category / permission / `requiresHostVersion` meta-data, 全部 exported 组件受 PLUGIN 权限保护, 无 launcher), `PluginRuntimeInfoTest` (PluginInfo 纯数据映射, `supportedAbis` 显式空列表, 身份常量与 `app/build.gradle.kts` 的 resValue, `requiredHostVersion`, 无 ABI 拆分, `.readme/common.json` 对齐, 声明的 explorer-action 协议不高于暂存 AAR), `StringResourceParityTest` (11 个 values 目录键相同且排序, `values` 与 `values-en` 一致, 身份字符串只来自构建, 描述规则, 描述与 README synopsis 相等, 各语言 `plugin_instruction` 与 `raw/keep.xml`, 图标产物), `ApplicationTextPunctuationTest` (源码, 资源, JSON, 文档与工作流中全部语言的非 ASCII 标点; 上游的 Icon Studio 内核与 `gradlew` 按规范例外), `HostApiAarLockTest` (锁文件, `libs/` 产物集合, 摘要, 无原生代码, `libs/README.md` 与 `THIRD_PARTY_NOTICES.md` 记录, 构建脚本读取锁文件). 证据 (E2): 提交 `1c99280`; `:app:testDebugUnitTest` 5 个类 26 项全部通过; 变异检查: 在 `values-zh` 描述中换入全角逗号, `ApplicationTextPunctuationTest` 与 `StringResourceParityTest` 失败; 去掉管理器服务的 PLUGIN 权限, `ManifestContractTest` 失败 (两次均由脚本恢复原字节). 偏差: 尚无格式化占位符, `StringResourceParityTest` 暂不比对占位符, 引入首个带参数的字符串时补上.
+- [x] (插件) 设备契约测试 `BatchRenamePluginContractTest` (路线图原文只写在 CI 中运行, 此处补记): Wake 激活契约, WAKE / EXECUTE / 三组服务 action 各自只命中一个组件, 无 launcher 入口, 显式绑定与 Binder 描述符, 用显式 Parcel 按宿主的 AIDL 事务号调用 `getInfo()` (INFO 与 Explorer Action 两种身份), `getActionCatalog()` (协议 24, 空动作列表) 与 `openArchiveV11()` (返回不可恢复错误), 占位能力 Binder 拒绝事务, 重复绑定, 单个通用 APK 与四个未压缩的 graphics-path 库并实际加载. 证据 (E3, 2026-10-15): `:app:connectedDebugAndroidTest` 7 项在 Sony XQ-AT72 (QV710AF65F, API 31), Sony G8441 (BH900ASK9E, API 28), `AVD_API_24` (google_apis x86, 与 CI 同配置) 与 `AVD_API_35_16K` (16 KB 页) 上全部通过, 测试包运行后自动卸载, 两台 AVD 测后已关闭. 未执行: ColorOS 激活实测, 与真实宿主的跨进程调用 (P1.3 / P3).
+- [x] (插件) `.github/workflows/build.yml` (完整克隆后运行 `check_repository.py` 与 `generate_markdown.py --check`; 单元测试, debug / androidTest / 未签名 release 装配, lint; API 24 x86 与 API 35 x86_64 模拟器上的 `connectedDebugAndroidTest`, 单行命令并预先隐藏系统错误对话框), `markdown.yml` (Windows) 与 `icon-studio.yml` (Ubuntu + Windows, Pillow 12.3.0). 证据: 提交 `df5cb8b`; 仓库尚无远端, 只做了本地校验: 临时虚拟环境中的 PyYAML 解析三个工作流, 引用的脚本均存在, 每个作业都有超时, action 版本与兄弟仓库主流一致 (checkout v7, setup-java v6, setup-python v7, upload-artifact v7, android-emulator-runner v2.38.0); verify-build 作业的 Python 与 Gradle 步骤在本地原样运行通过. 签名 release 门禁 (`verifySignedReleaseArtifacts`) 只在本地运行, CI 不持有签名. 待办: 首次推送后记录远端运行结果. 本地 PowerShell 运行时 `-Pautojs.gradle...` 需加引号, 否则会在点号处被拆开 (CI 的 bash 不受影响).
+- [x] (插件) 初始提交按 "身份与构建骨架 / 契约与激活 / 资源与文档 / 测试与 CI" 拆分, 每笔提交前 `VERSION_BUILD = 提交数 + 1`, 最终 `|VERSION_BUILD - git rev-list --count HEAD| <= 10` 且工作区干净. 证据: `cd353e1` 构建骨架, `c84e840` 身份与激活, `629e0df` 资源与文档, `b456cee` P0.1 证据, `1c99280` 测试, `df5cb8b` CI, 本提交为 P0.2 证据; 每笔提交时 `VERSION_BUILD` 均等于提交数, `py D:/idea-projects/prepush_check.py` 通过, 工作区干净.
 
 ---
 
