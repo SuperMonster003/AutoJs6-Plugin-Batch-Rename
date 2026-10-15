@@ -25,12 +25,13 @@ import org.autojs.plugin.batchrename.api.BatchRenameLimits
  * 3. the variables of `replace` are expanded for the item, then the ECMAScript replacement runs on the part;
  * 4. text formatting and the local extensions apply to the part, which is joined back into the name.
  *
- * Counters advance only for items whose name changes (PowerRename). Validation and conflicts follow in roadmap P2.4.
+ * Counters advance only for items whose name changes (PowerRename). [ConflictResolver] then validates the new names and
+ * applies the conflict policy (roadmap D19 / D20).
  *
  * zh-CN: 计算改名方案 (路线图 D13 / D16): 脚本路径 (宿主的 `plan` 调用) 与文件管理器界面共用的唯一引擎. 按请求顺序处理每个条目:
  * 被调用方或 `includeFiles` / `includeFolders` / `includeSubfolders` 排除的条目保持原名; `target` 部分 (主名, 扩展名或全名)
  * 必须匹配查找, 否则不变; 先为该条目展开 `replace` 中的变量, 再对该部分执行 ECMAScript 替换; 文本格式化与本土扩展作用于该部分,
- * 再拼回名称. 计数器只对名称发生变化的条目递增 (PowerRename). 校验与冲突见路线图 P2.4.
+ * 再拼回名称. 计数器只对名称发生变化的条目递增 (PowerRename). 随后由 [ConflictResolver] 校验新名称并应用冲突策略 (路线图 D19 / D20).
  */
 internal class RenameEngine(
     private val regexEngine: JsRegexEngine = RhinoRegexEngine(),
@@ -66,7 +67,7 @@ internal class RenameEngine(
         } catch (error: JsRegexTimeoutException) {
             throw PlanException.limitExceeded(error.message.orEmpty())
         }
-        return RenamePlan(items, rejected = false)
+        return ConflictResolver.resolve(request, items)
     }
 
     private fun compile(session: JsRegexSession, options: RenameOptions): JsRegex = try {
