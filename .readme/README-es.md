@@ -217,7 +217,7 @@ Los planes, las decisiones de diseño y el progreso se registran como lista de v
 
 #### v1.0.0
 
-_2026/10/15_
+_2026/10/16_
 
 - `Aviso` Requiere AutoJs6 6.8.0 (5438) o posterior
 - `Función` Renombrado por lotes de archivos y carpetas en el gestor de archivos de AutoJs6 (entradas: barra de selección múltiple/menú de carpeta "Renombrar por lotes los elementos del interior"/menú "Más" del diálogo de renombrar)

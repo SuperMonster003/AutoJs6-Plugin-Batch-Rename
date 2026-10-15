@@ -217,7 +217,7 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 
 #### v1.0.0
 
-_2026/10/15_
+_2026/10/16_
 
 - `Hint` Requires AutoJs6 6.8.0 (5438) or later
 - `Feature` Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu "Batch rename items inside"/"More" menu of the rename dialog)

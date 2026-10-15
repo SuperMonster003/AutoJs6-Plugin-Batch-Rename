@@ -6,7 +6,7 @@
 
 # v1.0.0
 
-###### 2026/10/15
+###### 2026/10/16
 
 * `Note` Nécessite AutoJs6 6.8.0 (5438) ou ultérieur
 * `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)

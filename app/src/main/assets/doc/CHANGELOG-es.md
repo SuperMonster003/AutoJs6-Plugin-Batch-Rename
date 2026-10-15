@@ -6,7 +6,7 @@
 
 # v1.0.0
 
-###### 2026/10/15
+###### 2026/10/16
 
 * `Aviso` Requiere AutoJs6 6.8.0 (5438) o posterior
 * `Función` Renombrado por lotes de archivos y carpetas en el gestor de archivos de AutoJs6 (entradas: barra de selección múltiple/menú de carpeta "Renombrar por lotes los elementos del interior"/menú "Más" del diálogo de renombrar)

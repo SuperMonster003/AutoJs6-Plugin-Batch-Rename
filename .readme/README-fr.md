@@ -217,7 +217,7 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 
 #### v1.0.0
 
-_2026/10/15_
+_2026/10/16_
 
 - `Note` Nécessite AutoJs6 6.8.0 (5438) ou ultérieur
 - `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)

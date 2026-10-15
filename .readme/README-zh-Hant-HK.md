@@ -217,7 +217,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 #### v1.0.0
 
-_2026/10/15_
+_2026/10/16_
 
 - `提示` 需要 AutoJs6 6.8.0 (5438) 或更高版本
 - `新增` 在 AutoJs6 檔案管理器中批次重新命名檔案與資料夾 (入口: 多選工具列/資料夾選單 "批次重新命名其中的項目"/重新命名對話框 "更多" 選單)

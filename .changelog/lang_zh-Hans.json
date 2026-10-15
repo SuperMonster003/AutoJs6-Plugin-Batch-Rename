@@ -6,7 +6,7 @@
   "changelog_label_dependency": "依赖",
   "$data": {
     "v1.0.0": {
-      "released_date": "2026/10/15",
+      "released_date": "2026/10/16",
       "hint": [
         "需要 AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 或更高版本"
       ],
