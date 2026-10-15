@@ -284,13 +284,13 @@ P0 (骨架)
 
 ### P1.2 explorer-action 协议 v25
 
-- [ ] (宿主) `ExplorerActionProtocol.VERSION = 25`; `ExplorerActionCatalogKeys.TARGET_RENAME = "targetRename"`; `ExplorerActionValues.PLACEMENT_RENAME_DIALOG = 4`; `ExplorerActionHostSessionKeys` / `Values` 新增 rename 批次与条目的 key 与状态 (附录 C.2); `IExplorerActionHostSession.aidl` 末尾追加 `renameEntries` / `queryRenameBatch` / `listRenameBatches` / `undoRenameBatch`, 注释标注 `v25`, 保持 v1-v24 事务号不变.
-- [ ] (宿主) `ExplorerActionCatalogPolicy`: `targetRename` 仅对协议 >= 25, `TARGET_FILE` / `TARGET_DIRECTORY` / `TARGET_MIXED`, `CARDINALITY_SINGLE` / `MULTIPLE`, `ACCESS_READ_ONLY`, Activity 呈现, 无输出模式, 无 `filesystemPath`, 无 `targetTrash` 时有效; `PLACEMENT_RENAME_DIALOG` 仅对 `CARDINALITY_SINGLE` 且协议 >= 25 有效; 旧宿主通过既有的宣告版本检查拒绝协议 25 catalog.
-- [ ] (宿主) `ExplorerActionEntryPoint.RENAME_DIALOG(PLACEMENT_RENAME_DIALOG)`; `ExplorerActionRegistry.actionsFor` 对该入口的目标数量与父目录一致性检查.
-- [ ] (宿主) `ExplorerActionHostSession` v25 方法先以 "校验 + 委托给 P3.1 执行器" 的形态落地; P3 之前用 `UnsupportedOperationException` 占位并在测试中标注; 条目校验: `targetId` 属于本 session, `relativePath` 为空或是 `listChildren` 可达的后代 (规范化后不得逃逸目标), `newName` 通过 D19.
-- [ ] (测试) `ExplorerActionCatalogPolicyTest` 新增 v25 用例 (合法声明, 每条非法组合各一例); AIDL 事务号快照测试更新.
-- [ ] (宿主) `docs/dev/explorer-action-protocol-v25.md` (目的, 二进制兼容性, catalog 声明, session 方法, 校验规则, 撤销语义, 与 v16 / v21 回收站的关系), 格式参照 `explorer-action-protocol-v24.md`.
-- [ ] (插件) 更新 `libs/explorer-action-api.aar` 到 v25 构建, 锁文件同步.
+- [x] (宿主) `ExplorerActionProtocol.VERSION = 25` (新增 `MAX_RENAME_ENTRIES_PER_REQUEST = 2_000`, `MAX_RENAME_BATCH_ID_LENGTH = 128`, `MAX_RENAME_BATCH_RESULTS = 20`, `MAX_RENAME_NAME_BYTES = 255`); `ExplorerActionCatalogKeys.TARGET_RENAME = "targetRename"`; `ExplorerActionValues.PLACEMENT_RENAME_DIALOG = 4`; `ExplorerActionHostSessionKeys` / `Values` 新增重命名条目, 批次与状态; `IExplorerActionHostSession.aidl` 在 `openRelatedFile` 之后追加 5 个事务, v1-v24 事务号不变. 证据: 宿主提交 `95c9f0455` (本地, 待维护者合并; `VERSION_BUILD=3778`, versionCode 5430). 偏差: 编写协议文档时发现插件无法得知文件目标父目录中的既有名称 (文件目标没有 `readSiblings` 就不能列出父目录, 而 `targetRename` 不能与之组合; 只选了文件夹时更无从列出), 因此追加第 5 个事务 `listRenameParent(offset, limit)`: 只分页返回请求目标共同父目录中条目的名称与类型, 以及 `RENAME_CASE_INSENSITIVE` / `RENAME_RESTRICTED_CHARACTERS` 两项文件系统特征, 不使任何条目变得可读; 另增 `RENAME_ALL_OR_NOTHING` 请求标志 (先全部复核, 任一不通过则一个都不改), 冲突策略由插件在方案中解决, 宿主只执行确切名称 (见附录 C.2).
+- [x] (宿主) `ExplorerActionCatalogPolicy`: `targetRename` 仅对协议 >= 25, `ACCESS_READ_ONLY`, Activity 呈现, 无输出模式, 无未匹配文件探测, 无 `filesystemPath`, 无 `targetTrash`, 且不与 `readSiblings` / `playbackProgress` / 相关文件后缀组合时有效, 文件, 目录与混合目标均可; `PLACEMENT_RENAME_DIALOG` 仅对协议 >= 25, `CARDINALITY_SINGLE` 且声明了 `targetRename` 时有效; `matches` 接受新放置位置; 旧宿主通过既有的宣告版本检查拒绝协议 25 catalog. 证据: 同上.
+- [x] (宿主) `ExplorerActionEntryPoint.RENAME_DIALOG(PLACEMENT_RENAME_DIALOG)`; `ExplorerActionRegistry.actionsFor` 无需改动 (既有的目标数量, 共同父目录与 `ExplorerActionPolicy.allows` 按放置位置过滤即覆盖新入口); `ExplorerActionLauncher` 对 `targetRename` 动作总是创建会话并传入 `allowTargetRename`. 证据: 同上.
+- [x] (宿主) `ExplorerActionHostSession` 的 5 个 v25 方法先做访问检查 (调用方 UID, 动作声明了 `targetRename`, 会话未关闭), 随后抛出 `UnsupportedOperationException`; 会话工厂拒绝把重命名与输出, 替换或回收站权限组合. 真实的条目校验, 执行与日志随 P3.1 落地. 证据: 同上; 协议文档 "Status" 一节写明两步之间不得发布宿主.
+- [x] (测试) `ExplorerActionCatalogPolicyTest` 新增 `protocolV25TargetRenameIsLimitedToReadOnlyActivitiesWithoutOtherSessionAuthority` (三种 Batch Rename 声明形态, 协议门限, 9 种非法组合) 与 `protocolV25RenameDialogPlacementOnlyHoldsSingleRenameActions` (单目标且须声明重命名, 匹配文件与文件夹, 仅在主文件管理器的重命名对话框入口出现); 新增 `ExplorerActionAidlOrderTest` (`plugin-api/explorer-action-api`, 冻结插件接口 5 个与宿主会话接口 35 个事务的顺序). 证据 (E2): 宿主 explorer 包 JVM 测试 118 项与契约模块 3 项通过.
+- [x] (宿主) `docs/dev/explorer-action-protocol-v25.md` (目的, 状态, 二进制兼容性, 目录声明, 列出名称, 重命名, 历史与撤销, 客户端责任, 验证), 并在 `explorer-action-directory-browsing.md` 补充 `targetRename` 一条. 证据: 同上. 文档写明实现 `IExplorerActionHostSession.Stub` 的插件测试替身 (3-Maple Image, 3-Stack Archive, 3-Amber Player) 换用 v25 AAR 时需补齐 5 个方法.
+- [x] (插件) 更新 `libs/explorer-action-api.aar` 到 v25 构建, 锁文件, `libs/README.md` 同步; `BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION` 提升为 25 (目录仍为空). 证据: 本条所在提交; AAR SHA-256 `df4bcec8f68f502476c2eb41c8ff3ef513f30abfd28e06b94d1d235041cf3855`; 插件 JVM 守卫 26 项与设备契约测试 7 项 (Sony XQ-AT72, API 31) 通过. 未执行: 宿主 changelog (按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md` 第 3.2 节, 用户可感知的变化随 P1.4 / P3 / P4 一并记录, 不为中间形态单列).
 
 ### P1.3 注册, 协议文档, changelog 与版本回填
 
@@ -639,18 +639,23 @@ interface IBatchRenamePlugin {
 
 ### C.2 explorer-action v25
 
-- Catalog: `targetRename` (Boolean, `ExplorerActionCatalogKeys.TARGET_RENAME`); placement 新值 `PLACEMENT_RENAME_DIALOG = 4`.
-- Session (追加在 `openRelatedFile` 之后):
+P1.2 已落地 (宿主 `95c9f0455`), 以宿主 `docs/dev/explorer-action-protocol-v25.md` 与 `plugin-api/explorer-action-api` 源码为准; 下面只列摘要.
+
+- Catalog: `targetRename` (Boolean, `ExplorerActionCatalogKeys.TARGET_RENAME`); placement 新值 `PLACEMENT_RENAME_DIALOG = 4` (单目标, 须声明 `targetRename`).
+- Session (追加在 `openRelatedFile` 之后, `ExplorerActionAidlOrderTest` 冻结顺序):
 
 ```java
-/** v25. */ Bundle renameEntries(in Bundle request);
-/** v25. */ Bundle queryRenameBatch(String renameBatchId);
-/** v25. */ Bundle listRenameBatches();
-/** v25. */ Bundle undoRenameBatch(String renameBatchId);
+/** v25 */ Bundle listRenameParent(int offset, int limit);
+/** v25 */ Bundle renameEntries(in Bundle request);
+/** v25 */ Bundle queryRenameBatch(String renameBatchId);
+/** v25 */ Bundle listRenameBatches();
+/** v25 */ Bundle undoRenameBatch(String renameBatchId);
 ```
 
-`renameEntries` 请求: `entries` (ArrayList<Bundle>: `targetId`, `relativePath`, `newName`), `conflictPolicy` (int: 0 fail, 1 skip, 2 number, 3 overwrite), `conflictNumberPattern`; 响应: `renameBatchId`, `renameBatchState` (available / partial / failed), `items` (`targetId`, `relativePath`, `newRelativePath`, `state`, `reasonCode`), `counts`. 撤销, 查询与列表的 Bundle 形态对齐 v21 的 `targetTrashBatch*` 系列 key 命名.
-- 校验: 条目属于本 session 的目标或其 `listChildren` 可达后代; `newName` 通过宿主 D19 校验 (宿主不信任插件方案, 只把它当作请求); 批次 id 不可猜测; 执行与日志复用 P3.1 执行器.
+- `listRenameParent`: 请求目标共同父目录的条目 (`ITEMS` 中只有 `DISPLAY_NAME` 与 `KIND`), `NEXT_OFFSET`, `COMPLETE`, 外加 `RENAME_CASE_INSENSITIVE` 与 `RENAME_RESTRICTED_CHARACTERS`.
+- `renameEntries` 请求: `RENAME_ENTRIES` (1 至 2000 个 Bundle: `RENAME_TARGET_ID`, `RELATIVE_PATH` (空为目标本身, 否则为目录目标下经 `listChildren` 规则校验的后代), `RENAME_NEW_NAME` (单段, 至多 255 个 UTF-8 字节), 可选 `RENAME_OVERWRITE`), 可选 `RENAME_ALL_OR_NOTHING`. 冲突策略只存在于插件方案中, 宿主执行确切名称并重新校验.
+- 响应: `RENAME_BATCH_ID`, `RENAME_BATCH_STATE` (`COMMITTED` / `PARTIAL` / `REJECTED`, 撤销后 `RESTORED`), `RENAME_RENAMED_COUNT`, `RENAME_NOT_RENAMED_COUNT`, 逐条 `RENAME_TARGET_ID`, `RELATIVE_PATH`, `RENAME_NEW_RELATIVE_PATH`, `RENAME_ITEM_STATE` (`RENAMED` / `NOT_RENAMED` / `STALE`, 撤销后 `RESTORED` / `RECOVERY_REQUIRED`).
+- 历史: 按插件 UID 与会话目标限定, 每个插件至多保留 20 批 (与 `files.batchRename` 共用日志, D21).
 
 ---
 

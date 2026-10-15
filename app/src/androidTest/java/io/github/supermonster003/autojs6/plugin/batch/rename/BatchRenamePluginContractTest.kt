@@ -43,13 +43,13 @@ import java.util.zip.ZipFile
  * The host-facing activation and discovery contract against the installed APK (roadmap P0.2, AGENTS 14.2): the Wake
  * activity, discovery of exactly one component per action / category, explicit binding with the expected Binder
  * descriptors, `getInfo()` answers marshalled through real Parcels with the AIDL transaction codes the host uses, the
- * empty protocol 24 catalog, the rename activity entry, and the single universal APK of roadmap D28.
+ * empty protocol 25 catalog, the rename activity entry, and the single universal APK of roadmap D28.
  *
  * The services run in the plugin's own process, so the calls below use `transact` with explicit Parcels instead of
  * `asInterface`, which would return the local object and skip marshalling.
  *
  * zh-CN: 针对已安装 APK 验证面向宿主的激活与发现契约 (路线图 P0.2, AGENTS 14.2): Wake Activity, 每组 action / category 恰好
- * 发现一个组件, 显式绑定与 Binder 描述符, 按宿主使用的 AIDL 事务号经真实 Parcel 编组的 `getInfo()` 应答, 协议 24 的空动作目录,
+ * 发现一个组件, 显式绑定与 Binder 描述符, 按宿主使用的 AIDL 事务号经真实 Parcel 编组的 `getInfo()` 应答, 协议 25 的空动作目录,
  * 重命名 Activity 入口, 以及路线图 D28 的单个通用 APK. 服务与测试同进程, 因此下文用显式 Parcel 调用 `transact`, 不用会直接返回
  * 本地对象而跳过编组的 `asInterface`.
  */

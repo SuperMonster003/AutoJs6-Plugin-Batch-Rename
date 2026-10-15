@@ -1,14 +1,13 @@
-# Host API release AARs, staged on 2026-10-15 (roadmap P0.1 and P1.1).
+# Host API release AARs, staged on 2026-10-15 (roadmap P0.1, P1.1 and P1.2).
 # common-plugin-api: :plugin-api:common-plugin-api:assembleRelease on host snapshot 6c151c900e (6.8.0, build 5352);
 #   module last changed at host commit aa8ebaf72e (2026-10-07).
-# explorer-action-api: :plugin-api:explorer-action-api:assembleRelease on host snapshot 6c151c900e, protocol v24;
-#   module last changed at host commit ccddb727b7 (2026-10-14); byte-identical to the artifact staged by 3-Maple Image 3.2.0.
 # batch-rename-api: :plugin-api:batch-rename-api:assembleRelease at host commit aa4fd4f6d (contract v1, build 5429).
-# explorer-action-api is rebuilt for protocol v25 in roadmap P1.2. See libs/README.md.
+# explorer-action-api: :plugin-api:explorer-action-api:assembleRelease at host commit 95c9f0455 (protocol v25, build 5430).
+# See libs/README.md.
 format=1
 batch-rename-api.file=batch-rename-api.aar
 batch-rename-api.sha256=315e37b94297582fbb975da71b163fcb3ac78d2a870f03b5847c5a42b1d207cb
 common-plugin-api.file=common-plugin-api.aar
 common-plugin-api.sha256=ed7a71942ffb67255ebad8d8a2c912b01c4a3cdd8aad497baba0687b4072032a
 explorer-action-api.file=explorer-action-api.aar
-explorer-action-api.sha256=fd56dddd35351be5a9e598dad80f5d0aaa45575452639cf7ed7ef53de49f3f9b
+explorer-action-api.sha256=df4bcec8f68f502476c2eb41c8ff3ef513f30abfd28e06b94d1d235041cf3855

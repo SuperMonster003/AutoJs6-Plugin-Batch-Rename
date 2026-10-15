@@ -34,11 +34,12 @@ internal object BatchRenamePlugin {
     const val REQUIRED_HOST_VERSION = 5352L
 
     /**
-     * Explorer Action protocol the catalog declares. The catalog stays empty until the v25 actions of
-     * roadmap P4.1 exist; P1.2 raises the version to 25.
-     * zh-CN: 动作目录声明的 Explorer Action 协议版本. 路线图 P4.1 的 v25 动作落地之前目录为空; P1.2 将版本提升到 25.
+     * Explorer Action protocol the catalog declares: v25 adds `targetRename` and the rename dialog placement
+     * (roadmap D22). The catalog stays empty until the actions of roadmap P4.1 exist.
+     * zh-CN: 动作目录声明的 Explorer Action 协议版本: v25 加入 `targetRename` 与重命名对话框位置 (路线图 D22).
+     * 路线图 P4.1 的动作落地之前目录为空.
      */
-    const val EXPLORER_PROTOCOL_VERSION = 24
+    const val EXPLORER_PROTOCOL_VERSION = 25
 
     /** Resource reference of the localized Plugin Center instruction. zh-CN: 插件中心本地化说明的资源引用. */
     const val INSTRUCTION_REFERENCE = "@raw/plugin_instruction"

@@ -60,7 +60,7 @@ class PluginRuntimeInfoTest {
             "the catalog cannot declare a protocol newer than libs/explorer-action-api.aar",
             BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION <= ExplorerActionProtocol.VERSION,
         )
-        assertEquals("P0 declares the current host protocol; P1.2 raises it to 25", 24, BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION)
+        assertEquals("protocol v25 brings targetRename and the rename dialog placement", 25, BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION)
     }
 
     @Test
