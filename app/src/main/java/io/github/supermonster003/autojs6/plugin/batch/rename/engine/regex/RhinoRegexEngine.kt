@@ -81,10 +81,6 @@ internal class RhinoRegexEngine(
                 evaluate(helpers.compile, arrayOf(source, flags))
             } catch (error: RhinoException) {
                 throw JsRegexSyntaxException(error.details())
-            } catch (_: UnsupportedOperationException) {
-                // Rhino parses `\p{...}` with java.util.regex named groups, which Android supports from API 26 only.
-                // zh-CN: Rhino 用 java.util.regex 的命名分组解析 `\p{...}`, Android 自 API 26 起才支持.
-                throw JsRegexSyntaxException(UNICODE_PROPERTIES_UNAVAILABLE)
             }
             return JsRegex(source, flags, this, checkNotNull(handle) { "RegExp construction returned nothing" })
         }
@@ -165,9 +161,6 @@ internal class RhinoRegexEngine(
 
         /** Budget of a session, far above a 2000-item plan on slow devices. zh-CN: 会话预算, 远高于慢速设备上 2000 项方案的耗时. */
         const val DEFAULT_SESSION_BUDGET_MILLIS = 30_000L
-
-        /** The explanation for `\p{...}` on API 24 / 25. zh-CN: API 24 / 25 上 `\p{...}` 的说明. */
-        const val UNICODE_PROPERTIES_UNAVAILABLE = "Unicode property escapes (\\p{...}) need Android 8.0 (API 26) or later"
 
         /** Instructions between two deadline checks. zh-CN: 两次截止时间检查之间的指令数. */
         private const val INSTRUCTION_SLICE = 10_000

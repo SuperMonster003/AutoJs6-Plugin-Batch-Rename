@@ -1,6 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename.engine.regex
 
-import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -11,11 +10,11 @@ import org.junit.runner.RunWith
 /**
  * The slim Rhino jar on Android (roadmap P2.1): the interpreter, the sealed scope and `NativeRegExp` load and evaluate
  * the ECMAScript features the JVM parity table covers, down to API 24 (with core library desugaring for the `java.time`
- * that Rhino's `NativeDate` needs). Unicode property escapes need API 26: Rhino parses them with `java.util.regex` named
- * groups, so API 24 / 25 report a syntax error instead of crashing.
+ * that Rhino's `NativeDate` needs). Unicode property escapes work on API 24 / 25 as well since the Rhino jar of host
+ * commit 259467203, which no longer parses them with `java.util.regex` named groups.
  * zh-CN: slim Rhino jar 在 Android 上的表现 (路线图 P2.1): 解释器, 封存作用域与 `NativeRegExp` 能在 API 24 及以上加载并求值
- * JVM 对照表覆盖的 ECMAScript 特性 (Rhino 的 `NativeDate` 所需的 `java.time` 依靠 core library desugaring). Unicode 属性
- * 转义需要 API 26: Rhino 用 `java.util.regex` 命名分组解析它, 因此 API 24 / 25 报告语法错误而不是崩溃.
+ * JVM 对照表覆盖的 ECMAScript 特性 (Rhino 的 `NativeDate` 所需的 `java.time` 依靠 core library desugaring). 自宿主提交
+ * 259467203 的 Rhino jar 起不再用 `java.util.regex` 命名分组解析 Unicode 属性转义, API 24 / 25 上同样可用.
  */
 @RunWith(AndroidJUnit4::class)
 class RhinoRegexEngineDeviceTest {
@@ -36,19 +35,11 @@ class RhinoRegexEngineDeviceTest {
     }
 
     @Test
-    fun unicodePropertyEscapesNeedApi26() {
+    fun unicodePropertyEscapesWorkOnEveryApiLevel() {
         RhinoRegexEngine().session { session ->
             val input = "abc 123 \u7167\u7247"
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assertEquals("L 123 L", session.replace(input, session.compile("\\p{L}+", "gu"), "L"))
-            } else {
-                try {
-                    session.compile("\\p{L}+", "gu")
-                    fail("API ${Build.VERSION.SDK_INT} cannot parse Unicode property escapes")
-                } catch (error: JsRegexSyntaxException) {
-                    assertEquals(RhinoRegexEngine.UNICODE_PROPERTIES_UNAVAILABLE, error.message)
-                }
-            }
+            assertEquals("L 123 L", session.replace(input, session.compile("\\p{L}+", "gu"), "L"))
+            assertTrue(session.test("a" + input, session.compile("\\p{Script=Han}", "u")))
         }
     }
 

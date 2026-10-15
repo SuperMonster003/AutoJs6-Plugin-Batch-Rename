@@ -28,8 +28,10 @@ unchanged, and the plugin only implements `IExplorerActionPlugin`, whose order d
 
 `org-mozilla-rhino-2_0_0-SNAPSHOT-slim.jar` is the output of the host task `:app:slimRhinoJar`: the host's own Rhino
 2.0.0-SNAPSHOT build (`libs/org-mozilla-rhino-2_0_0-SNAPSHOT.jar`, last changed at host commit
-`ba2e7d30a24218bb6f9cb47c811bd636d18e2bea`) without JLine, the optimizer and the JFR components, exactly what the host
-packages and runs. SHA-256 `8c6f3369da55bf1f4dbb514e57a6e9ff098c1ba9a1a56fecb75e4e43ce528aaf`. It is MPL 2.0.
+`259467203029f76a693ae35f59276bfbbad4ee5e`, built from Rhino-For-AutoJs6 commit `90693268c`, which parses Unicode property
+escapes without the java.util.regex named groups Android lacks before API 26) without JLine, the optimizer and the JFR
+components, exactly what the host packages and runs. SHA-256 `3e67e8636e1c33b993b9b12b83515a35bdcb7c79daeed1ca3eaf9f2da1afaac4`.
+It is MPL 2.0.
 
 The regular expression engine (`engine/regex`, the only package allowed to import `org.mozilla.javascript`,
 `RhinoJarLockTest`) evaluates `RegExp` and `String.prototype.replace` on its `NativeRegExp` in interpreted mode, so

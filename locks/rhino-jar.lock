@@ -1,7 +1,8 @@
 # Slim Rhino jar for the ECMAScript regular expression engine (roadmap P2.1 / D15). Produced by the host task
 #   :app:slimRhinoJar (the host's own org-mozilla-rhino-2_0_0-SNAPSHOT.jar without JLine, the optimizer and JFR) from the
-#   Rhino jar of host commit ba2e7d30a24218bb6f9cb47c811bd636d18e2bea (2026-10-15). See libs/README.md.
+#   Rhino jar of host commit 259467203029f76a693ae35f59276bfbbad4ee5e (2026-10-15, Rhino 90693268c: Unicode property
+#   escapes work on Android 7.x). See libs/README.md.
 format=1
 rhino.file=org-mozilla-rhino-2_0_0-SNAPSHOT-slim.jar
-rhino.sha256=8c6f3369da55bf1f4dbb514e57a6e9ff098c1ba9a1a56fecb75e4e43ce528aaf
-rhino.source=ba2e7d30a24218bb6f9cb47c811bd636d18e2bea
+rhino.sha256=3e67e8636e1c33b993b9b12b83515a35bdcb7c79daeed1ca3eaf9f2da1afaac4
+rhino.source=259467203029f76a693ae35f59276bfbbad4ee5e
