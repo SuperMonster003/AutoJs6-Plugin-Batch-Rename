@@ -223,7 +223,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 已完成 (2026-10-15; 服务的 `plan` 已接入引擎) |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 与真机联调已完成 2026-10-15; 剩三项失败路径) |
-| P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
+| P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 进行中 (P5.1 - P5.2 已完成 2026-10-15) |
 | P6 | 1.1.0 | 候选: EXIF / XMP 变量, 预设, 宿主重命名历史页面, 其他 | 未开始 |
 
 依赖顺序:
@@ -405,13 +405,13 @@ P0 (骨架)
 
 ### P5.1 文档 (AutoJs6-Documentation)
 
-- [ ] (文档) `api/files.md` 新增 `batchRename` 条目组 (当前风格: `## [m+] batchRename`, `### files.batchRename(paths, options)`, `### files.batchRename.plan(paths, options)` 等, 版本徽章 `6.8.0`), 开头加 "由外置 Batch Rename 插件提供, 调用前必须安装并启用与当前 AutoJs6 版本兼容的插件, 未发现可用插件时抛出异常" 的说明段 (措辞与 `mediainfo.md` 一致); 选项表, 变量表 (附录 A), 冲突策略, 撤销, 错误码, 示例 (>= 6 个, `let`, 可运行); `api/progress.md` 更新; `api/sidebar.md` 无需新页 (挂在 files 下).
-- [ ] (文档) 运行 `generator/auto-generate-for-autojs6.bat`, 同步 `AutoJs6-Plugin-Offline-Docs`, 两仓库版本号与宿主对齐后提交.
+- [x] (文档) `api/files.md` 新增 `batchRename` 条目组 (当前风格: `## [m+] batchRename`, `### files.batchRename(paths, options)`, `### files.batchRename.plan(paths, options)` 等, 版本徽章 `6.8.0`), 开头加 "由外置 Batch Rename 插件提供, 调用前必须安装并启用与当前 AutoJs6 版本兼容的插件, 未发现可用插件时抛出异常" 的说明段 (措辞与 `mediainfo.md` 一致); 选项表, 变量表 (附录 A), 冲突策略, 撤销, 错误码, 示例 (>= 6 个, `let`, 可运行); `api/progress.md` 更新; `api/sidebar.md` 无需新页 (挂在 files 下). 证据 (2026-10-15): 文档仓库 `021a6a6` (正文, `api/progress.md`, 文档更新日志 10 种语言) 与 `62f55d8` (小节标题补英文锚点); `## [m+] batchRename` 含 `files.batchRename(paths, options)`, `plan`, `apply`, `undo`, `history`, `isAvailable` 与三个 `Async` 形态, 开头为插件依赖说明 (措辞与 `mediainfo.md` / `epub.md` 一致); 选项表, 替换变量 (计数器, 20 个日期时间变量, 随机值), 冲突策略, 方案 / 结果 / 撤销结果 / 历史对象 (含原因码表) 与 `BatchRenameError` 错误代码放在页末的独立章节; 示例 12 个, 全部用 `let`, 并在 OnePlus OPD2413 (63751f63, API 35, 宿主 5444) 上经 `RunIntentActivity` 实际运行核对输出 (据此修正了概览示例的输出注释: 给出的文件夹自身也是条目). 偏差: 类型未另开页面, 也未用 `BatchRenamePlan` 等纯英文标题 (生成器会把它们与同名方法的锚点合并), 而是 "批量重命名方案 (BatchRenamePlan)" 这类标题.
+- [x] (文档) 运行 `generator/auto-generate-for-autojs6.bat`, 同步 `AutoJs6-Plugin-Offline-Docs`, 两仓库版本号与宿主对齐后提交. 证据: 以 `--sync-offline --increment-versions` 全量生成 (文档 versionCode 116 -> 117, 文档仓库 `980e48b`), 页内锚点全部可解析; Offline-Docs `75b8b4b` (`VERSION_BUILD=145`, 两份 `SOURCE_PROVENANCE.md` 记为 `62f55d8884`, 6.8.6 更新日志 10 种语言, 单元测试通过). 未推送.
 
 ### P5.2 声明 (AutoJs6-TypeScript-Declarations, Ace Editor)
 
-- [ ] (文档) `declarations/autojs6/aj6-int-files.d.ts`: `Internal.Files` 增加 `batchRename: Internal.FilesBatchRename`; 新增 `Internal.FilesBatchRename` 可调用接口与 `BatchRenameOptions` / `BatchRenamePlan` / `BatchRenamePlanItem` / `BatchRenameResult` / `BatchRenameHistoryEntry` 类型 (附录 B.4 草案), JSDoc 含 `@example` 与 "Source code summary (zh-CN: 源代码摘要)", 头部 `@Source` 指向宿主 augment 与桥接文件; 以 "provided by the external Batch Rename plugin" 说明插件依赖.
-- [ ] (文档) Ace Editor 仓库同步同一 d.ts, 运行 `:app:generateAutoJs6LspDeclarations`; 两仓库版本号 +1 与版本名递增 (minor) 后提交. `aj6dts.bat -Publish` 只在宿主 Java 签名变化时运行, `aj6-int-*.d.ts` 需手工同步.
+- [x] (文档) `declarations/autojs6/aj6-int-files.d.ts`: `Internal.Files` 增加 `batchRename: Internal.FilesBatchRename`; 新增 `Internal.FilesBatchRename` 可调用接口与 `BatchRenameOptions` / `BatchRenamePlan` / `BatchRenamePlanItem` / `BatchRenameResult` / `BatchRenameHistoryEntry` 类型 (附录 B.4 草案), JSDoc 含 `@example` 与 "Source code summary (zh-CN: 源代码摘要)", 头部 `@Source` 指向宿主 augment 与桥接文件; 以 "provided by the external Batch Rename plugin" 说明插件依赖. 证据: 声明仓库 `f53adbd` (4.39.0 -> 4.40.0): `Internal.Files` 增加 `readonly batchRename: FilesBatchRename`, 可调用接口含 `plan` / `apply` / `undo` / `history` / `isAvailable` / 三个 `Async` 形态与 `BatchRenameError` 构造器, 头部 `@Source` 指向宿主 augment, 参数, 服务, 错误码与契约值文件; 冒烟夹具新增 10 行 (含两条 `@ts-expect-error`), `verify-api-coverage` 在 TypeScript 5.3.3 / 5.9.3 下通过, 其余校验器与文档生成检查通过; 更新日志 10 种语言. 偏差: 类型位于 `Internal.FilesBatchRename` 命名空间 (`Options`, `ApplyOptions`, `NormalizedOptions`, `Plan`, `PlanItem`, `Result`, `ResultItem`, `UndoResult`, `HistoryEntry` 等), 而非附录 B.4 草案的顶层 `BatchRename*` 名称; `dateTime` / `normalize` 另接受宿主同样接受的 `'none'`.
+- [x] (文档) Ace Editor 仓库同步同一 d.ts, 运行 `:app:generateAutoJs6LspDeclarations`; 两仓库版本号 +1 与版本名递增 (minor) 后提交. `aj6dts.bat -Publish` 只在宿主 Java 签名变化时运行, `aj6-int-*.d.ts` 需手工同步. 证据: Ace `c874d1d` (2.1.0 -> 2.2.0, `VERSION_BUILD=276`): 随附声明 4.40.0, 经宿主 `tools/ace-completion/generate-editor-assets.mjs` 重建静态索引, `lib.autojs6.d.ts` 与 LSP 声明组并完成其校验, `:app:generateAutoJs6LspDeclarations` 与 `:app:verifyAutoJs6LspRuntime` 通过; 宿主 `e3331a725` (`VERSION_BUILD=3794`, 本地) 提交补全索引源. 未推送.
 
 ### P5.3 README, changelog 与兼容矩阵
 
