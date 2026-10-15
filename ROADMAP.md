@@ -220,7 +220,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | --- | --- | --- | --- |
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
-| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 进行中 (P2.1 - P2.4 已完成, 2026-10-15) |
+| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 已完成 (2026-10-15; 服务的 `plan` 已接入引擎) |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
@@ -340,8 +340,9 @@ P0 (骨架)
 
 ### P2.5 编解码与上限
 
-- [ ] (插件) `service/BundleCodec`: 请求 / 响应 Bundle 与 engine 模型互转 (附录 C.1 结构), 输入边界 (条目数, 名称长度, 查找 / 替换长度, 父目录数, 未知 kind), 超限返回 `LIMIT_EXCEEDED`; 不信任宿主传入的任何字符串 (名称只作数据).
-- [ ] (测试) 编解码往返与边界用例; 畸形 Bundle (缺 key, 类型错误) 不抛未捕获异常.
+- [x] (插件) 编解码拆为两层: `service/PlanCodec` 在 Bundle 形态的纯 Map 与引擎模型之间互转 (附录 C.1 结构; 契约版本不受支持时以请求中的版本应答 `UNSUPPORTED_CONTRACT_VERSION`; 缺键, 类型错误, 未知 `kind`, 未知时区, 空父目录 id 报 `INVALID_REQUEST`; 条目数, 父目录数与整个请求超过 262144 字符报 `LIMIT_EXCEEDED`; 选项交给 `RenameOptionsParser`; 应答带全部键与每种状态的计数, 失败应答只有契约版本, 错误码与至多 1024 字符的消息), `BatchRenamePlanner` 从不抛出异常 (意外错误为 `INTERNAL_ERROR`, 未知选项键写日志), `service/BundleMaps` 负责 Bundle 与 Map 的互转. 宿主传入的字符串只作为数据. 证据: 本条所在提交. 偏差: 原计划的单个 `BundleCodec` 拆成可在 JVM 上完整测试的 `PlanCodec` 与只在设备上运行的 `BundleMaps` (JVM 单元测试中没有可用的 `Bundle`).
+- [x] (测试) `PlanCodecTest` 7 项 (经真实引擎的往返与全部应答键, 区域 / 时区 / 方案时间到达日期变量, 可选键的默认值, 未知选项键记录日志, 16 种畸形请求与各项上限, 错误消息长度, 2000 个随机损坏的请求从不抛出也不落入 `INTERNAL_ERROR`); 设备契约测试改为经真实 Parcel 往返的 `plan` (Sony XQ-AT72, API 31). 证据: 插件 JVM 测试 101 项通过, 设备测试 10 项通过.
+- [x] (插件, 提前完成 P4.1 第一条) `BatchRenamePluginService.plan` 经 `BundleMaps` 与 `BatchRenamePlanner` 调用引擎 (进程内共用一个引擎, 并发安全), `BatchRenamePlugin.FEATURES` 声明 `counter` / `dateTime` / `random` / `cleanup` 四项. 正则时间预算改为每次求值 1 s, 每个会话 30 s (原为整个会话 2 s, 慢速设备上的 2000 项方案可能被误判超时). 证据: 宿主提交 `383d7dab8` (本地, 待维护者合并; `VERSION_BUILD=3781`) 新增 `BatchRenamePluginRoundTripTest`, 经 `BatchRenamePluginHost.plan` 跨进程调用已安装的签名 release 插件, 3 项在 Sony XQ-AT72 上通过. 联调中发现: release 插件被宿主调用时 `RegExp` 未定义, 原因是 Rhino 首次运行在插件进程的 Binder 线程上, 该线程的上下文类加载器不是插件的, `ServiceLoader` 读不到 `META-INF/services`; 插件自身的设备测试为同进程调用, 无法发现. 修复: `RhinoRegexEngine` 在首次进入 Rhino 时临时设置上下文类加载器. 曾怀疑 R8 改名所致, 加 `-keepnames` 后仍失败, 修复类加载器后去掉该规则同样通过, 因此 R8 规则保持不变. release APK 799,045 字节 (D28 预算 3.5 MB). 宿主协议文档补充 "Plan semantics" 一节 (同一宿主提交).
 
 ---
 
@@ -373,7 +374,7 @@ P0 (骨架)
 
 ### P4.1 服务与 catalog (D23)
 
-- [ ] (插件) `BatchRenamePluginService`: `getInfo()` 与契约能力已在 P1.3 实现 (`explorerActionProtocolVersion` 只由管理器服务上报); 本条把 `plan()` 从 `planWithoutEngine` 改为经 `BundleCodec` 调引擎 (并发安全, 无状态), 并让 `BatchRenamePlugin.FEATURES` 声明引擎实际实现的功能.
+- [x] (插件) `BatchRenamePluginService`: `getInfo()` 与契约能力已在 P1.3 实现 (`explorerActionProtocolVersion` 只由管理器服务上报); 本条把 `plan()` 从 `planWithoutEngine` 改为经 `BundleCodec` 调引擎 (并发安全, 无状态), 并让 `BatchRenamePlugin.FEATURES` 声明引擎实际实现的功能. 证据: 已在 P2.5 提前完成 (见该节).
 - [ ] (插件) `BatchRenameExplorerActionService`: `getActionCatalog()` 三个动作 (D23), 协议 25, `getInfo()` 与能力服务一致; `BatchRenameActivity` 的 `EXPLORER_ACTION_EXECUTE` 入口解析请求 (目标, session token, 协议版本), 协议低于 25 时显示本地化错误并退出.
 - [ ] (测试) JVM: catalog 快照测试, `ExplorerActionManifestTest` (每个 catalog Activity 带 EXECUTE + DEFAULT); instrumentation `BatchRenamePluginContractTest`: action / category 发现只命中一个服务, 显式绑定与 descriptor, `getInfo` 字段, `plan` happy path / 非法参数 / 超限, 绑定解绑不泄漏.
 

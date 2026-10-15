@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.batch.rename
 
 import org.autojs.plugin.batchrename.api.BatchRenamePluginActions
 import org.autojs.plugin.batchrename.api.BatchRenamePluginIds
+import org.autojs.plugin.batchrename.api.BatchRenameValues
 import org.autojs.plugin.batchrename.api.IBatchRenamePlugin
 
 /**
@@ -34,11 +35,16 @@ internal object BatchRenamePlugin {
     const val REQUIRED_HOST_VERSION = 5431L
 
     /**
-     * Optional contract features this build implements (`BatchRenameValues.FEATURES`). Empty until the engine of
-     * roadmap P2 is wired in; the host never relies on a feature that is not advertised.
-     * zh-CN: 本构建实现的可选契约功能. 路线图 P2 的引擎接入之前为空; 宿主不会依赖未声明的功能.
+     * Optional contract features this build implements: the engine of roadmap P2 covers counters, date and time
+     * variables, random values and the cleanup options. The host never relies on a feature that is not advertised.
+     * zh-CN: 本构建实现的可选契约功能: 路线图 P2 的引擎支持计数器, 日期时间变量, 随机值与清理选项. 宿主不会依赖未声明的功能.
      */
-    val FEATURES: List<String> = emptyList()
+    val FEATURES: List<String> = listOf(
+        BatchRenameValues.FEATURE_COUNTER,
+        BatchRenameValues.FEATURE_DATE_TIME,
+        BatchRenameValues.FEATURE_RANDOM,
+        BatchRenameValues.FEATURE_CLEANUP,
+    )
 
     /**
      * Explorer Action protocol the catalog declares: v25 adds `targetRename` and the rename dialog placement

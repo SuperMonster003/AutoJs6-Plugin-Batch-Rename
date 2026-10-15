@@ -53,7 +53,9 @@ class RhinoJarLockTest {
         assertTrue(readme.contains(lock.getValue("rhino.sha256")))
         assertTrue(readme.contains(lock.getValue("rhino.source")))
         assertTrue(RepositoryFiles.text("THIRD_PARTY_NOTICES.md").contains("`libs/${lock["rhino.file"]}`"))
-        assertTrue("Rhino looks its interpreter up by name", RepositoryFiles.text("app/proguard-rules.pro").contains("-keep class org.mozilla.javascript.Interpreter"))
+        val rules = RepositoryFiles.text("app/proguard-rules.pro")
+        assertTrue("Rhino looks its interpreter up by name", rules.contains("-keep class org.mozilla.javascript.Interpreter"))
+        assertTrue("Rhino finds its platform bridge by name", rules.contains("-keep class org.mozilla.javascript.jdk18.VMBridge_jdk18"))
     }
 
     @Test

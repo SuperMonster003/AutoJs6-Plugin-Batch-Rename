@@ -15,33 +15,54 @@ import org.mozilla.javascript.TopLevel
  * - One sealed scope with the safe standard objects is shared by all threads; each session enters its own [Context]
  *   in interpreted mode (the slim jar has no optimizer).
  * - User text only travels as arguments of three fixed helper functions; it is never spliced into JavaScript source.
- * - Rhino reports regular expression backtracking to the instruction observer, so a session that exceeds
- *   [timeBudgetMillis] stops with [JsRegexTimeoutException] instead of blocking a Binder thread.
+ * - Rhino reports regular expression backtracking to the instruction observer, so an evaluation that exceeds
+ *   [timeBudgetMillis], or a session that exceeds [sessionBudgetMillis], stops with [JsRegexTimeoutException] instead of
+ *   blocking a Binder thread.
  *
  * zh-CN: 基于宿主 Rhino 构建的 [JsRegexEngine] (路线图 D15): 与 AutoJs6 脚本中运行 `RegExp` 的是同一个 `NativeRegExp`,
  * 表达式与替换串的行为完全一致. 所有线程共享一个封存的安全标准对象作用域; 每个会话以解释模式进入自己的 [Context] (slim jar
  * 不含优化器). 用户文本只作为三个固定辅助函数的参数传递, 从不拼接进 JavaScript 源码. Rhino 会把正则回溯计入指令观察器,
- * 因此超过 [timeBudgetMillis] 的会话以 [JsRegexTimeoutException] 结束, 不会阻塞 Binder 线程.
+ * 因此单次求值超过 [timeBudgetMillis] 或会话超过 [sessionBudgetMillis] 时以 [JsRegexTimeoutException] 结束, 不会阻塞 Binder 线程.
  */
 internal class RhinoRegexEngine(
+    /** Budget of one compile, test or replace. zh-CN: 单次编译, 测试或替换的预算. */
     private val timeBudgetMillis: Long = DEFAULT_TIME_BUDGET_MILLIS,
+    /** Budget of a whole session (a plan or a preview pass). zh-CN: 整个会话 (一个方案或一次预览) 的预算. */
+    private val sessionBudgetMillis: Long = DEFAULT_SESSION_BUDGET_MILLIS,
 ) : JsRegexEngine {
 
     init {
-        require(timeBudgetMillis > 0) { "The time budget must be positive" }
+        require(timeBudgetMillis > 0 && sessionBudgetMillis > 0) { "Time budgets must be positive" }
     }
 
-    private val factory = BudgetContextFactory()
+    private val factory = withOwnClassLoader { BudgetContextFactory() }
 
-    private val helpers: Helpers by lazy { factory.call { cx -> Helpers.create(cx) } }
+    // Rhino initializes Context, and with it the RegExp implementation, through ServiceLoader, which reads
+    // META-INF/services from the thread's context class loader. Binder threads of the plugin process do not carry the
+    // plugin's loader (RegExp stayed undefined for host calls, roadmap P2.5), so the first entry sets it explicitly.
+    // zh-CN: Rhino 经 ServiceLoader 初始化 Context 及其中的 RegExp 实现, ServiceLoader 从线程的上下文类加载器读取
+    // META-INF/services. 插件进程的 Binder 线程不带插件的类加载器 (宿主调用时 RegExp 一直未定义, 路线图 P2.5), 因此首次进入时显式设置.
+    private val helpers: Helpers by lazy {
+        withOwnClassLoader { factory.call { cx -> Helpers.create(cx) } }
+    }
+
+    private inline fun <T> withOwnClassLoader(block: () -> T): T {
+        val thread = Thread.currentThread()
+        val previous = thread.contextClassLoader
+        thread.contextClassLoader = RhinoRegexEngine::class.java.classLoader
+        try {
+            return block()
+        } finally {
+            thread.contextClassLoader = previous
+        }
+    }
 
     override fun <T> session(block: (JsRegexSession) -> T): T {
         val helpers = helpers
         val cx = factory.enterContext() as BudgetContext
         val previousDeadline = cx.deadlineNanos
         try {
-            cx.deadlineNanos = System.nanoTime() + timeBudgetMillis * NANOS_PER_MILLI
-            return block(RhinoSession(cx, helpers, timeBudgetMillis))
+            return block(RhinoSession(cx, helpers, timeBudgetMillis, System.nanoTime() + sessionBudgetMillis * NANOS_PER_MILLI))
         } finally {
             cx.deadlineNanos = previousDeadline
             Context.exit()
@@ -52,11 +73,12 @@ internal class RhinoRegexEngine(
         private val cx: BudgetContext,
         private val helpers: Helpers,
         private val budgetMillis: Long,
+        private val sessionDeadlineNanos: Long,
     ) : JsRegexSession {
 
         override fun compile(source: String, flags: String): JsRegex {
             val handle = try {
-                helpers.compile.call(cx, helpers.scope, helpers.self, arrayOf(source, flags))
+                evaluate(helpers.compile, arrayOf(source, flags))
             } catch (error: RhinoException) {
                 throw JsRegexSyntaxException(error.details())
             } catch (_: UnsupportedOperationException) {
@@ -64,7 +86,7 @@ internal class RhinoRegexEngine(
                 // zh-CN: Rhino 用 java.util.regex 的命名分组解析 `\p{...}`, Android 自 API 26 起才支持.
                 throw JsRegexSyntaxException(UNICODE_PROPERTIES_UNAVAILABLE)
             }
-            return JsRegex(source, flags, this, handle)
+            return JsRegex(source, flags, this, checkNotNull(handle) { "RegExp construction returned nothing" })
         }
 
         override fun test(input: String, regex: JsRegex): Boolean =
@@ -78,10 +100,16 @@ internal class RhinoRegexEngine(
             return regex.handle
         }
 
-        private fun evaluate(function: Function, arguments: Array<Any>): Any? = try {
-            function.call(cx, helpers.scope, helpers.self, arguments)
-        } catch (_: BudgetExceeded) {
-            throw JsRegexTimeoutException(budgetMillis)
+        private fun evaluate(function: Function, arguments: Array<Any>): Any? {
+            val callDeadline = System.nanoTime() + budgetMillis * NANOS_PER_MILLI
+            cx.deadlineNanos = if (callDeadline - sessionDeadlineNanos < 0) callDeadline else sessionDeadlineNanos
+            return try {
+                function.call(cx, helpers.scope, helpers.self, arguments)
+            } catch (_: BudgetExceeded) {
+                throw JsRegexTimeoutException(budgetMillis)
+            } finally {
+                cx.deadlineNanos = 0L
+            }
         }
     }
 
@@ -132,8 +160,11 @@ internal class RhinoRegexEngine(
     }
 
     companion object {
-        /** Time budget of one session, which covers a whole plan. zh-CN: 单个会话 (覆盖整个方案) 的时间预算. */
-        const val DEFAULT_TIME_BUDGET_MILLIS = 2_000L
+        /** Budget of one evaluation: catastrophic backtracking blows up a single match. zh-CN: 单次求值预算: 灾难性回溯发生在单次匹配中. */
+        const val DEFAULT_TIME_BUDGET_MILLIS = 1_000L
+
+        /** Budget of a session, far above a 2000-item plan on slow devices. zh-CN: 会话预算, 远高于慢速设备上 2000 项方案的耗时. */
+        const val DEFAULT_SESSION_BUDGET_MILLIS = 30_000L
 
         /** The explanation for `\p{...}` on API 24 / 25. zh-CN: API 24 / 25 上 `\p{...}` 的说明. */
         const val UNICODE_PROPERTIES_UNAVAILABLE = "Unicode property escapes (\\p{...}) need Android 8.0 (API 26) or later"

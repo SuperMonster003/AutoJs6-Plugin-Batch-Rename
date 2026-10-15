@@ -4,11 +4,11 @@ package io.github.supermonster003.autojs6.plugin.batch.rename.engine.regex
  * ECMAScript regular expressions for the rename engine (roadmap D6 / D15): compiling, testing and
  * `String.prototype.replace` with the semantics scripts see in `RegExp`.
  *
- * Work happens in sessions. A session belongs to the thread that opened it, shares one time budget among everything it
- * evaluates (a plan or one preview pass) and owns the regular expressions it compiled.
+ * Work happens in sessions. A session belongs to the thread that opened it, covers a plan or one preview pass, bounds
+ * the time of every evaluation and of the whole session, and owns the regular expressions it compiled.
  *
  * zh-CN: 改名引擎使用的 ECMAScript 正则表达式 (路线图 D6 / D15): 编译, 测试以及与脚本中 `RegExp` 语义一致的
- * `String.prototype.replace`. 工作在会话中进行: 会话属于打开它的线程, 其中所有求值 (一个方案或一次预览) 共享一个时间预算,
+ * `String.prototype.replace`. 工作在会话中进行: 会话属于打开它的线程, 覆盖一个方案或一次预览, 限制每次求值与整个会话的耗时,
  * 会话编译的正则表达式只在该会话内有效.
  */
 internal interface JsRegexEngine {
@@ -31,7 +31,7 @@ internal interface JsRegexSession {
      * Whether [regex] matches [input]; every call starts at index 0, also for sticky and global expressions.
      * zh-CN: [regex] 是否匹配 [input]; 每次调用都从下标 0 开始, 粘连与全局表达式亦然.
      *
-     * @throws JsRegexTimeoutException when the session's time budget runs out.
+     * @throws JsRegexTimeoutException when the evaluation or the session runs out of time.
      */
     fun test(input: String, regex: JsRegex): Boolean
 
@@ -41,7 +41,7 @@ internal interface JsRegexSession {
      * zh-CN: `input.replace(regex, replacement)`: [replacement] 可使用 `$1`, `$<name>`, `$&`, `` $` ``, `$'` 与 `$$`;
      * 每次调用都从下标 0 开始.
      *
-     * @throws JsRegexTimeoutException when the session's time budget runs out.
+     * @throws JsRegexTimeoutException when the evaluation or the session runs out of time.
      */
     fun replace(input: String, regex: JsRegex, replacement: String): String
 }

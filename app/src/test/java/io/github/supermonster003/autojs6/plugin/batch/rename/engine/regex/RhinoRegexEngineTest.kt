@@ -47,6 +47,20 @@ class RhinoRegexEngineTest {
     }
 
     @Test
+    fun `a session stops once its own budget is spent`() {
+        val engine = RhinoRegexEngine(timeBudgetMillis = 10_000, sessionBudgetMillis = 50)
+        try {
+            engine.session { session ->
+                val regex = session.compile("^(a+)+$", "")
+                Thread.sleep(80)
+                session.test("a".repeat(24) + "!", regex)
+            }
+            fail("the session budget must stop the evaluation")
+        } catch (_: JsRegexTimeoutException) {
+        }
+    }
+
+    @Test
     fun `sticky and global expressions restart at index 0 for every input`() {
         RhinoRegexEngine().session { session ->
             val sticky = session.compile("a", "y")

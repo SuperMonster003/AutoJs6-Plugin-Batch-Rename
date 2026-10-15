@@ -14,10 +14,19 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import org.autojs.plugin.batchrename.api.BatchRenameCapabilityKeys
 import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
+import org.autojs.plugin.batchrename.api.BatchRenameItemKeys
+import org.autojs.plugin.batchrename.api.BatchRenameOptionKeys
+import org.autojs.plugin.batchrename.api.BatchRenameParentKeys
 import org.autojs.plugin.batchrename.api.BatchRenameRequestKeys
 import org.autojs.plugin.batchrename.api.BatchRenameResultKeys
+import org.autojs.plugin.batchrename.api.BatchRenameValues
 import org.autojs.plugin.batchrename.api.IBatchRenamePlugin
 import org.autojs.plugin.common.api.IPluginInfoProvider
 import org.autojs.plugin.common.api.PluginActions
@@ -38,11 +47,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
 /**
  * The host-facing activation and discovery contract against the installed APK (roadmap P0.2, AGENTS 14.2): the Wake
@@ -112,7 +116,7 @@ class BatchRenamePluginContractTest {
     }
 
     @Test
-    fun capabilityServiceAnswersTheContractIdentityAndRefusesPlansWithoutTheEngine() {
+    fun capabilityServiceAnswersTheContractIdentityAndPlans() {
         val serviceInfo = discoverSingleService(BatchRenamePlugin.SERVICE_ACTION, BatchRenamePlugin.SERVICE_CATEGORY, BatchRenamePluginService::class.java.name)
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION.toString(), serviceInfo.metaData?.get(PluginCapabilityKeys.REQUIRES_HOST_VERSION)?.toString())
         withBoundService(serviceInfo) { binder ->
@@ -122,17 +126,51 @@ class BatchRenamePluginContractTest {
             assertIdentity(info, expectedEngine = BatchRenamePlugin.ENGINE)
             assertContractCapabilities(requireNotNull(info.capabilities))
 
-            // plan(request) is the second transaction; before the engine exists every request gets a contract error.
-            fun plan(contractVersion: Int): Bundle = transactBundle(binder, IBatchRenamePlugin.DESCRIPTOR, IBinder.FIRST_CALL_TRANSACTION + 1) { data ->
+            // plan(request) is the second transaction: the request crosses a real Parcel in both directions.
+            fun plan(request: Bundle): Bundle = transactBundle(binder, IBatchRenamePlugin.DESCRIPTOR, IBinder.FIRST_CALL_TRANSACTION + 1) { data ->
                 data.writeInt(1)
-                Bundle().apply { putInt(BatchRenameRequestKeys.CONTRACT_VERSION, contractVersion) }.writeToParcel(data, 0)
+                request.writeToParcel(data, 0)
             }
-            val supported = plan(contractVersion = 1)
-            assertEquals(BatchRenameErrorCodes.INTERNAL_ERROR, supported.getString(BatchRenameResultKeys.ERROR_CODE))
-            assertEquals(BatchRenamePluginService.ENGINE_UNAVAILABLE_MESSAGE, supported.getString(BatchRenameResultKeys.ERROR_MESSAGE))
-            assertEquals(1, supported.getInt(BatchRenameResultKeys.CONTRACT_VERSION))
-            assertFalse("a failed call carries no plan", supported.containsKey(BatchRenameResultKeys.ITEMS))
-            assertEquals(BatchRenameErrorCodes.UNSUPPORTED_CONTRACT_VERSION, plan(contractVersion = 99).getString(BatchRenameResultKeys.ERROR_CODE))
+            fun item(index: Int, name: String) = Bundle().apply {
+                putInt(BatchRenameItemKeys.INDEX, index)
+                putString(BatchRenameItemKeys.PARENT_ID, "p")
+                putString(BatchRenameItemKeys.NAME, name)
+                putInt(BatchRenameItemKeys.KIND, BatchRenameValues.KIND_FILE)
+                putLong(BatchRenameItemKeys.LAST_MODIFIED, 0L)
+            }
+            val request = Bundle().apply {
+                putInt(BatchRenameRequestKeys.CONTRACT_VERSION, 1)
+                putBundle(BatchRenameRequestKeys.OPTIONS, Bundle().apply {
+                    putString(BatchRenameOptionKeys.SEARCH, "IMG_(\\d+)")
+                    putString(BatchRenameOptionKeys.REPLACE, "Photo_\${padding=3}_\$1")
+                    putBoolean(BatchRenameOptionKeys.REGEX, true)
+                    putBoolean(BatchRenameOptionKeys.ENUMERATE, true)
+                })
+                putParcelableArrayList(BatchRenameRequestKeys.PARENTS, arrayListOf(Bundle().apply {
+                    putString(BatchRenameParentKeys.PARENT_ID, "p")
+                    putStringArrayList(BatchRenameParentKeys.EXISTING_NAMES, arrayListOf("IMG_7.jpg", "IMG_8.jpg", "notes.txt"))
+                }))
+                putParcelableArrayList(BatchRenameRequestKeys.ITEMS, arrayListOf(item(0, "IMG_7.jpg"), item(1, "IMG_8.jpg"), item(2, "notes.txt")))
+                putString(BatchRenameRequestKeys.LOCALE, "en")
+                putString(BatchRenameRequestKeys.TIME_ZONE, "UTC")
+                putLong(BatchRenameRequestKeys.NOW, 0L)
+            }
+            val answer = plan(request)
+            assertFalse("a plan never carries an error code: ${answer.getString(BatchRenameResultKeys.ERROR_MESSAGE)}", answer.containsKey(BatchRenameResultKeys.ERROR_CODE))
+            assertEquals(1, answer.getInt(BatchRenameResultKeys.CONTRACT_VERSION))
+            assertFalse(answer.getBoolean(BatchRenameResultKeys.REJECTED, true))
+            @Suppress("DEPRECATION")
+            val items = requireNotNull(answer.getParcelableArrayList<Bundle>(BatchRenameResultKeys.ITEMS))
+            assertEquals(listOf("Photo_000_7.jpg", "Photo_001_8.jpg", "notes.txt"), items.map { it.getString(BatchRenameItemKeys.NEW_NAME) })
+            assertEquals(listOf("rename", "rename", "unchanged"), items.map { it.getString(BatchRenameItemKeys.STATUS) })
+            assertEquals(2, requireNotNull(answer.getBundle(BatchRenameResultKeys.COUNTS)).getInt(BatchRenameValues.STATUS_RENAME))
+
+            // Failed calls carry the contract version and an error code only.
+            assertEquals(BatchRenameErrorCodes.UNSUPPORTED_CONTRACT_VERSION, plan(Bundle().apply { putInt(BatchRenameRequestKeys.CONTRACT_VERSION, 99) }).getString(BatchRenameResultKeys.ERROR_CODE))
+            val invalid = plan(Bundle().apply { putInt(BatchRenameRequestKeys.CONTRACT_VERSION, 1) })
+            assertEquals(BatchRenameErrorCodes.INVALID_REQUEST, invalid.getString(BatchRenameResultKeys.ERROR_CODE))
+            assertEquals(1, invalid.getInt(BatchRenameResultKeys.CONTRACT_VERSION))
+            assertFalse("a failed call carries no plan", invalid.containsKey(BatchRenameResultKeys.ITEMS))
         }
     }
 
@@ -202,7 +240,7 @@ class BatchRenamePluginContractTest {
         )
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, capabilities.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
         assertEquals(1, capabilities.getInt(BatchRenameCapabilityKeys.CONTRACT_VERSION))
-        assertArrayEquals(emptyArray<String>(), capabilities.getStringArray(BatchRenameCapabilityKeys.FEATURES))
+        assertArrayEquals(arrayOf("counter", "dateTime", "random", "cleanup"), capabilities.getStringArray(BatchRenameCapabilityKeys.FEATURES))
         assertEquals(2000, capabilities.getInt(BatchRenameCapabilityKeys.MAX_ITEMS))
         assertEquals("ecmascript", capabilities.getString(BatchRenameCapabilityKeys.REGEX_DIALECT))
     }
