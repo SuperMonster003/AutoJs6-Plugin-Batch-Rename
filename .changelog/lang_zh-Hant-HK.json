@@ -8,18 +8,25 @@
     "v1.0.0": {
       "released_date": "2026/10/15",
       "hint": [
-        "開發預覽: 插件可以被 AutoJs6 識別, 重新命名介面, 檔案管理器入口與 files.batchRename 腳本 API 尚未交付",
-        "需要 AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 或更高版本 (準確的最低版本號待宿主側改動落地後回填)"
+        "需要 AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 或更高版本"
       ],
       "feature": [
-        "插件骨架: Wake 啟用協議, 插件中心身份服務, 腳本能力服務與檔案管理器動作服務 (動作目錄暫為空)",
-        "10 種語言的 README, 插件中心說明與更新日誌, 由 JSON 源檔案統一生成"
+        "在 AutoJs6 檔案管理器中批次重新命名檔案與資料夾 (入口: 多選工具列/資料夾選單 \"批次重新命名其中的項目\"/重新命名對話框 \"更多\" 選單)",
+        "尋找與取代, 支援純文字或 JavaScript 正規表達式, 全部配對, 區分大小寫, 只改名稱或副檔名",
+        "計數器, 取檔案修改時間或目前時間的日期變數, 隨機字串與 UUID",
+        "大小寫轉換, Unicode 正規化, 全形轉半形, 取代不允許的字元, 去除首尾空格與接續既有名稱的編號",
+        "改名前預覽新名稱, 可逐項排除或只顯示改名項目, 新名稱被佔用時可選擇不重新命名, 略過, 加上編號或取代既有項目",
+        "復原最近的重新命名批次 (AutoJs6 保存最近 20 批, 檔案管理器與腳本共用)",
+        "為 AutoJs6 的 files.batchRename 腳本 API 計算新名稱",
+        "介面跟隨 AutoJs6 的主題色, 夜間模式與語言, 可記住上次選項與最近使用的尋找和取代文字"
       ],
       "dependency": [
         "附加 Jetpack Compose BOM 版本 {{ compose_bom }}",
         "附加 AndroidX Activity Compose 版本 1.12.2",
         "附加 AndroidX Core KTX 版本 1.15.0",
-        "附加 Kotlin Coroutines 版本 1.11.0"
+        "附加 Kotlin Coroutines 版本 1.11.0",
+        "附加 Desugar JDK Libs 版本 2.1.5",
+        "附加 Rhino (AutoJs6 精簡版, 用於正規表達式)"
       ]
     }
   }

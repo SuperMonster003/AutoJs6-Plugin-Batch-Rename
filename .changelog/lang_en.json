@@ -8,18 +8,25 @@
     "v1.0.0": {
       "released_date": "2026/10/15",
       "hint": [
-        "Development preview: AutoJs6 recognizes the plugin, while the rename screen, the file manager entries and the files.batchRename script API are not delivered yet",
-        "Requires AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) or later (the exact minimum build is filled in once the host-side changes land)"
+        "Requires AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) or later"
       ],
       "feature": [
-        "Plugin skeleton: Wake activation, the Plugin Center identity service, the script capability service and the file manager action service (empty action catalog for now)",
-        "README, Plugin Center instructions and changelog in 10 languages, generated from JSON sources"
+        "Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu \"Batch rename items inside\"/\"More\" menu of the rename dialog)",
+        "Search and replace with plain text or JavaScript regular expressions, every match, case sensitivity, and renaming of only the name or the extension",
+        "Counters, date variables from the modification time or the current time, random strings and UUIDs",
+        "Case conversion, Unicode normalization, full-width to half-width, replacement of characters that are not allowed, trimming of surrounding spaces and numbering that continues existing names",
+        "Preview of the new names before renaming, per-item exclusion or only the items that change, and a choice to refuse, skip, add a number or replace the existing entry when a new name is taken",
+        "Undo of recent rename batches (AutoJs6 keeps the last 20, shared by the file manager and scripts)",
+        "Computes the new names for the files.batchRename script API of AutoJs6",
+        "The screen follows the AutoJs6 theme color, dark mode and language, and can remember the last options and recent search and replace texts"
       ],
       "dependency": [
         "Attach Jetpack Compose BOM {{ compose_bom }}",
         "Attach AndroidX Activity Compose 1.12.2",
         "Attach AndroidX Core KTX 1.15.0",
-        "Attach Kotlin Coroutines 1.11.0"
+        "Attach Kotlin Coroutines 1.11.0",
+        "Attach Desugar JDK Libs 2.1.5",
+        "Attach Rhino (the slim AutoJs6 build, for regular expressions)"
       ]
     }
   }

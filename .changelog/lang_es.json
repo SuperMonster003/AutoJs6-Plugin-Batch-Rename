@@ -8,18 +8,25 @@
     "v1.0.0": {
       "released_date": "2026/10/15",
       "hint": [
-        "Versión preliminar de desarrollo: AutoJs6 reconoce el plugin, pero la pantalla de cambio de nombre, las entradas del administrador de archivos y la API de script files.batchRename aún no están disponibles",
-        "Requiere AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) o posterior (el número mínimo exacto de compilación se completará cuando se integren los cambios del lado del host)"
+        "Requiere AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) o posterior"
       ],
       "feature": [
-        "Esqueleto del plugin: activación Wake, servicio de identidad del centro de plugins, servicio de capacidad para scripts y servicio de acciones del administrador de archivos (catálogo de acciones vacío por ahora)",
-        "README, instrucciones del centro de plugins y registro de cambios en 10 idiomas, generados a partir de fuentes JSON"
+        "Renombrado por lotes de archivos y carpetas en el gestor de archivos de AutoJs6 (entradas: barra de selección múltiple/menú de carpeta \"Renombrar por lotes los elementos del interior\"/menú \"Más\" del diálogo de renombrar)",
+        "Buscar y reemplazar con texto sin formato o expresiones regulares de JavaScript, todas las coincidencias, distinción de mayúsculas y cambio solo del nombre o de la extensión",
+        "Contadores, variables de fecha a partir de la hora de modificación o de la hora actual, cadenas aleatorias y UUID",
+        "Cambio de mayúsculas y minúsculas, normalización Unicode, paso de ancho completo a medio ancho, reemplazo de caracteres no permitidos, recorte de espacios en los extremos y numeración que continúa los nombres existentes",
+        "Vista previa de los nombres nuevos antes de renombrar, exclusión por elemento o solo los elementos que cambian, y opción de rechazar, omitir, añadir un número o reemplazar el elemento existente cuando un nombre nuevo ya existe",
+        "Deshacer los lotes de renombrado recientes (AutoJs6 guarda los últimos 20, compartidos por el gestor de archivos y los scripts)",
+        "Calcula los nombres nuevos para la API de scripts files.batchRename de AutoJs6",
+        "La pantalla sigue el color del tema, el modo oscuro y el idioma de AutoJs6, y puede recordar las últimas opciones y los textos de búsqueda y reemplazo recientes"
       ],
       "dependency": [
         "Se agrega Jetpack Compose BOM {{ compose_bom }}",
         "Se agrega AndroidX Activity Compose 1.12.2",
         "Se agrega AndroidX Core KTX 1.15.0",
-        "Se agrega Kotlin Coroutines 1.11.0"
+        "Se agrega Kotlin Coroutines 1.11.0",
+        "Se agrega Desugar JDK Libs 2.1.5",
+        "Se agrega Rhino (versión reducida de AutoJs6, para expresiones regulares)"
       ]
     }
   }

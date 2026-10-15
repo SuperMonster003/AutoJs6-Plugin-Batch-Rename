@@ -46,19 +46,18 @@ Batch Rename 插件为 AutoJs6 提供批量重命名能力, 功能参照 PowerTo
 
 插件是独立安装的 APK, 没有桌面图标. 它提供两个入口: 文件管理器的多选工具栏, 文件夹菜单与重命名对话框中的 "批量重命名", 以及脚本中的 `files.batchRename`. 插件只负责计算新名称, 实际的重命名, 冲突检查与撤销记录由 AutoJs6 完成, 因此插件不需要任何存储权限.
 
-> 当前为开发预览版: 插件可以被 AutoJs6 识别, 但重命名界面, 文件管理器入口与脚本 API 尚未交付. 下文描述的是 1.0.0 的设计目标, 进度见开发路线图.
-
 ******
 
 ### 功能亮点
 
 ******
 
-- 查找与替换: 支持纯文本与正则表达式, 可选择全部匹配或仅替换第一处, 区分或忽略大小写, 只作用于文件名, 扩展名或完整名称.
-- 变量: 计数器 (`${start=1;increment=1;padding=3}`), 文件修改时间的日期变量 (`$YYYY`, `$MM`, `$DD` 等) 与随机字符串, 写法与 PowerRename 一致.
-- 文本整理: 大小写转换, Unicode 规范化, 全角转半角, 清理非法字符, 修剪首尾空格与点号, 从已有序号继续编号.
-- 先预览后执行: 逐项显示原名与新名, 可排除个别项目, 冲突与非法名称会被标出; 冲突可选择整批拒绝, 跳过, 自动编号或覆盖.
-- 可以撤销: AutoJs6 保存最近 20 批重命名记录, 文件管理器和脚本都能撤销, 撤销前会检查文件是否已被再次修改.
+- 查找与替换: 支持纯文本或 JavaScript 正则表达式, 可选全部匹配或只替换第一处, 区分或忽略大小写, 只作用于名称, 扩展名或两者.
+- 变量: 计数器 (`${start=1;increment=1;padding=3}`), 取文件修改时间或当前时间的日期变量 (`$YYYY`, `$MM`, `$DD` 等) 与随机字符串, 写法与 PowerRename 一致.
+- 名称整理: 大小写转换, Unicode 规范化, 全角转半角, 替换不允许的字符, 去除首尾空格, 以及接续既有名称的编号.
+- 先预览再执行: 逐项显示原名与新名, 可取消勾选排除条目, 可只显示改名项; 新名称被占用时可选择不重命名, 跳过, 添加编号或替换既有条目.
+- 可以撤销: AutoJs6 保存最近 20 个重命名批次, 文件管理器与脚本中都能撤销, 撤销前会检查文件是否已被再次修改.
+- 界面跟随 AutoJs6 的主题色, 夜间模式与语言, 可记住上次选项与最近使用的查找和替换文本.
 
 ******
 
@@ -71,6 +70,19 @@ Batch Rename 插件为 AutoJs6 提供批量重命名能力, 功能参照 PowerTo
 3. 在文件管理器中长按进入多选后点击 "批量重命名", 或在脚本中调用 `files.batchRename`.
 
 > 插件只有一个通用安装包, 支持 Android 7.0 (API 24) 及以上的设备. 安装后不会在桌面创建图标.
+
+******
+
+### 在文件管理器中使用
+
+******
+
+安装并启用插件后, AutoJs6 文件管理器中有三处入口:
+
+- 多选: 选中若干文件或文件夹, 在选择栏中点 "批量重命名" (有多个插件动作时位于 "更多" 中).
+- 文件夹菜单: 在文件夹的菜单中选择 "批量重命名其中的项目", 为该文件夹中的条目改名.
+- 重命名对话框: 重命名单个文件或文件夹时, 点对话框右上角的 "更多" 菜单, 选择 "批量重命名...".
+- 在插件界面中输入查找与替换内容, 预览会即时更新; 取消勾选可排除条目, 点 "重命名" 执行, 之后可以点 "撤销上一批" 恢复原名.
 
 ******
 
@@ -93,23 +105,36 @@ Batch Rename 插件为 AutoJs6 提供批量重命名能力, 功能参照 PowerTo
 
 ******
 
-脚本通过 `files.batchRename` 使用同一套能力 (1.0.0 设计草案, 以发布版本的文档为准):
+脚本通过 AutoJs6 的 `files.batchRename` 使用同一个引擎, 完整说明见 [AutoJs6 文档](https://docs.autojs6.com/#/files?id=m-batchrename):
 
 ```javascript
 let plan = files.batchRename.plan("/sdcard/DCIM/Camera", {
     search: /^IMG_(\d+)/,
     replace: "$YYYY-$MM-$DD_${padding=3}_$1",
     enumerate: true,
+    includeFolders: false,
 });
 plan.items.forEach(it => console.log(it.name, "->", it.newName, it.status));
 
-let result = files.batchRename.apply(plan);
-files.batchRename.undo(result);
+if (!plan.rejected) {
+    let result = files.batchRename.apply(plan);
+    files.batchRename.undo(result);
+}
 ```
 
-- `files.batchRename.plan(paths, options)` 只计算不执行, 返回逐项结果; 修改 `items[i].excluded` 后可交给 `apply` 执行.
-- `files.batchRename(paths, options)` 一步完成, 返回批次编号与每一项的结果; `files.batchRename.undo(result)` 撤销该批次.
-- 正则表达式的语义与脚本中的 `RegExp` 完全一致, 可以直接传入 `RegExp` 对象. 另有 `planAsync` / `applyAsync` / `undoAsync` 异步版本.
+- `files.batchRename.plan(paths, options)` 只计算不改名, 返回每一项的新名称与状态; 把 `items[i].excluded` 设为 `true` 后再交给 `apply` 执行.
+- `files.batchRename(paths, options)` 一步完成; `files.batchRename.undo(result)` 撤销该批次, `files.batchRename.history()` 列出最近的批次 (包括文件管理器中的批次).
+- 正则表达式与脚本中的 `RegExp` 一致, 可以直接传入 `RegExp` 对象. 另有 `planAsync` / `applyAsync` / `undoAsync` 异步形态; 失败时抛出带 `code` 的 `BatchRenameError`.
+
+******
+
+### 兼容性
+
+******
+
+- 需要 AutoJs6 6.8.0 (构建 5431) 或更高版本, 以及 Android 7.0 (API 24) 或更高版本.
+- SD 卡或 U 盘等 FAT32 / exFAT 存储不区分大小写, 也不允许 `: * ? " < > |` 与反斜杠等字符; 含这些字符的新名称会被标为不可用, 开启 "替换不允许的字符" 可以自动替换.
+- 一个批次最多 2000 个条目; 脚本中给出的文件夹之下最多 32 层.
 
 ******
 
@@ -119,7 +144,7 @@ files.batchRename.undo(result);
 
 #### 为什么桌面上没有插件图标?
 
-插件没有独立界面入口, 安装后由 AutoJs6 自动发现, 全部操作都在 AutoJs6 的文件管理器或脚本中进行.
+插件没有独立的界面入口, 安装后由 AutoJs6 自动发现, 全部操作都在 AutoJs6 的文件管理器或脚本中进行.
 
 #### 插件需要存储权限吗?
 
@@ -127,7 +152,19 @@ files.batchRename.undo(result);
 
 #### 和 PowerRename 有什么不同?
 
-日期变量使用文件修改时间 (Android 上的创建时间并不可靠), 另外增加了 Unicode 规范化, 全角转半角, 非法字符清理与可撤销的批次记录. 照片 EXIF 变量计划在 1.1.0 提供.
+日期变量使用文件修改时间 (Android 上的创建时间并不可靠), 另外增加了 Unicode 规范化, 全角转半角, 不允许字符的替换与可撤销的批次记录. 照片 EXIF 变量计划在 1.1.0 提供.
+
+#### 正则表达式的写法和 JavaScript 一样吗?
+
+一样. 插件使用与 AutoJs6 脚本相同的 Rhino 正则引擎, 替换文本中可以使用 `$1`, `$<name>` 与 `$&`. 单次匹配超过 1 秒会被中止, 以免界面卡住.
+
+#### 为什么计数器没有递增?
+
+需要先开启 "计数器" 选项 (脚本中为 `enumerate: true`), 否则 `${}` 会按原样保留. 计数器只为新名称发生变化的条目计数, 名称不变或被排除的条目不占用编号.
+
+#### 为什么重命名对话框中看不到批量重命名?
+
+入口位于对话框右上角的 "更多" 菜单. 如果菜单中只有引导项, 说明插件尚未安装, 未在插件中心启用, 或需要更新 AutoJs6; 按引导处理后即可使用.
 
 ******
 
@@ -182,14 +219,21 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 _2026/10/15_
 
-- `提示` 开发预览: 插件可以被 AutoJs6 识别, 重命名界面, 文件管理器入口与 files.batchRename 脚本 API 尚未交付
-- `提示` 需要 AutoJs6 6.8.0 (5431) 或更高版本 (准确的最低版本号待宿主侧改动落地后回填)
-- `新增` 插件骨架: Wake 激活协议, 插件中心身份服务, 脚本能力服务与文件管理器动作服务 (动作目录暂为空)
-- `新增` 10 种语言的 README, 插件中心说明与更新日志, 由 JSON 源文件统一生成
+- `提示` 需要 AutoJs6 6.8.0 (5431) 或更高版本
+- `新增` 在 AutoJs6 文件管理器中批量重命名文件与文件夹 (入口: 多选工具栏/文件夹菜单 "批量重命名其中的项目"/重命名对话框 "更多" 菜单)
+- `新增` 查找与替换, 支持纯文本或 JavaScript 正则表达式, 全部匹配, 区分大小写, 只改名称或扩展名
+- `新增` 计数器, 取文件修改时间或当前时间的日期变量, 随机字符串与 UUID
+- `新增` 大小写转换, Unicode 规范化, 全角转半角, 替换不允许的字符, 去除首尾空格与接续既有名称的编号
+- `新增` 改名前预览新名称, 可逐项排除或只显示改名项, 新名称被占用时可选择不重命名, 跳过, 添加编号或替换既有条目
+- `新增` 撤销最近的重命名批次 (AutoJs6 保存最近 20 批, 文件管理器与脚本共用)
+- `新增` 为 AutoJs6 的 files.batchRename 脚本 API 计算新名称
+- `新增` 界面跟随 AutoJs6 的主题色, 夜间模式与语言, 可记住上次选项与最近使用的查找和替换文本
 - `依赖` 附加 Jetpack Compose BOM 版本 2026.09.00
 - `依赖` 附加 AndroidX Activity Compose 版本 1.12.2
 - `依赖` 附加 AndroidX Core KTX 版本 1.15.0
 - `依赖` 附加 Kotlin Coroutines 版本 1.11.0
+- `依赖` 附加 Desugar JDK Libs 版本 2.1.5
+- `依赖` 附加 Rhino (AutoJs6 精简版, 用于正则表达式)
 
 ##### 更多发行历史可参阅
 

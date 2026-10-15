@@ -46,19 +46,18 @@ The Batch Rename plugin adds batch renaming to AutoJs6, modeled on [PowerRename]
 
 The plugin is a separately installed APK without a launcher icon. It has two entry points: "Batch rename" in the file manager's multi-select toolbar, folder menu and rename dialog, and `files.batchRename` in scripts. The plugin only computes the new names; AutoJs6 performs the renames, the conflict checks and the undo records, so the plugin needs no storage permission.
 
-> This is a development preview: AutoJs6 recognizes the plugin, but the rename screen, the file manager entries and the script API are not delivered yet. The sections below describe the design goals of 1.0.0; see the roadmap for progress.
-
 ******
 
 ### Features
 
 ******
 
-- Search and replace: plain text or regular expressions, all matches or only the first, case sensitive or not, applied to the file name, the extension or the whole name.
-- Variables: counters (`${start=1;increment=1;padding=3}`), date variables from the modification time (`$YYYY`, `$MM`, `$DD` and more) and random strings, written as in PowerRename.
-- Text cleanup: case conversion, Unicode normalization, full-width to half-width conversion, illegal character cleanup, trimming of leading and trailing spaces and dots, and numbering that continues existing sequences.
-- Preview first: every item shows its old and new name, single items can be excluded, and conflicts and invalid names are marked; a conflict can reject the batch, skip the item, add a number or overwrite.
-- Undo: AutoJs6 keeps the last 20 rename batches; both the file manager and scripts can undo them after checking that the files have not changed again.
+- Search and replace: plain text or JavaScript regular expressions, every match or only the first, case sensitive or not, applied to the name, the extension or both.
+- Variables: counters (`${start=1;increment=1;padding=3}`), date variables from the modification time or the current time (`$YYYY`, `$MM`, `$DD` and more) and random strings, written as in PowerRename.
+- Name cleanup: case conversion, Unicode normalization, full-width to half-width, replacement of characters that are not allowed, trimming of surrounding spaces, and numbering that continues existing names.
+- Preview before renaming: old and new names side by side, uncheck items to exclude them, show only the items that change; when a new name is taken, refuse, skip, add a number or replace the existing entry.
+- Undo: AutoJs6 keeps the last 20 rename batches, which can be undone from the file manager and from scripts; undo checks first whether a file was changed again.
+- The screen follows the AutoJs6 theme color, dark mode and language, and can remember the last options and recent search and replace texts.
 
 ******
 
@@ -71,6 +70,19 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 3. Long-press in the file manager to select items and tap "Batch rename", or call `files.batchRename` in a script.
 
 > The plugin ships a single universal APK for Android 7.0 (API 24) and later. It does not add a launcher icon.
+
+******
+
+### In the file manager
+
+******
+
+Once the plugin is installed and enabled, the AutoJs6 file manager offers three entries:
+
+- Multiple selection: select files or folders and tap "Batch rename" in the selection bar (under "More" when several plugin actions are available).
+- Folder menu: choose "Batch rename items inside" in the menu of a folder to rename what it contains.
+- Rename dialog: while renaming a single file or folder, open the "More" menu in the top right corner of the dialog and choose "Batch rename...".
+- Type what to search and replace on the plugin screen and the preview updates at once; uncheck items to exclude them, tap "Rename", and tap "Undo last batch" to restore the old names.
 
 ******
 
@@ -93,23 +105,36 @@ The replacement text can contain the following variables:
 
 ******
 
-Scripts use the same engine through `files.batchRename` (1.0.0 design draft; the released documentation is authoritative):
+Scripts use the same engine through `files.batchRename` of AutoJs6; see the [AutoJs6 documentation](https://docs.autojs6.com/#/files?id=m-batchrename) for the full reference:
 
 ```javascript
 let plan = files.batchRename.plan("/sdcard/DCIM/Camera", {
     search: /^IMG_(\d+)/,
     replace: "$YYYY-$MM-$DD_${padding=3}_$1",
     enumerate: true,
+    includeFolders: false,
 });
 plan.items.forEach(it => console.log(it.name, "->", it.newName, it.status));
 
-let result = files.batchRename.apply(plan);
-files.batchRename.undo(result);
+if (!plan.rejected) {
+    let result = files.batchRename.apply(plan);
+    files.batchRename.undo(result);
+}
 ```
 
-- `files.batchRename.plan(paths, options)` computes without renaming and returns a result per item; set `items[i].excluded` and pass the plan to `apply`.
-- `files.batchRename(paths, options)` renames in one step and returns the batch ID with a result per item; `files.batchRename.undo(result)` undoes that batch.
-- Regular expressions behave exactly like `RegExp` in scripts, and `RegExp` objects can be passed directly. `planAsync`, `applyAsync` and `undoAsync` return promises.
+- `files.batchRename.plan(paths, options)` computes without renaming and returns the new name and status of every item; set `items[i].excluded` to `true` and pass the plan to `apply`.
+- `files.batchRename(paths, options)` does both in one step; `files.batchRename.undo(result)` undoes the batch and `files.batchRename.history()` lists recent batches (file manager batches included).
+- Regular expressions behave like `RegExp` in scripts, and a `RegExp` object can be passed directly. `planAsync` / `applyAsync` / `undoAsync` are the asynchronous forms; failures throw a `BatchRenameError` with a `code`.
+
+******
+
+### Compatibility
+
+******
+
+- Requires AutoJs6 6.8.0 (build 5431) or later and Android 7.0 (API 24) or later.
+- FAT32 / exFAT storage such as SD cards and USB drives ignores case and does not allow `: * ? " < > |`, the backslash and similar characters; new names containing them are marked as unusable, and "Replace characters that are not allowed" replaces them automatically.
+- A batch holds at most 2000 items; scripts can reach at most 32 levels below the folders they name.
 
 ******
 
@@ -117,17 +142,29 @@ files.batchRename.undo(result);
 
 ******
 
-#### Why is there no launcher icon?
+#### Why is there no plugin icon on the home screen?
 
-The plugin has no standalone entry. AutoJs6 discovers it after installation, and everything happens in the AutoJs6 file manager or in scripts.
+The plugin has no screen of its own to launch. AutoJs6 discovers it after installation, and everything happens in the AutoJs6 file manager or in scripts.
 
 #### Does the plugin need storage permission?
 
-No. The plugin only computes new names from file names; AutoJs6 lists folders and renames files with the access it already has.
+No. The plugin only computes new names from file names; AutoJs6 lists the folders and performs the renames with the permissions it already has.
 
 #### How does it differ from PowerRename?
 
-Date variables use the modification time, because creation times are unreliable on Android. It adds Unicode normalization, full-width conversion, illegal character cleanup and undoable batch records. Photo EXIF variables are planned for 1.1.0.
+Date variables use the modification time (creation times are unreliable on Android), and there are additional Unicode normalization, full-width to half-width conversion, replacement of characters that are not allowed and undoable batches. Photo EXIF variables are planned for 1.1.0.
+
+#### Are regular expressions written as in JavaScript?
+
+Yes. The plugin uses the same Rhino regular expression engine as AutoJs6 scripts, and the replacement can use `$1`, `$<name>` and `$&`. A single match that runs longer than 1 second is stopped so that the screen does not hang.
+
+#### Why does the counter not increase?
+
+Turn on the "Counter" option first (`enumerate: true` in scripts); otherwise `${}` stays as it is. The counter only counts items whose names change; unchanged or excluded items do not take a number.
+
+#### Why is batch rename missing from the rename dialog?
+
+It is in the "More" menu in the top right corner of the dialog. If the menu only shows a guide, the plugin is not installed, not enabled in the Plugin Center, or AutoJs6 needs an update; follow the guide and it becomes available.
 
 ******
 
@@ -182,14 +219,21 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 
 _2026/10/15_
 
-- `Hint` Development preview: AutoJs6 recognizes the plugin, while the rename screen, the file manager entries and the files.batchRename script API are not delivered yet
-- `Hint` Requires AutoJs6 6.8.0 (5431) or later (the exact minimum build is filled in once the host-side changes land)
-- `Feature` Plugin skeleton: Wake activation, the Plugin Center identity service, the script capability service and the file manager action service (empty action catalog for now)
-- `Feature` README, Plugin Center instructions and changelog in 10 languages, generated from JSON sources
+- `Hint` Requires AutoJs6 6.8.0 (5431) or later
+- `Feature` Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu "Batch rename items inside"/"More" menu of the rename dialog)
+- `Feature` Search and replace with plain text or JavaScript regular expressions, every match, case sensitivity, and renaming of only the name or the extension
+- `Feature` Counters, date variables from the modification time or the current time, random strings and UUIDs
+- `Feature` Case conversion, Unicode normalization, full-width to half-width, replacement of characters that are not allowed, trimming of surrounding spaces and numbering that continues existing names
+- `Feature` Preview of the new names before renaming, per-item exclusion or only the items that change, and a choice to refuse, skip, add a number or replace the existing entry when a new name is taken
+- `Feature` Undo of recent rename batches (AutoJs6 keeps the last 20, shared by the file manager and scripts)
+- `Feature` Computes the new names for the files.batchRename script API of AutoJs6
+- `Feature` The screen follows the AutoJs6 theme color, dark mode and language, and can remember the last options and recent search and replace texts
 - `Dependency` Attach Jetpack Compose BOM 2026.09.00
 - `Dependency` Attach AndroidX Activity Compose 1.12.2
 - `Dependency` Attach AndroidX Core KTX 1.15.0
 - `Dependency` Attach Kotlin Coroutines 1.11.0
+- `Dependency` Attach Desugar JDK Libs 2.1.5
+- `Dependency` Attach Rhino (the slim AutoJs6 build, for regular expressions)
 
 ##### For more release history, refer to
 

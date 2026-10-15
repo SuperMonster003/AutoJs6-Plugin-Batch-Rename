@@ -8,18 +8,25 @@
     "v1.0.0": {
       "released_date": "2026/10/15",
       "hint": [
-        "개발 미리보기: AutoJs6이 플러그인을 인식하지만, 이름 변경 화면, 파일 관리자 진입점, files.batchRename 스크립트 API는 아직 제공되지 않습니다",
-        "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 이상이 필요합니다 (정확한 최소 빌드 번호는 호스트 쪽 변경이 반영된 뒤 채워집니다)"
+        "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 이상이 필요합니다"
       ],
       "feature": [
-        "플러그인 골격: Wake 활성화, 플러그인 센터 식별 서비스, 스크립트 기능 서비스, 파일 관리자 동작 서비스 (동작 목록은 현재 비어 있음)",
-        "JSON 원본에서 생성되는 10개 언어의 README, 플러그인 센터 설명, 변경 로그"
+        "AutoJs6 파일 관리자에서 파일과 폴더 이름을 일괄로 바꾸기 (입구: 여러 항목 선택 도구 모음/폴더 메뉴 \"내부 항목 일괄 이름 바꾸기\"/이름 바꾸기 대화 상자의 \"더\" 메뉴)",
+        "찾기와 바꾸기: 일반 텍스트 또는 JavaScript 정규식, 모든 일치, 대소문자 구분, 이름이나 확장자만 바꾸기",
+        "카운터, 수정 시간이나 현재 시간의 날짜 변수, 임의 문자열과 UUID",
+        "대소문자 변환, Unicode 정규화, 전각을 반각으로 변환, 허용되지 않는 문자 바꾸기, 앞뒤 공백 제거, 기존 이름의 번호 이어 붙이기",
+        "바꾸기 전에 새 이름을 미리 보고, 항목별로 제외하거나 바뀌는 항목만 볼 수 있으며, 새 이름이 이미 쓰이고 있으면 바꾸지 않기, 건너뛰기, 번호 붙이기, 기존 항목 바꾸기 중에서 고를 수 있습니다",
+        "최근 이름 바꾸기 묶음 실행 취소 (AutoJs6 가 최근 20 개를 저장하며 파일 관리자와 스크립트가 함께 사용)",
+        "AutoJs6 의 files.batchRename 스크립트 API 를 위해 새 이름 계산",
+        "화면은 AutoJs6 의 테마 색, 다크 모드, 언어를 따르며, 마지막 옵션과 최근에 쓴 찾기/바꾸기 텍스트를 기억할 수 있습니다"
       ],
       "dependency": [
         "Jetpack Compose BOM {{ compose_bom }} 추가",
         "AndroidX Activity Compose 1.12.2 추가",
         "AndroidX Core KTX 1.15.0 추가",
-        "Kotlin Coroutines 1.11.0 추가"
+        "Kotlin Coroutines 1.11.0 추가",
+        "Desugar JDK Libs 2.1.5 추가",
+        "Rhino (AutoJs6 경량판, 정규식용) 추가"
       ]
     }
   }

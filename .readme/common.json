@@ -6,6 +6,7 @@
   "roadmap_url": "https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/blob/master/ROADMAP.md",
   "autojs6_url": "https://github.com/SuperMonster003/AutoJs6",
   "powerrename_url": "https://learn.microsoft.com/windows/powertoys/powerrename",
+  "docs_batch_rename_url": "https://docs.autojs6.com/#/files?id=m-batchrename",
   "plugin_application_id": "io.github.supermonster003.autojs6.plugin.batch.rename",
   "plugin_id": "batch-rename",
   "plugin_engine": "batch-rename",

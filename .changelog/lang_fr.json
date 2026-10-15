@@ -8,18 +8,25 @@
     "v1.0.0": {
       "released_date": "2026/10/15",
       "hint": [
-        "Aperçu de développement: AutoJs6 reconnaît le plugin, mais l'écran de renommage, les entrées du gestionnaire de fichiers et l'API de script files.batchRename ne sont pas encore livrés",
-        "Nécessite AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) ou ultérieur (le numéro de build minimal exact sera renseigné une fois les changements côté hôte intégrés)"
+        "Nécessite AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) ou ultérieur"
       ],
       "feature": [
-        "Squelette du plugin: activation Wake, service d'identité du centre de plugins, service de capacité pour les scripts et service d'actions du gestionnaire de fichiers (catalogue d'actions vide pour l'instant)",
-        "README, instructions du centre de plugins et journal des modifications en 10 langues, générés à partir de sources JSON"
+        "Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier \"Renommer par lot les éléments du dossier\"/menu \"Plus\" de la boîte de dialogue de renommage)",
+        "Rechercher et remplacer en texte brut ou par expressions régulières JavaScript, toutes les occurrences, respect de la casse et renommage du nom ou de l'extension seulement",
+        "Compteurs, variables de date tirées de la date de modification ou de l'heure actuelle, chaînes aléatoires et UUID",
+        "Changement de casse, normalisation Unicode, conversion de la pleine chasse en demi-chasse, remplacement des caractères interdits, suppression des espaces aux extrémités et numérotation qui prolonge les noms existants",
+        "Aperçu des nouveaux noms avant de renommer, exclusion par élément ou affichage des seuls éléments qui changent, et choix de refuser, ignorer, ajouter un numéro ou remplacer l'élément existant lorsqu'un nouveau nom est pris",
+        "Annulation des lots de renommage récents (AutoJs6 conserve les 20 derniers, partagés par le gestionnaire de fichiers et les scripts)",
+        "Calcule les nouveaux noms pour l'API de scripts files.batchRename d'AutoJs6",
+        "L'écran suit la couleur du thème, le mode sombre et la langue d'AutoJs6, et peut mémoriser les dernières options ainsi que les textes de recherche et de remplacement récents"
       ],
       "dependency": [
         "Ajout de Jetpack Compose BOM {{ compose_bom }}",
         "Ajout de AndroidX Activity Compose 1.12.2",
         "Ajout de AndroidX Core KTX 1.15.0",
-        "Ajout de Kotlin Coroutines 1.11.0"
+        "Ajout de Kotlin Coroutines 1.11.0",
+        "Ajout de Desugar JDK Libs 2.1.5",
+        "Ajout de Rhino (version allégée d'AutoJs6, pour les expressions régulières)"
       ]
     }
   }

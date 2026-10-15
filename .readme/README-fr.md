@@ -46,19 +46,18 @@ Le plugin Batch Rename ajoute le renommage par lot à AutoJs6, sur le modèle de
 
 Le plugin est un APK installé séparément, sans icône de lanceur. Il offre deux points d'entrée: "Renommer par lot" dans la barre de sélection multiple, le menu des dossiers et la boîte de dialogue de renommage du gestionnaire de fichiers, et `files.batchRename` dans les scripts. Le plugin calcule seulement les nouveaux noms; AutoJs6 effectue les renommages, les contrôles de conflits et l'historique d'annulation, le plugin n'a donc besoin d'aucune autorisation de stockage.
 
-> Ceci est un aperçu de développement: AutoJs6 reconnaît le plugin, mais l'écran de renommage, les entrées du gestionnaire de fichiers et l'API de script ne sont pas encore livrés. Les sections ci-dessous décrivent les objectifs de la version 1.0.0; voir la feuille de route pour l'avancement.
-
 ******
 
 ### Points Forts
 
 ******
 
-- Rechercher et remplacer: texte brut ou expressions régulières, toutes les occurrences ou seulement la première, avec ou sans respect de la casse, appliqué au nom, à l'extension ou au nom complet.
-- Variables: compteurs (`${start=1;increment=1;padding=3}`), variables de date issues de la date de modification (`$YYYY`, `$MM`, `$DD`, etc.) et chaînes aléatoires, avec la même syntaxe que PowerRename.
-- Nettoyage du texte: changement de casse, normalisation Unicode, conversion pleine chasse vers demi-chasse, suppression des caractères interdits, suppression des espaces et points en début et en fin, et numérotation qui poursuit une séquence existante.
-- Aperçu d'abord: chaque élément affiche son ancien et son nouveau nom, des éléments peuvent être exclus, et les conflits et noms invalides sont signalés; un conflit peut rejeter le lot, ignorer l'élément, ajouter un numéro ou écraser.
-- Annulation: AutoJs6 conserve les 20 derniers lots de renommage; le gestionnaire de fichiers comme les scripts peuvent les annuler, après avoir vérifié que les fichiers n'ont pas été modifiés depuis.
+- Rechercher et remplacer: texte brut ou expressions régulières JavaScript, toutes les occurrences ou seulement la première, avec ou sans respect de la casse, appliqué au nom, à l'extension ou aux deux.
+- Variables: compteurs (`${start=1;increment=1;padding=3}`), variables de date tirées de la date de modification ou de l'heure actuelle (`$YYYY`, `$MM`, `$DD`, etc.) et chaînes aléatoires, avec la même syntaxe que PowerRename.
+- Nettoyage des noms: changement de casse, normalisation Unicode, conversion de la pleine chasse en demi-chasse, remplacement des caractères interdits, suppression des espaces aux extrémités et numérotation qui prolonge les noms existants.
+- Aperçu avant de renommer: anciens et nouveaux noms côte à côte, décochez des éléments pour les exclure ou n'affichez que ceux qui changent; si un nouveau nom est pris, refuser, ignorer, ajouter un numéro ou remplacer l'élément existant.
+- Annulation: AutoJs6 conserve les 20 derniers lots de renommage, annulables depuis le gestionnaire de fichiers comme depuis les scripts; l'annulation vérifie d'abord qu'un fichier n'a pas été modifié entre-temps.
+- L'écran suit la couleur du thème, le mode sombre et la langue d'AutoJs6, et peut mémoriser les dernières options ainsi que les textes de recherche et de remplacement récents.
 
 ******
 
@@ -71,6 +70,19 @@ Le plugin est un APK installé séparément, sans icône de lanceur. Il offre de
 3. Dans le gestionnaire de fichiers, appuyez longuement pour sélectionner des éléments puis touchez "Renommer par lot", ou appelez `files.batchRename` dans un script.
 
 > Le plugin est distribué sous forme d'un seul APK universel pour Android 7.0 (API 24) et versions ultérieures. Il n'ajoute pas d'icône au lanceur.
+
+******
+
+### Dans le gestionnaire de fichiers
+
+******
+
+Une fois le plugin installé et activé, le gestionnaire de fichiers d'AutoJs6 propose trois entrées:
+
+- Sélection multiple: sélectionnez des fichiers ou des dossiers et appuyez sur "Renommer par lot" dans la barre de sélection (sous "Plus" si plusieurs actions de plugins sont disponibles).
+- Menu d'un dossier: choisissez "Renommer par lot les éléments du dossier" dans le menu d'un dossier pour renommer son contenu.
+- Boîte de dialogue de renommage: lorsque vous renommez un seul fichier ou dossier, ouvrez le menu "Plus" en haut à droite de la boîte de dialogue et choisissez "Renommer par lot...".
+- Saisissez la recherche et le remplacement sur l'écran du plugin, l'aperçu se met à jour aussitôt; décochez des éléments pour les exclure, appuyez sur "Renommer", puis sur "Annuler le dernier lot" pour rétablir les anciens noms.
 
 ******
 
@@ -93,23 +105,36 @@ Le texte de remplacement peut contenir les variables suivantes:
 
 ******
 
-Les scripts utilisent le même moteur via `files.batchRename` (ébauche de conception 1.0.0; la documentation publiée fait foi):
+Les scripts utilisent le même moteur via `files.batchRename` d'AutoJs6; consultez la [documentation d'AutoJs6](https://docs.autojs6.com/#/files?id=m-batchrename) pour la référence complète:
 
 ```javascript
 let plan = files.batchRename.plan("/sdcard/DCIM/Camera", {
     search: /^IMG_(\d+)/,
     replace: "$YYYY-$MM-$DD_${padding=3}_$1",
     enumerate: true,
+    includeFolders: false,
 });
 plan.items.forEach(it => console.log(it.name, "->", it.newName, it.status));
 
-let result = files.batchRename.apply(plan);
-files.batchRename.undo(result);
+if (!plan.rejected) {
+    let result = files.batchRename.apply(plan);
+    files.batchRename.undo(result);
+}
 ```
 
-- `files.batchRename.plan(paths, options)` calcule sans renommer et renvoie un résultat par élément; modifiez `items[i].excluded` puis transmettez le plan à `apply`.
-- `files.batchRename(paths, options)` renomme en une étape et renvoie l'identifiant du lot avec un résultat par élément; `files.batchRename.undo(result)` annule ce lot.
-- Les expressions régulières se comportent exactement comme `RegExp` dans les scripts, et les objets `RegExp` peuvent être passés directement. `planAsync`, `applyAsync` et `undoAsync` renvoient des promesses.
+- `files.batchRename.plan(paths, options)` calcule sans renommer et renvoie le nouveau nom et l'état de chaque élément; mettez `items[i].excluded` à `true` puis passez le plan à `apply`.
+- `files.batchRename(paths, options)` fait tout en une étape; `files.batchRename.undo(result)` annule le lot et `files.batchRename.history()` liste les lots récents (y compris ceux du gestionnaire de fichiers).
+- Les expressions régulières se comportent comme `RegExp` dans les scripts, et un objet `RegExp` peut être passé directement. `planAsync` / `applyAsync` / `undoAsync` sont les formes asynchrones; les échecs lèvent une `BatchRenameError` avec un `code`.
+
+******
+
+### Compatibilité
+
+******
+
+- Nécessite AutoJs6 6.8.0 (build 5431) ou ultérieur et Android 7.0 (API 24) ou ultérieur.
+- Les stockages FAT32 / exFAT, comme les cartes SD et les clés USB, ignorent la casse et n'acceptent pas `: * ? " < > |`, la barre oblique inverse et les caractères semblables; les nouveaux noms qui en contiennent sont signalés comme inutilisables, et "Remplacer les caractères interdits" les remplace automatiquement.
+- Un lot contient au plus 2000 éléments; les scripts descendent au plus de 32 niveaux sous les dossiers indiqués.
 
 ******
 
@@ -117,17 +142,29 @@ files.batchRename.undo(result);
 
 ******
 
-#### Pourquoi n'y a-t-il pas d'icône dans le lanceur?
+#### Pourquoi n'y a-t-il pas d'icône du plugin sur l'écran d'accueil?
 
-Le plugin n'a pas d'entrée autonome. AutoJs6 le découvre après l'installation, et tout se passe dans le gestionnaire de fichiers d'AutoJs6 ou dans les scripts.
+Le plugin n'a pas d'écran propre à lancer. AutoJs6 le détecte après l'installation et tout se fait dans le gestionnaire de fichiers d'AutoJs6 ou dans les scripts.
 
 #### Le plugin a-t-il besoin de l'autorisation de stockage?
 
-Non. Le plugin calcule seulement les nouveaux noms à partir des noms de fichiers; AutoJs6 parcourt les dossiers et renomme les fichiers avec les accès dont il dispose déjà.
+Non. Le plugin calcule seulement de nouveaux noms à partir des noms de fichiers; AutoJs6 lit les dossiers et effectue les renommages avec les autorisations qu'il possède déjà.
 
 #### En quoi diffère-t-il de PowerRename?
 
-Les variables de date utilisent la date de modification, car la date de création n'est pas fiable sur Android. Il ajoute la normalisation Unicode, la conversion pleine chasse, le nettoyage des caractères interdits et un historique de lots annulables. Les variables EXIF des photos sont prévues pour la version 1.1.0.
+Les variables de date utilisent la date de modification (la date de création n'est pas fiable sur Android), et s'y ajoutent la normalisation Unicode, la conversion de la pleine chasse en demi-chasse, le remplacement des caractères interdits et des lots annulables. Les variables EXIF des photos sont prévues pour la 1.1.0.
+
+#### Les expressions régulières s'écrivent-elles comme en JavaScript?
+
+Oui. Le plugin utilise le même moteur d'expressions régulières Rhino que les scripts AutoJs6, et le remplacement accepte `$1`, `$<name>` et `$&`. Une correspondance qui dure plus d'une seconde est interrompue pour que l'écran ne se fige pas.
+
+#### Pourquoi le compteur n'augmente-t-il pas?
+
+Activez d'abord l'option "Compteur" (`enumerate: true` dans les scripts), sinon `${}` reste tel quel. Le compteur ne compte que les éléments dont le nom change; les éléments inchangés ou exclus ne prennent pas de numéro.
+
+#### Pourquoi le renommage par lot n'apparaît-il pas dans la boîte de dialogue de renommage?
+
+Il se trouve dans le menu "Plus" en haut à droite de la boîte de dialogue. Si le menu n'affiche qu'un guide, le plugin n'est pas installé, n'est pas activé dans le centre des plugins ou AutoJs6 doit être mis à jour; suivez le guide et il deviendra disponible.
 
 ******
 
@@ -182,14 +219,21 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 
 _2026/10/15_
 
-- `Note` Aperçu de développement: AutoJs6 reconnaît le plugin, mais l'écran de renommage, les entrées du gestionnaire de fichiers et l'API de script files.batchRename ne sont pas encore livrés
-- `Note` Nécessite AutoJs6 6.8.0 (5431) ou ultérieur (le numéro de build minimal exact sera renseigné une fois les changements côté hôte intégrés)
-- `Fonctionnalité` Squelette du plugin: activation Wake, service d'identité du centre de plugins, service de capacité pour les scripts et service d'actions du gestionnaire de fichiers (catalogue d'actions vide pour l'instant)
-- `Fonctionnalité` README, instructions du centre de plugins et journal des modifications en 10 langues, générés à partir de sources JSON
+- `Note` Nécessite AutoJs6 6.8.0 (5431) ou ultérieur
+- `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)
+- `Fonctionnalité` Rechercher et remplacer en texte brut ou par expressions régulières JavaScript, toutes les occurrences, respect de la casse et renommage du nom ou de l'extension seulement
+- `Fonctionnalité` Compteurs, variables de date tirées de la date de modification ou de l'heure actuelle, chaînes aléatoires et UUID
+- `Fonctionnalité` Changement de casse, normalisation Unicode, conversion de la pleine chasse en demi-chasse, remplacement des caractères interdits, suppression des espaces aux extrémités et numérotation qui prolonge les noms existants
+- `Fonctionnalité` Aperçu des nouveaux noms avant de renommer, exclusion par élément ou affichage des seuls éléments qui changent, et choix de refuser, ignorer, ajouter un numéro ou remplacer l'élément existant lorsqu'un nouveau nom est pris
+- `Fonctionnalité` Annulation des lots de renommage récents (AutoJs6 conserve les 20 derniers, partagés par le gestionnaire de fichiers et les scripts)
+- `Fonctionnalité` Calcule les nouveaux noms pour l'API de scripts files.batchRename d'AutoJs6
+- `Fonctionnalité` L'écran suit la couleur du thème, le mode sombre et la langue d'AutoJs6, et peut mémoriser les dernières options ainsi que les textes de recherche et de remplacement récents
 - `Dépendance` Ajout de Jetpack Compose BOM 2026.09.00
 - `Dépendance` Ajout de AndroidX Activity Compose 1.12.2
 - `Dépendance` Ajout de AndroidX Core KTX 1.15.0
 - `Dépendance` Ajout de Kotlin Coroutines 1.11.0
+- `Dépendance` Ajout de Desugar JDK Libs 2.1.5
+- `Dépendance` Ajout de Rhino (version allégée d'AutoJs6, pour les expressions régulières)
 
 ##### Pour plus d'historique des versions
 

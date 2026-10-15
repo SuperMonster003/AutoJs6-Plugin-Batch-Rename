@@ -37,8 +37,6 @@
 
 {{ p_introduction_how }}
 
-> {{ p_status_note }}
-
 ******
 
 ### {{ h3_features }}
@@ -56,6 +54,16 @@
 {{ placeholder_usage_steps }}
 
 > {{ p_usage_note }}
+
+******
+
+### {{ h3_file_manager }}
+
+******
+
+{{ p_file_manager_intro }}:
+
+{{ placeholder_file_manager_points }}
 
 ******
 
@@ -85,14 +93,25 @@ let plan = files.batchRename.plan("/sdcard/DCIM/Camera", {
     search: /^IMG_(\d+)/,
     replace: "$YYYY-$MM-$DD_${padding=3}_$1",
     enumerate: true,
+    includeFolders: false,
 });
 plan.items.forEach(it => console.log(it.name, "->", it.newName, it.status));
 
-let result = files.batchRename.apply(plan);
-files.batchRename.undo(result);
+if (!plan.rejected) {
+    let result = files.batchRename.apply(plan);
+    files.batchRename.undo(result);
+}
 ```
 
 {{ placeholder_api_points }}
+
+******
+
+### {{ h3_compatibility }}
+
+******
+
+{{ placeholder_compatibility_points }}
 
 ******
 
