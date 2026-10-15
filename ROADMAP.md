@@ -276,11 +276,11 @@ P0 (骨架)
 
 ### P1.1 契约模块 `plugin-api/batch-rename-api`
 
-- [ ] (宿主) `settings.gradle.kts` `pluginApi` 列表加入 `batch-rename-api`; 模块 `build.gradle.kts` 为 `com.android.library`, `api(project(":plugin-api:common-plugin-api"))`, `buildFeatures.aidl = true`, `consumer-rules.pro` keep `org.autojs.plugin.batchrename.api.**`; `app/build.gradle.kts` `implementation(project(":plugin-api:batch-rename-api"))`.
-- [ ] (宿主) 常量与 key 对象 (附录 C.1): `BatchRenamePluginActions`, `BatchRenamePluginIds`, `BatchRenameContract`, `BatchRenameCapabilityKeys`, `BatchRenameLimits`, `BatchRenameRequestKeys`, `BatchRenameItemKeys`, `BatchRenameOptionKeys`, `BatchRenameResultKeys`, `BatchRenameStatus`, `BatchRenameConflictPolicy`, `BatchRenameErrorCodes`.
-- [ ] (宿主) `IBatchRenamePlugin.aidl`: `PluginInfo getInfo()` 居首, `Bundle plan(in Bundle request)` 其后; 文档注释写明 nullability, 上限, 错误语义 (非法请求返回带 `errorCode` 的 Bundle 而不是抛异常), 线程 (Binder 线程池, 无状态, 可并发).
-- [ ] (测试) `BatchRenameContractTest` 快照全部字面量 (action, id, 版本, key, 上限, 状态与策略枚举值); AIDL 事务顺序测试 (`getInfo` 为第 1 个事务).
-- [ ] (插件) 契约 AAR 复制到 `libs/batch-rename-api.aar`, 更新 `locks/host-api-aars.lock`, `libs/README.md`, `THIRD_PARTY_NOTICES.md`.
+- [x] (宿主) `settings.gradle.kts` `pluginApi` 列表加入 `batch-rename-api`; 模块 `build.gradle.kts` 为 `com.android.library`, `api(project(":plugin-api:common-plugin-api"))`, `buildFeatures.aidl = true`, `aarMetadata.minCompileSdk = 36` (与 epub-api 一致), `consumer-rules.pro` keep `org.autojs.plugin.batchrename.api.**`; `app/build.gradle.kts` `implementation(project(":plugin-api:batch-rename-api"))`. 证据: 宿主提交 `aa4fd4f6d` (本地, 待维护者合并; 宿主 `VERSION_BUILD=3777`, versionCode 5429).
+- [x] (宿主) 常量与 key 对象: `BatchRenamePluginActions`, `BatchRenamePluginIds`, `BatchRenameContract`, `BatchRenameCapabilityKeys`, `BatchRenameLimits`, `BatchRenameRequestKeys`, `BatchRenameParentKeys`, `BatchRenameItemKeys`, `BatchRenameOptionKeys`, `BatchRenameResultKeys`, `BatchRenameValues`, `BatchRenameErrorCodes`. 证据: 同上. 偏差 (以模块源码为准, 附录 C.1 已改写): 状态, 冲突策略等闭合取值集合合并为 `BatchRenameValues` (与 `ExplorerActionValues` 同风格), 父目录键独立为 `BatchRenameParentKeys`; 词汇表比草案更细: 请求增加 `timeZone` / `now` (日期变量可复现), 父目录增加 `restrictedCharacters` (FAT32 / exFAT), 条目增加 `excluded` / `overwrites`, 原因码 14 个 (取代草案的 `reasonCode` + `reasonMessage`, 文案由两侧各自本地化), 正则以 `regex` + `regexFlags` + `matchAll` + `caseSensitive` 表达, 日期来源取值 `modified` / `now` / `none` (脚本的 `false` 由宿主映射为 `none`), 新增总字符预算 `MAX_REQUEST_CHARS = 262_144` 与 `MAX_EXISTING_NAMES_PER_PLAN = 20_000`, 使单个请求远低于 Binder 事务缓冲区.
+- [x] (宿主) `IBatchRenamePlugin.aidl`: `PluginInfo getInfo()` 居首, `Bundle plan(in Bundle request)` 其后; 注释写明不为空, 非法输入以带 `errorCode` 的 Bundle 应答而不抛异常, 同步, 无状态, 可在 Binder 线程池并发调用, 只能追加事务. 证据: 同上.
+- [x] (测试) `BatchRenameContractTest` 快照全部字面量 (发现与身份, 版本与能力键, 上限, 全部 Bundle 键, 取值集合, 错误码, 无重复), `BatchRenameAidlOrderTest` 冻结事务顺序 (`getInfo` 第 1 个, 同步接口). 证据 (E2): `:plugin-api:batch-rename-api:testDebugUnitTest` 2 个类 7 项通过.
+- [x] (插件) 契约 AAR 复制到 `libs/batch-rename-api.aar`, 更新 `locks/host-api-aars.lock`, `libs/README.md`, `THIRD_PARTY_NOTICES.md`; `BatchRenamePlugin` 的发现字面值与描述符改为引用契约常量, 只保留插件侧的取值 (最低宿主版本, 声明的协议版本, 说明资源引用). 证据: 本条所在提交; AAR SHA-256 `315e37b94297582fbb975da71b163fcb3ac78d2a870f03b5847c5a42b1d207cb` (只含 classes.jar, 无原生代码); 插件 JVM 守卫 26 项与设备契约测试 7 项 (Sony XQ-AT72, API 31) 通过. 能力服务仍是占位 Binder, 直到 P4.1 接入引擎.
 
 ### P1.2 explorer-action 协议 v25
 
@@ -613,27 +613,7 @@ files.batchRename.undo(files.batchRename.history(1)[0].batchId);
 
 ### C.1 `plugin-api/batch-rename-api`
 
-```kotlin
-object BatchRenamePluginActions { const val BATCH_RENAME = "org.autojs.plugin.BATCH_RENAME" }
-object BatchRenamePluginIds { const val ID = "batch-rename"; const val ENGINE = "batch-rename"; const val VARIANT_DEFAULT = "default" }
-object BatchRenameContract { const val CONTRACT_VERSION = 1 }
-object BatchRenameCapabilityKeys {
-    const val CONTRACT_VERSION = "batchRenameContractVersion"
-    const val FEATURES = "batchRenameFeatures"          // 字符串数组: "counter", "dateTime", "random", "local", "exif" (1.1.0)
-    const val MAX_ITEMS = "batchRenameMaxItems"
-    const val REGEX_DIALECT = "batchRenameRegexDialect" // "ecmascript"
-}
-object BatchRenameLimits {
-    const val MAX_ITEMS_PER_PLAN = 2000
-    const val MAX_NAME_LENGTH = 1024
-    const val MAX_PATTERN_LENGTH = 4096
-    const val MAX_PARENTS_PER_PLAN = 512
-    const val MAX_EXISTING_NAMES_PER_PARENT = 10_000
-    const val MAX_RANDOM_LENGTH = 256
-}
-```
-
-`IBatchRenamePlugin.aidl`:
+P1.1 已落地 (宿主 `aa4fd4f6d`), 契约以宿主模块源码 `plugin-api/batch-rename-api/src/main` 为准, 字面值由 `BatchRenameContractTest` 冻结; 下面只列结构摘要.
 
 ```java
 interface IBatchRenamePlugin {
@@ -642,8 +622,20 @@ interface IBatchRenamePlugin {
 }
 ```
 
-请求 Bundle: `contractVersion` (int), `options` (Bundle, key 同附录 B.2 的脚本选项, `search` 拆为 `searchSource` + `searchFlags` + `regex`), `parents` (ArrayList<Bundle>: `parentId`, `existingNames` (ArrayList<String>), `caseInsensitive` (boolean)), `items` (ArrayList<Bundle>: `index`, `parentId`, `name`, `kind` (1 file / 2 dir), `depth`, `lastModified`, `length`), `locale` (String, BCP 47).
-响应 Bundle: `contractVersion`, `errorCode` (null 表示成功), `errorMessage`, `rejected` (boolean), `items` (ArrayList<Bundle>: `index`, `newName`, `status`, `reasonCode`, `reasonMessage`, `twoPhase`), `counts` (Bundle).
+| 对象 | 内容 |
+| --- | --- |
+| `BatchRenamePluginActions` | `INFO`, `BATCH_RENAME = "org.autojs.plugin.BATCH_RENAME"`, `SERVICE_CATEGORY = "batch-rename"`, `PLUGIN_PERMISSION` |
+| `BatchRenamePluginIds` | `ID` / `ENGINE` = `batch-rename`, `VARIANT_DEFAULT = "default"`, `PACKAGE_NAME` |
+| `BatchRenameContract` | `CONTRACT_VERSION = 1` (MIN / MAX 同为 1), `REGEX_DIALECT_ECMASCRIPT` |
+| `BatchRenameCapabilityKeys` | `requiresHostVersion`, `batchRenameContractVersion`, `batchRenameFeatures`, `batchRenameMaxItems`, `batchRenameRegexDialect` |
+| `BatchRenameRequestKeys` | `contractVersion`, `options`, `parents`, `items`, `locale`, `timeZone`, `now` |
+| `BatchRenameParentKeys` | `parentId`, `existingNames`, `caseInsensitive`, `restrictedCharacters` |
+| `BatchRenameItemKeys` | 请求: `index`, `parentId`, `name`, `kind`, `depth`, `lastModified`, `length`, `excluded`; 应答: `index`, `newName`, `status`, `reason`, `twoPhase`, `overwrites` |
+| `BatchRenameOptionKeys` | 与附录 B.2 的脚本选项同名 (22 个), `search` 拆为 `search` + `regex` + `regexFlags` (`m` `s` `u` `y`) + `matchAll` + `caseSensitive` |
+| `BatchRenameResultKeys` | `contractVersion`, `errorCode`, `errorMessage`, `rejected`, `items`, `counts` |
+| `BatchRenameValues` | 条目类型, 作用范围, 格式化, 日期来源, 规范化, 冲突策略, 状态 (5 个), 原因 (14 个), 功能 (`counter`, `dateTime`, `random`, `cleanup`) |
+| `BatchRenameErrorCodes` | `UNSUPPORTED_CONTRACT_VERSION`, `INVALID_REQUEST`, `INVALID_OPTIONS`, `LIMIT_EXCEEDED`, `INTERNAL_ERROR` |
+| `BatchRenameLimits` | 条目 2000, 父目录 512, 既有名称合计 20000, 单个名称 1024 字符, 文本选项 4096 字符, 请求合计 262144 字符, 随机串 256, 编号上限 999, 结果名称 255 字节 |
 
 ### C.2 explorer-action v25
 

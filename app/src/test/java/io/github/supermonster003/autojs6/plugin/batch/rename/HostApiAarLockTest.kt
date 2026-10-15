@@ -12,9 +12,9 @@ import java.util.zip.ZipFile
 /**
  * The host API lock, the staged AARs and the human-readable records describe the same bytes (roadmap 5.4, P0.1).
  * Gradle enforces the lock during configuration; this test keeps `libs/README.md` and `THIRD_PARTY_NOTICES.md` honest
- * and pins the artifact set until roadmap P1.1 adds `batch-rename-api`.
+ * and pins the artifact set (the contract `batch-rename-api` joined in roadmap P1.1).
  * zh-CN: 宿主 API 锁文件, 暂存的 AAR 与人读记录描述同一份字节 (路线图 5.4, P0.1). Gradle 在配置阶段强制锁文件; 本测试
- * 保证 `libs/README.md` 与 `THIRD_PARTY_NOTICES.md` 如实记录, 并在路线图 P1.1 加入 `batch-rename-api` 之前固定产物集合.
+ * 保证 `libs/README.md` 与 `THIRD_PARTY_NOTICES.md` 如实记录, 并固定产物集合 (契约 `batch-rename-api` 于路线图 P1.1 加入).
  */
 class HostApiAarLockTest {
 
@@ -22,7 +22,7 @@ class HostApiAarLockTest {
 
     @Test
     fun `the lock lists the staged host AARs with matching digests`() {
-        assertEquals(setOf("common-plugin-api", "explorer-action-api"), lock.keys)
+        assertEquals(setOf("batch-rename-api", "common-plugin-api", "explorer-action-api"), lock.keys)
         lock.forEach { (id, entry) ->
             assertEquals("$id is staged under its module name", "$id.aar", entry.file)
             val file = RepositoryFiles.path("libs/${entry.file}")

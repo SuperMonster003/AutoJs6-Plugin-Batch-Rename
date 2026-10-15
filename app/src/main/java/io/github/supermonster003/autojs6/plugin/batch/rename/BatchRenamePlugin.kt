@@ -1,27 +1,29 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename
 
+import org.autojs.plugin.batchrename.api.BatchRenamePluginActions
+import org.autojs.plugin.batchrename.api.BatchRenamePluginIds
+import org.autojs.plugin.batchrename.api.IBatchRenamePlugin
+
 /**
- * Identity and protocol constants of the plugin (roadmap 5.4).
+ * Identity and protocol constants of the plugin (roadmap 5.4). The discovery literals come from the host contract
+ * `plugin-api/batch-rename-api` (roadmap P1.1), so the host and the plugin cannot drift apart; only plugin-side values
+ * live here.
  *
- * The capability action, category and Binder descriptor live here only until the host contract
- * module `plugin-api/batch-rename-api` exists (roadmap P1.1); P1.1 replaces them with the contract
- * constants so the host and the plugin cannot drift apart.
- *
- * zh-CN: 插件的身份与协议常量 (路线图 5.4). 能力服务的 action, category 与 Binder 描述符只在宿主契约模块
- * `plugin-api/batch-rename-api` 落地 (路线图 P1.1) 之前暂存于此; P1.1 改用契约常量, 避免宿主与插件两侧漂移.
+ * zh-CN: 插件的身份与协议常量 (路线图 5.4). 发现用字面值取自宿主契约 `plugin-api/batch-rename-api` (路线图 P1.1), 避免宿主与插件
+ * 两侧漂移; 这里只保留插件侧的取值.
  */
 internal object BatchRenamePlugin {
 
-    const val PLUGIN_ID = "batch-rename"
-    const val ENGINE = "batch-rename"
-    const val VARIANT = "default"
+    const val PLUGIN_ID = BatchRenamePluginIds.ID
+    const val ENGINE = BatchRenamePluginIds.ENGINE
+    const val VARIANT = BatchRenamePluginIds.VARIANT_DEFAULT
 
     /** Capability service discovery (roadmap D14). zh-CN: 能力服务的发现 action 与 category (路线图 D14). */
-    const val SERVICE_ACTION = "org.autojs.plugin.BATCH_RENAME"
-    const val SERVICE_CATEGORY = "batch-rename"
+    const val SERVICE_ACTION = BatchRenamePluginActions.BATCH_RENAME
+    const val SERVICE_CATEGORY = BatchRenamePluginActions.SERVICE_CATEGORY
 
-    /** Descriptor of the future `IBatchRenamePlugin` (roadmap appendix C.1). zh-CN: 未来 `IBatchRenamePlugin` 的描述符 (附录 C.1). */
-    const val CAPABILITY_DESCRIPTOR = "org.autojs.plugin.batchrename.api.IBatchRenamePlugin"
+    /** Descriptor of `IBatchRenamePlugin` (contract v1). zh-CN: `IBatchRenamePlugin` 的描述符 (契约 v1). */
+    const val CAPABILITY_DESCRIPTOR = IBatchRenamePlugin.DESCRIPTOR
 
     /**
      * Placeholder minimum host build (roadmap D26), mirrored by `plugin_requires_host_version` in

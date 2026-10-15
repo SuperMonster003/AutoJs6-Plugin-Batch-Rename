@@ -9,6 +9,7 @@ components below; their licenses apply to those components only.
 | --- | --- | --- |
 | `libs/common-plugin-api.aar` | AutoJs6 host module `plugin-api/common-plugin-api` (https://github.com/SuperMonster003/AutoJs6) | MPL-2.0 |
 | `libs/explorer-action-api.aar` | AutoJs6 host module `plugin-api/explorer-action-api` (https://github.com/SuperMonster003/AutoJs6) | MPL-2.0 |
+| `libs/batch-rename-api.aar` | AutoJs6 host module `plugin-api/batch-rename-api` (https://github.com/SuperMonster003/AutoJs6) | MPL-2.0 |
 
 Provenance and SHA-256 digests are recorded in `locks/host-api-aars.lock` and `libs/README.md`.
 
