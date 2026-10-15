@@ -222,7 +222,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 已完成 (2026-10-15; 服务的 `plan` 已接入引擎) |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
-| P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
+| P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 已完成 2026-10-15; P4.4 剩真机与部分失败路径) |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
 | P6 | 1.1.0 | 候选: EXIF / XMP 变量, 预设, 宿主重命名历史页面, 其他 | 未开始 |
 
@@ -375,29 +375,29 @@ P0 (骨架)
 ### P4.1 服务与 catalog (D23)
 
 - [x] (插件) `BatchRenamePluginService`: `getInfo()` 与契约能力已在 P1.3 实现 (`explorerActionProtocolVersion` 只由管理器服务上报); 本条把 `plan()` 从 `planWithoutEngine` 改为经 `BundleCodec` 调引擎 (并发安全, 无状态), 并让 `BatchRenamePlugin.FEATURES` 声明引擎实际实现的功能. 证据: 已在 P2.5 提前完成 (见该节).
-- [ ] (插件) `BatchRenameExplorerActionService`: `getActionCatalog()` 三个动作 (D23), 协议 25, `getInfo()` 与能力服务一致; `BatchRenameActivity` 的 `EXPLORER_ACTION_EXECUTE` 入口解析请求 (目标, session token, 协议版本), 协议低于 25 时显示本地化错误并退出.
-- [ ] (测试) JVM: catalog 快照测试, `ExplorerActionManifestTest` (每个 catalog Activity 带 EXECUTE + DEFAULT); instrumentation `BatchRenamePluginContractTest`: action / category 发现只命中一个服务, 显式绑定与 descriptor, `getInfo` 字段, `plan` happy path / 非法参数 / 超限, 绑定解绑不泄漏.
+- [x] (插件) `BatchRenameExplorerActionService`: `getActionCatalog()` 三个动作 (D23), 协议 25, `getInfo()` 与能力服务一致; `BatchRenameActivity` 的 `EXPLORER_ACTION_EXECUTE` 入口解析请求 (目标, session token, 协议版本), 协议低于 25 时显示本地化错误并退出. 证据: 插件提交 `3aca80f`; `explorer/BatchRenameCatalog.kt` (三个动作均为只读, Activity 呈现, 声明 `targetRename`, 标签字符串经 `res/raw/keep.xml` 在 release 包中保留), `explorer/ExplorerRequest.kt` 解析请求 (动作 id, 协议版本, 请求 id, 目标, 会话 Binder 的描述符校验, 目标形态与动作是否相符); 协议低于 25 或宿主构建号低于最低值时提示 "请更新 AutoJs6 后再使用批量重命名" 并关闭会话, 其他不可处理的请求关闭会话后退出. 偏差: 目录动作的目标类型为 `TARGET_DIRECTORY` 且 MIME 列表为空 (与宿主策略测试的形态一致).
+- [x] (测试) JVM: catalog 快照测试, `ExplorerActionManifestTest` (每个 catalog Activity 带 EXECUTE + DEFAULT); instrumentation `BatchRenamePluginContractTest`: action / category 发现只命中一个服务, 显式绑定与 descriptor, `getInfo` 字段, `plan` happy path / 非法参数 / 超限, 绑定解绑不泄漏. 证据: 插件提交 `3aca80f`; JVM `BatchRenameCatalogTest` 4 项 (形态快照, 每种语言都有标签且 keep.xml 保留, Activity 与 Manifest 一致, 复数资源齐全) 与既有 `ManifestContractTest` (改为只允许查询宿主包, 供宿主外观设置使用); 设备 `BatchRenamePluginContractTest` 改为断言三个动作 (只读, Activity 呈现, `targetRename`, 宿主能按名称取到标签). 插件 JVM 测试共 116 项通过; 设备测试 13 项在 `AVD_API_24` 与 `AVD_API_35_16K` 上通过. 偏差: `plan` 的契约用例已在 P1.3 / P2.5 覆盖, 本条只补 Explorer Action 部分.
 
 ### P4.2 界面 (D4, D11, D24)
 
-- [ ] (插件) 主题与脚手架: Compose + Material 3, 跟随宿主语言 / 夜间 / 主题色 (`AutoJs6HostSettingsContract`, 回退系统), 预测性返回, 进程恢复 (`SavedStateHandle` 保存选项与输入, 目标集由请求重建).
-- [ ] (插件) 查找 / 替换输入: 历史下拉 (D25), 变量插入按钮 (底部面板列出计数器 / 日期 / 随机变量及一行说明, 点击插入到光标处), 正则编译错误即时提示.
-- [ ] (插件) 选项区: 正则, 全部匹配, 大小写敏感, 作用范围 (分段按钮), 包含文件 / 文件夹 / 子文件夹, 文本格式化 (下拉), 计数器, 随机串, 日期来源, 本土扩展 (折叠组), 冲突策略 (折叠组, `overwrite` 选中时弹出确认).
-- [ ] (插件) 预览列表: `ExplorerTargetEnumerator` 经 `listChildren` 分页枚举 (包含子文件夹时递归, 进度指示, 2000 上限提示), 每行复选框 / 图标 / 原名 / 新名 / 状态 (改名: 主题色, 冲突或非法: 错误色并显示原因, 未命中: 次要色), 列头切换 "仅显示将重命名", 去抖 150 ms 后台重算, 大列表 `LazyColumn` 与 key 稳定.
-- [ ] (插件) 应用流程: 底栏统计 (将改名 / 冲突 / 排除), "应用" 禁用条件 (有冲突且策略 `fail`, 或无改名项), 执行进度对话框, 结果摘要, Snackbar "撤销" (`undoRenameBatch`), 顶栏 "撤销上一批" (读取 `listRenameBatches` 中本插件最近一批), 失败项列表可复制原因.
-- [ ] (插件) 10 语言字符串, 无障碍 (内容描述, 焦点顺序, TalkBack 下状态朗读), RTL, 大字体, 横屏与平板宽度 (>= 600 dp 时列表与选项左右分栏).
-- [ ] (测试) Compose 测试: 输入后预览更新, 复选框排除, 过滤切换, 冲突禁用应用, 历史下拉; 截图采集 (R2).
+- [x] (插件) 主题与脚手架: Compose + Material 3, 跟随宿主语言 / 夜间 / 主题色 (`AutoJs6HostSettingsContract`, 回退系统), 预测性返回, 进程恢复 (`SavedStateHandle` 保存选项与输入, 目标集由请求重建). 证据: 插件提交 `3aca80f`; `ui/HostAppearance.kt` 经 `AutoJs6HostSettingsContract` 读取宿主主题色, 当前深色状态与语言 (主线程至多等 400 ms, 之后用上次结果, 从未应答时跟随系统), `attachBaseContext` 应用语言与夜间模式, `BatchRenameTheme` 以宿主主题色构造 Material 3 配色 (无宿主时 Android 12 起动态取色); `enableOnBackInvokedCallback` 与 `BackHandler`. 偏差: 未用 `SavedStateHandle`: 选项与输入随每次预览写入偏好 ("记住上次选项" 开启时), 进程重建后由请求重新枚举; 勾选排除不跨进程保留.
+- [x] (插件) 查找 / 替换输入: 历史下拉 (D25), 变量插入按钮 (底部面板列出计数器 / 日期 / 随机变量及一行说明, 点击插入到光标处), 正则编译错误即时提示. 证据: 插件提交 `3aca80f`; `ui/OptionsPanel.kt` (最近使用下拉, `{}` 按钮打开变量面板并插入到光标处, 正则或选项被拒时在查找框下方即时显示原因).
+- [x] (插件) 选项区: 正则, 全部匹配, 大小写敏感, 作用范围 (分段按钮), 包含文件 / 文件夹 / 子文件夹, 文本格式化 (下拉), 计数器, 随机串, 日期来源, 本土扩展 (折叠组), 冲突策略 (折叠组, `overwrite` 选中时弹出确认). 证据: 插件提交 `3aca80f`. 偏差: 作用范围, 包含与格式变量收进默认折叠的 "范围与格式" 分组 (竖屏手机上首屏即可看到预览), 名称清理与冲突策略各自折叠; 选中 `overwrite` 时先弹出确认.
+- [x] (插件) 预览列表: `ExplorerTargetEnumerator` 经 `listChildren` 分页枚举 (包含子文件夹时递归, 进度指示, 2000 上限提示), 每行复选框 / 图标 / 原名 / 新名 / 状态 (改名: 主题色, 冲突或非法: 错误色并显示原因, 未命中: 次要色), 列头切换 "仅显示将重命名", 去抖 150 ms 后台重算, 大列表 `LazyColumn` 与 key 稳定. 证据: 插件提交 `3aca80f`; `explorer/RenameCandidates.kt` (`RenameCandidateEnumerator` 经 `HostSessionClient` 分页 `listRenameParent` / `listChildren`, 符号链接不进入也不改名但保留名称, 超过 2000 项或 32 层时截断并提示) 与 `explorer/PreviewPlanner.kt` (插件自身引擎, `now` 在打开界面时固定). 偏差: 只有切换 "子文件夹中的项目" 时重新枚举, 其他选项只重新计算预览; 文件夹菜单动作改名的是文件夹之中的条目 (深度从 0 起).
+- [x] (插件) 应用流程: 底栏统计 (将改名 / 冲突 / 排除), "应用" 禁用条件 (有冲突且策略 `fail`, 或无改名项), 执行进度对话框, 结果摘要, Snackbar "撤销" (`undoRenameBatch`), 顶栏 "撤销上一批" (读取 `listRenameBatches` 中本插件最近一批), 失败项列表可复制原因. 证据: 插件提交 `3aca80f`; `renameEntries` 经 `RenameRequestSplitter` 按目录分组, 深层先发, 每个请求至多 512 KiB Parcel (同一目录过大时提示减少条目), 撤销按批次倒序; "重命名" 在预览与当前选项一致之前禁用 (修复了快速点击执行旧方案的竞态); 执行后目标名称随结果更新, 撤销时只有目标条目恢复才改回原名; 撤销早先界面的批次且涉及请求目标时关闭界面. 偏差: 宿主执行期间没有逐项进度 (v25 没有进度回调), 进度对话框为不确定进度; 失败列表只区分 "未重命名" 与 "列出后已被修改" (v25 结果不含原因).
+- [x] (插件) 10 语言字符串, 无障碍 (内容描述, 焦点顺序, TalkBack 下状态朗读), RTL, 大字体, 横屏与平板宽度 (>= 600 dp 时列表与选项左右分栏). 证据: 插件提交 `3aca80f`; 118 条字符串与 3 组复数 (`plurals.xml`) 覆盖 10 种语言, 全部半角标点, 含 `...` 的条目带 `tools:ignore="TypographyEllipsis"`; 预览行合并语义并朗读 "已包含 / 已排除", 折叠分组朗读展开状态; `supportsRtl` 与自动镜像图标; 宽度 >= 600 dp 时左右分栏. 未执行: 实际的 TalkBack, RTL, 大字体与横屏走查.
+- [x] (测试) Compose 测试: 输入后预览更新, 复选框排除, 过滤切换, 冲突禁用应用, 历史下拉; 截图采集 (R2). 证据: 插件提交 `3aca80f`; `ui/BatchRenameScreenTest` 3 项 (输入后预览更新, 仅显示改名项, 取消勾选排除, 执行到达会话, 撤销, 历史下拉; 冲突禁用; 旧协议请求关闭会话并退出), 使用内存宿主会话 `FakeHostSession`, 断言只用测试标签与会话, 不依赖翻译文本; 截图写入应用 `files/screenshots/preview.png` (R2, 已在 `AVD_API_35_16K` 上取回检查).
 
 ### P4.3 持久化与设置 (D25)
 
-- [ ] (插件) `PreferencesStore`: 上次选项, MRU, "记住上次选项" 开关; 顶栏溢出 "清除历史" / "恢复默认选项"; 不记录路径与文件名.
-- [ ] (测试) DataStore 往返, MRU 去重与上限, 关闭 "记住上次选项" 后不恢复.
+- [x] (插件) `PreferencesStore`: 上次选项, MRU, "记住上次选项" 开关; 顶栏溢出 "清除历史" / "恢复默认选项"; 不记录路径与文件名. 证据: 插件提交 `3aca80f`; `settings/PreferencesStore.kt` (选项经插件自身的选项解析器读回, 被拒的值回退默认; 最近使用各 10 条, 去重, 最新在前). 偏差: 使用 SharedPreferences 而不是 DataStore (不增加依赖, 数据量只有几十个键).
+- [x] (测试) DataStore 往返, MRU 去重与上限, 关闭 "记住上次选项" 后不恢复. 证据: 插件提交 `3aca80f`; JVM `PreferencesStoreTest` 5 项 (往返与默认值, 关闭记住后清除并不再保存, 被拒的存储值回退, 最近使用的顺序去重与上限, 选项校验).
 
 ### P4.4 本阶段联调
 
-- [ ] (测试) 三处入口在 API 24 AVD, API 28 / 33 / 35 真机上各走一遍: 多选 (文件 + 文件夹混合, 含子文件夹), 文件夹菜单 (含 / 不含子文件夹), 重命名对话框 "更多" (单文件与单文件夹); 撤销后文件名与版本历史均恢复; 宿主列表即时刷新.
-- [ ] (测试) 失败路径: 插件未安装 / 未启用 / 版本过低 / 宿主协议 24 (旧宿主) / 目标在执行前被删除 / 可移动存储 (FAT32) 上仅大小写改名.
-- [ ] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 条目 (由 P1.3 移入; 其他语言由维护者同步): `feature` 文件管理器支持批量重命名 (多选工具栏 / 文件夹菜单 / 重命名对话框 "更多" 菜单, 需要安装 Batch Rename 插件), 插件中心与安装向导的 Batch Rename 条目并入同一条或列为 `improvement`. 措辞按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md`, 不写协议号与 Binder 细节.
+- [ ] (测试) 三处入口在 API 24 AVD, API 28 / 33 / 35 真机上各走一遍: 多选 (文件 + 文件夹混合, 含子文件夹), 文件夹菜单 (含 / 不含子文件夹), 重命名对话框 "更多" (单文件与单文件夹); 撤销后文件名与版本历史均恢复; 宿主列表即时刷新. 进展 (E3, 2026-10-15): 宿主提交 `f1088b0f7` (本地, 待维护者合并; `VERSION_BUILD=3790`, versionCode 5442) 新增宿主测试 `BatchRenameExplorerFlowTest`: 经宿主真实的 Explorer Action 注册表与启动器打开插件界面 (真实 v25 会话), 用 `UiAutomation` 按插件暴露为资源 ID 的测试标签输入并点击, 在磁盘上核对宿主执行器改名与插件撤销恢复; 三处入口 (多选: 文件 + 含子项的文件夹; 文件夹菜单: 含子文件夹; 重命名对话框: 单个文件) 在 `AVD_API_24` 上 debug 插件两轮各 3/3, 签名 release 插件 (2,195,235 字节) 3/3, 在 `AVD_API_35_16K` 上 3/3 两轮 (另一轮插件进程因 ART `ReferenceQueueDaemon` 空指针与 SIGSEGV 崩溃, 与插件代码无关); release 插件下宿主 `BatchRenamePluginRoundTripTest` 与 `BatchRenameScriptApiTest` 同时通过. 未执行: API 28 / 33 / 35 真机 (需在真机上安装宿主 debug 构建, 待维护者同意), 单文件夹走重命名对话框, 版本历史恢复与宿主列表刷新的目视核对.
+- [ ] (测试) 失败路径: 插件未安装 / 未启用 / 版本过低 / 宿主协议 24 (旧宿主) / 目标在执行前被删除 / 可移动存储 (FAT32) 上仅大小写改名. 进展: 已覆盖的部分: 插件未安装时重命名对话框 "更多" 的引导 (P1.4), 旧协议请求 (`BatchRenameScreenTest`), 目标被删除或修改后为 stale (宿主 `ExplorerActionRenameV25InstrumentationTest` 与执行器 JVM 用例). 未执行: 未启用 / 版本过低的插件经文件管理器的表现, 可移动存储 (FAT32) 上仅大小写改名.
+- [x] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 条目 (由 P1.3 移入; 其他语言由维护者同步): `feature` 文件管理器支持批量重命名 (多选工具栏 / 文件夹菜单 / 重命名对话框 "更多" 菜单, 需要安装 Batch Rename 插件), 插件中心与安装向导的 Batch Rename 条目并入同一条或列为 `improvement`. 措辞按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md`, 不写协议号与 Binder 细节. 证据: 宿主提交 `f1088b0f7` (本地, 待维护者合并; `VERSION_BUILD=3790`, versionCode 5442); 一条 feature (文件管理器经 Batch Rename 插件批量重命名, 列出三处入口), 插件中心条目并入该条, 不单列; 生成的 zh-Hans README 与 CHANGELOG 随提交更新.
 
 ---
 
