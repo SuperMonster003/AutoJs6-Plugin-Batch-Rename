@@ -220,7 +220,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | --- | --- | --- | --- |
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
-| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 进行中 (P2.1 已完成, 2026-10-15) |
+| P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 进行中 (P2.1 - P2.3 已完成, 2026-10-15) |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
@@ -323,15 +323,15 @@ P0 (骨架)
 
 ### P2.2 流水线, 变量与选项 (D16, D17)
 
-- [ ] (插件) `RenameOptions` 解析与规范化 (默认值 D17, 非法枚举值报 `INVALID_OPTIONS`, 未知 key 忽略但记录), `RenameItem` / `RenamePlan` / `PlanItemStatus` 模型.
-- [ ] (插件) `VariableExpander`: 计数器 `${}` 与 `${start=X;increment=X;padding=X}` (任意顺序, 多个计数器各自独立, 负数与超大值边界), 日期时间 20 个变量 (`$YYYY` `$YY` `$Y` `$MMMM` `$MMM` `$MM` `$M` `$DDDD` `$DDD` `$DD` `$D` `$hh` `$h` `$mm` `$m` `$ss` `$s` `$fff` `$ff` `$f`, 最长匹配优先, 大小写敏感, `$Mm` 不展开), 随机 `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` (`SecureRandom`, N 上限 256); 展开结果中的 `$` 转义为 `$$`.
-- [ ] (插件) `RenameEngine.plan(items, options)`: 按 D16 顺序逐项处理, `target` 切分规则 (无扩展名, 以点开头的隐藏文件, 多重扩展名只取最后一段, 文件夹无扩展名), `includeFiles` / `includeFolders` / `includeSubfolders` 过滤 (过滤掉的项状态 `excluded`), 未命中项 `unchanged`.
-- [ ] (测试) 表驱动用例覆盖附录 A 全部文档示例 (如 `Image_${padding=4;increment=2;start=10}_` 与 `$MMM-$DD-$YY-powertoys`), 计数器只对改名项递增, `enumerate=false` 时 `${}` 为字面, 日期 `now` 与 `modified` 两种来源, 随机串长度与字符集.
+- [x] (插件) `RenameOptions` 与 `RenameOptionsParser` (D17 默认值; 字符串, 布尔与闭合取值的类型校验, 非法值报 `INVALID_OPTIONS`; 文本选项超过 4096 字符报 `LIMIT_EXCEEDED`; 未知键忽略并在 `ParsedOptions.unknownKeys` 中返回, 由服务记录日志), `RenameItem` / `RenameParent` / `RenameRequest` / `PlanItem` / `RenamePlan` / `PlanItemStatus` / `PlanReason` 模型 (取值直接引用契约常量), `PlanException` (契约错误码). `RequestChecks` 执行契约上限与一致性规则 (条目, 父目录与既有名称数量, `index` 等于位置, 父目录 id 唯一且被引用, 名称为单个路径段). 证据: 本条所在提交. 偏差: `dateTime` 的关闭值按契约为 `"none"` (D17 原写 `false`, 脚本侧 P3.2 负责映射).
+- [x] (插件) `variables/`: `ReplacementTemplate` 把 `replace` 拆为字面文本与变量, `VariableExpander` 生成单个条目的 ECMAScript 替换串. 计数器 `${}` 与 `${start=X;increment=X;padding=X}` (键顺序任意, 多个计数器共用同一序号但各自取值, 负数保留符号, 起始值与增量至多 15 位, 填充至多 255 位, 越界报 `INVALID_OPTIONS`); 20 个日期时间变量 (区分大小写, 最长名称优先, 24 小时制, 月份与星期名称取请求区域的独立形式, 缺失时回退格式形式); 随机值 `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` (`SecureRandom`, N 为 1 到 256, 超过 256 报 `LIMIT_EXCEEDED`); 变量值中的 `$` 转义为 `$$`. 选项关闭的变量与无法解析的内容保持字面 (PowerRename 行为). 证据: 同上. 澄清: (1) `$$` 在两种模式下都表示一个字面 `$`, 并使其后文本不被识别为变量 (`$$YYYY` 得到 `$YYYY`, 与 PowerRename 的转义规则一致); (2) 纯文本模式下替换串整体按字面处理, 只有变量会展开; (3) 原文 "`$Mm` 不展开" 改为按最长匹配解释: `$Mm` 是 `$M` 加字面 `m` (PowerRename 同样逐个变量替换); (4) `${}` 从 0 开始 (PowerRename 文档 "start from zero for the first renamed file").
+- [x] (插件) `RenameEngine.plan(request)`: 按 D16 逐项处理 (调用方排除 -> `includeFiles` / `includeFolders` / `includeSubfolders` 过滤 -> 取 `target` 部分 -> 查找不命中则 `unchanged` / `noMatch` -> 展开变量并执行 ECMAScript 替换 -> 文本格式化 -> 本土扩展 -> 拼回名称 -> 与原名相同则 `unchanged` / `sameName`). `NameParts` 只对文件按最后一个点号切分扩展名: 文件夹, 无点号, 仅以点号开头 (`.bashrc`) 与以点号结尾的名称都没有扩展名; 删除扩展名时不留点号. 计数器只对名称发生变化的条目递增 (在冲突判定之前计数, 之后被判冲突的条目同样占用序号). 正则语法错误报 `INVALID_OPTIONS`, 会话超时报 `LIMIT_EXCEEDED`. 证据: 同上. 澄清: 空查找串表示每个被包含的条目都参与, 但不执行替换, 只应用格式化与本土扩展 (脚本可借此只做大小写转换); 查找串为必填键.
+- [x] (测试) `RenameEngineTest` 19 项 (PowerRename 文档的 "全部匹配", "仅文件名 / 仅扩展名", 计数器 `Image_${padding=4;increment=2;start=10}_`, 日期 `$MMM-$DD-$YY-powertoys` 与正则示例; 计数器只对改名项递增且被排除项不占序号; 多计数器与负数; 关闭的变量保持字面; `$$` 转义; `modified` 与 `now` 两种日期来源及 20 个变量逐一取值; 中文与俄语名称; 随机串字符集与长度; 包含选项与深度; `target` 切分; 原因码; 空查找串; 格式化与本土扩展顺序; 序号接续; 整体错误码), `RenameOptionsParserTest` 4 项, `ReplacementTemplateTest` 7 项. 证据: 插件 JVM 测试 80 项通过; 变异检查 (计数器对每项递增, 日期变量改为最短匹配) 均被捕获.
 
 ### P2.3 文本格式化与本土扩展 (D18, D5)
 
-- [ ] (插件) `TextFormatter` 四种模式, locale 注入; `NameNormalizer`: NFC 规范化, 全角转半角 (U+FF01-U+FF5E 与 U+3000), `sanitize` 与 `sanitizeReplacement`, `trim`, 序号接续 (`continueNumbering=true` 时扫描父目录既有名中与替换模板匹配的最大序号, 计数器从其后开始).
-- [ ] (测试) en / zh / tr locale 的大小写转换; 组合字符与代理对 (emoji) 在规范化, 截断与格式化下不被破坏; 全角转半角对照表; 序号接续在既有 `Photo_0012.jpg` 存在时从 13 开始.
+- [x] (插件) `format/TextFormatter` 四种模式, 大小写转换使用请求区域 (土耳其语 `i` -> `İ`), `title` 只把整段首字符大写, `capitalize` 把每个以空白分隔的词首字符大写, 按码点处理; `local/NameNormalizer` 按 D16 顺序执行 NFC / NFD 规范化, 全角转半角 (U+FF01-U+FF5E 与 U+3000), `sanitize` (把 `\ : * ? " < > |` 与控制字符替换为 `sanitizeReplacement`, 首个点号之前为 Windows 设备名 `CON` `PRN` `AUX` `NUL` `COM1-9` `LPT1-9` 时追加替换串, 替换串为空时追加 `_`), `trim` (去除开头空白与结尾的空白和点号). `sanitizeReplacement` 不得含被替换的字符, `conflictNumberPattern` 须含 `{n}` 且不含 `/` 与 NUL. 证据: 本条所在提交. 澄清: 格式化与本土扩展作用于 `target` 部分 (D16), 设备名检查只在该部分以主名开头时进行 (目标为扩展名时不检查). 序号接续定义为尽力而为: 在所有父目录的既有名称中查找模板里第一个计数器两侧字面文本之间的数字, 计数器从最大值之后继续 (增量不为正, 两侧都无字面文本, 或正则模式下两侧含 `$` 时照常从起始值开始); 多个计数器保持同步.
+- [x] (测试) `TextFormatterTest` 4 项 (en / zh / tr 的大小写转换, `title` 与 `capitalize`, 代理对与 U+10428 等增补平面字母), `NameNormalizerTest` 6 项 (规范化含组合字符与韩文字母, 全角转半角对照全部 94 个字符与全角空格, 清理与设备名, 修剪, 流水线顺序), 序号接续在 `RenameEngineTest` 中覆盖 (既有 `Photo_0012.jpg` 时从 13 开始, 起始 10 增量 5 时为 15). 证据: 同 P2.2.
 
 ### P2.4 校验与冲突 (D19, D20 判定部分)
 

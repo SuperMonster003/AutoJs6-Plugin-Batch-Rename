@@ -96,7 +96,7 @@ class RhinoRegexEngineTest {
 
     @Test
     fun `the longest transported names are handled`() {
-        val name = "照".repeat(1024)
+        val name = "\u7167".repeat(1024)
         RhinoRegexEngine().session { session ->
             assertEquals("x".repeat(1024), session.replace(name, session.compile("\\p{Script=Han}", "gu"), "x"))
             assertFalse(session.test(name, session.compile("^\\d", "")))

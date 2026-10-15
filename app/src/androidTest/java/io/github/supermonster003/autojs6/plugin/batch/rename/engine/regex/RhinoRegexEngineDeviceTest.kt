@@ -28,7 +28,7 @@ class RhinoRegexEngineDeviceTest {
             assertEquals("2020-03-29", replace("(\\d\\d)-(\\d\\d)-(\\d\\d\\d\\d)", "", "29-03-2020", "\$3-\$2-\$1"))
             assertEquals("10.2026", replace("(?<year>\\d{4})-(?<month>\\d{2})", "", "2026-10", "\$<month>.\$<year>"))
             assertEquals("cost \$N and \$N", replace("(?<=\\$)\\d+", "g", "cost \$30 and \$45", "N"))
-            assertEquals("x", replace("ſ", "iu", "S", "x"))
+            assertEquals("x", replace("\u017f", "iu", "S", "x"))
             assertEquals("X", replace("a.b", "s", "a\nb", "X"))
             assertEquals("a[b]c", replace("b", "", "abc", "[\$&]"))
             assertTrue(session.test("IMG_0042", session.compile("^IMG_\\d{4}$", "")))
@@ -38,7 +38,7 @@ class RhinoRegexEngineDeviceTest {
     @Test
     fun unicodePropertyEscapesNeedApi26() {
         RhinoRegexEngine().session { session ->
-            val input = "abc 123 照片"
+            val input = "abc 123 \u7167\u7247"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 assertEquals("L 123 L", session.replace(input, session.compile("\\p{L}+", "gu"), "L"))
             } else {
