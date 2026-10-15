@@ -219,7 +219,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | 阶段 | 版本 | 主题 | 状态 |
 | --- | --- | --- | --- |
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
-| P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 进行中 (P1.1 - P1.3 已完成, 2026-10-15) |
+| P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 未开始 |
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 未开始 |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
@@ -303,11 +303,11 @@ P0 (骨架)
 
 ### P1.4 宿主入口 (D10)
 
-- [ ] (宿主) 多选工具栏: 无需新增代码 (既有机制自动列出 `SELECTION_TOOLBAR` 动作); 验证 `TARGET_MIXED` + `targetRename` 动作在文件与文件夹混选时可见, 压缩包视图内不可见.
-- [ ] (宿主) 文件夹溢出菜单: 既有 `OVERFLOW_MENU` 对 `TARGET_DIRECTORY` 的动作列出机制; 验证 "批量重命名其中的项目" 出现在 `menu_dir_options` 之后的插件区.
-- [ ] (宿主) 重命名对话框 "更多" (D10c, D29): `ScriptOperations.rename` 的 `showNameInputDialog` 增加右上角溢出图标 (自定义标题视图, 48 dp 触控目标, 无障碍标签 "更多"), 菜单项来自 `ExplorerActionRegistry.actionsFor(surface, RENAME_DIALOG, listOf(item))`; 无已安装动作时显示 "批量重命名..." 并跳转插件中心安装向导; 选择动作后关闭对话框并经 `ExplorerActionLauncher` 启动插件; 插件返回后刷新列表. 文件与文件夹两种重命名入口 (`ExplorerBuiltInActionHandler`, `ExplorerPageViewHolder`) 均覆盖.
-- [ ] (宿主) 10 语言字符串: `text_batch_rename` 等新增条目按 name 排序, ASCII 标点, `values` 与 `values-en` 一致.
-- [ ] (测试) 宿主 JVM: 对话框菜单在 "无插件 / 有插件 / 插件未启用" 三种注册表快照下的条目; instrumentation: 对话框 "更多" 可见且可点击 (API 24 AVD 与一台真机).
+- [x] (宿主) 多选工具栏: 无需新增代码 (既有机制自动列出 `SELECTION_TOOLBAR` 动作). 证据: 新增 `ExplorerBatchRenameEntryPointsTest` 用 D23 的三种 catalog 形态按 `ExplorerActionRegistry.actionsFor` 的组合方式 (匹配 + 放置位置) 验证: 文件与文件夹混选, 只选文件, 只选一个文件夹时工具栏都只列出 `batch-rename-selection`. 压缩包视图内不可见由既有代码保证 (`ExplorerView.updateSelectionToolbar` 对压缩包条目选区不解析插件动作, 注册表的 `targetFor` 拒绝不可读路径), 未另写测试. 设备上的可见性随 P4.1 catalog 在 P4.4 联调中验证.
+- [x] (宿主) 文件夹溢出菜单: 既有 `OVERFLOW_MENU` 机制. 证据: 同一测试验证单个文件夹只列出 `batch-rename-directory`, 单个文件的溢出菜单不列出任何 Batch Rename 动作 (D10); `ExplorerPageViewHolder` 先载入 `menu_dir_options`, 插件动作以 `PLUGIN_ACTION_MENU_ORDER_START + index` 追加在内置项之后 (代码核对). 标签 "批量重命名其中的项目" 由插件 catalog 提供 (P4.1).
+- [x] (宿主) 重命名对话框 "更多" (D10c, D29): `ScriptOperations.rename(item, titleOptions)` 把选项放进 material-dialogs 既有的标题选项按钮; `ExplorerRenameDialogMenu` 解析 `RENAME_DIALOG` 动作并生成菜单 (至多 10 项, 选择动作时先关闭对话框再经 `ExplorerView.dispatchPluginAction` 启动插件), 为按钮设置无障碍标签 "更多" 并以 `TouchDelegate` 把触控区域扩到 48 dp; 没有动作时只显示 "批量重命名...", 点击后由 `ExplorerBatchRenamePluginUi` 说明原因 (未安装 / 未启用 / 未授权 / 需要升级) 并可前往插件中心, 重命名对话框保持打开; 文件 (`ExplorerBuiltInActionHandler`) 与文件夹 (`ExplorerPageViewHolder`) 两个重命名入口均已接入. 证据: 宿主提交 `26656b7c4` (本地, 待维护者合并; `VERSION_BUILD=3780`, versionCode 5432). 偏差: (1) 未自建标题视图, 沿用 material-dialogs 的标题选项按钮 (27 dp 宽, 与插件中心等对话框一致), 无障碍标签与 48 dp 触控区域的做法与 Ace 编辑器字体对话框相同; (2) D29 的 "进入插件中心安装向导" 改为打开插件中心并以插件包名搜索 (与 HTML / Markdown / EPUB / 视频播放器插件的引导一致), 安装向导没有预选单个条目的入口; (3) "更多" 菜单只在主文件管理器中出现, 压缩包内条目不显示; (4) "插件返回后刷新列表" 由 P3.1 的会话执行器负责 (与 v24 `targetTrash` 执行后刷新文件管理器的方式相同), 本步不在对话框侧轮询.
+- [x] (宿主) 字符串: `text_batch_rename` ("批量重命名...", 10 种语言与默认 `values`, ASCII 省略号并带 `tools:ignore="TypographyEllipsis"`, 按 name 排序, `values` 与 `values-en` 一致), `plugin_batch_rename_name` ("Batch Rename", `strings_donottranslate.xml`); 引导文案复用既有的插件状态字符串. 证据: 同上.
+- [x] (测试) 宿主 JVM: `ExplorerRenameDialogMenuTest` (无插件 / 有插件 / 插件未启用三种注册表快照: 未启用的插件不进注册表, 因此与无插件相同, 显示引导; 有动作时按注册表顺序替换引导; 10 项上限; 无插件入口的文件管理器不显示菜单), `ExplorerBatchRenameAvailabilityPolicyTest`, `ExplorerBatchRenameEntryPointsTest` (4 项); 宿主 explorer 相关 JVM 测试 184 项通过. instrumentation: `ExplorerRenameDialogMenuInstrumentationTest` (2 项) 经无障碍节点点击带标签的 "更多" 按钮, 验证引导与插件动作两条路径, 在 AVD_API_24 (只读实例) 与 Sony XQ-AT72 (QV710AF65F, API 31) 通过; 用 `adb shell am instrument` 运行 (Gradle 的 connected 任务会卸载宿主). 测试中发现: 全新 API 24 模拟器上 `MainActivity` 显示期间主线程从不报告空闲, `startActivitySync` 与 `ActivityScenario` 都会超时, 测试改为 `startActivity` 后等待 RESUMED.
 
 ---
 
@@ -354,7 +354,7 @@ P0 (骨架)
 - [ ] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle.
 - [ ] (宿主) `BatchRenameExecutor.apply(plan, policy, progress)`: 重新校验每项 (存在, `lastModified` / `length` 未变, 否则 `stale`), 深度降序, 两阶段改名, `overwrite` 受害文件先进回收站, 逐项结果, 进度回调, 已改名文件的 `relocateHistory` (版本历史) 与 `notifyFileChanged`; `undo(batchId)`: 逆序恢复, 占用检查, 回收站受害文件恢复.
 - [ ] (宿主) `BatchRenameJournalStore`: JSON 持久化, 20 批上限与淘汰, 损坏文件跳过并记日志, 批次 id 为随机不可猜测字符串; `history(limit)` 读取.
-- [ ] (宿主) `ExplorerActionHostSession` v25 五个方法 (含 `listRenameParent`) 接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验.
+- [ ] (宿主) `ExplorerActionHostSession` v25 五个方法 (含 `listRenameParent`) 接入执行器 (替换 P1.2 的占位), 条目到路径的解析经 session 既有的目标与 `listChildren` 路径校验; 执行与撤销后刷新文件管理器 (同 v24 `targetTrash` 的 `notifyWorkspaceChanged`), 这是重命名对话框等入口 "插件返回后刷新列表" 的唯一来源 (P1.4).
 - [ ] (测试) 宿主 JVM: 临时目录下的执行器用例 (交换, 仅大小写, 父子同批, 单项失败不回滚, stale 跳过, 撤销后再撤销报 `UNDO_UNAVAILABLE`, 日志淘汰); v25 session 用例 (非法 `relativePath` 逃逸拒绝, 跨 session 批次不可撤销).
 - [ ] (测试) instrumentation `ExplorerActionRenameV25InstrumentationTest` (以 `ExplorerActionTargetTrashV24InstrumentationTest` 为模板): 真实插件 APK 或测试桩 catalog, `renameEntries` 往返, 撤销, 进程重启后 `listRenameBatches` 仍可见.
 
