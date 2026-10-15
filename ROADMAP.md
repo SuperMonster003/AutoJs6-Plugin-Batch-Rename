@@ -221,7 +221,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P0 | 1.0.0 | 仓库骨架: 构建链, Manifest, 资源, 文档生成器, CI, AGENTS.md, 图标 | 已完成 (2026-10-15; 工作流待首次推送后的远端运行) |
 | P1 | 宿主 6.8.0 | 宿主契约 `batch-rename-api`, explorer-action v25, 注册与入口 (含重命名对话框 "更多") | 已完成 (2026-10-15; 宿主 4 个提交在本地, 待维护者合并) |
 | P2 | 1.0.0 | 插件引擎 (纯 JVM): 正则, 变量, 格式化, 本土扩展, 校验, 冲突 | 已完成 (2026-10-15; 服务的 `plan` 已接入引擎) |
-| P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 进行中 (P3.1 已完成 2026-10-15; 宿主提交在本地, 待维护者合并) |
+| P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 未开始 |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 未开始 |
 | P6 | 1.1.0 | 候选: EXIF / XMP 变量, 预设, 宿主重命名历史页面, 其他 | 未开始 |
@@ -360,11 +360,11 @@ P0 (骨架)
 
 ### P3.2 脚本 API `files.batchRename` (D2, D9, D27)
 
-- [ ] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle. (原列于 P3.1, 只有脚本路径使用, 随脚本 API 实现)
-- [ ] (宿主) `augment/files/BatchRename.kt`: `keys = listOf(AugmentableKey("batchRename", withDollarPrefix = false))`, `Augmentable` + `Invokable`; `ScriptRuntime.kt:1044` 改为 `Files(this).augment(target, files).also { BatchRename(this).augment(it) }`; `selfAssignmentFunctions`: `plan`, `apply`, `undo`, `history`, `isAvailable`, `planAsync`, `applyAsync`, `undoAsync`; 参数守卫 (`ArgumentGuards`), `RegExp` 对象提取 (`NativeRegExp` 的 `source` / `flags`), `onProgress` 在脚本线程回调, 返回 `NativeObject` (plan / result / history 结构见附录 B.3), `BatchRenameErrorMapper` 映射错误码与插件中心引导文案.
-- [ ] (宿主) Async 变体: 复用宿主既有 Promise 桥接 (与其他 `xxxAsync` 方法一致), 后台线程执行, 异常转 reject.
-- [ ] (测试) 宿主 JVM: 参数规范化 (字符串 / 数组 / RegExp / 非法类型), 默认值, 错误码映射, plan 对象 `excluded` 回传; instrumentation: 安装插件后在真机上 `plan` / `apply` / `undo` / `history` 往返, 未安装时 `isAvailable()` 为 `false` 且 `plan` 抛 `PLUGIN_UNAVAILABLE`.
-- [ ] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 补全 `files.batchRename` 条目 (参阅 项目文档 链接; 其他语言由维护者同步), `docs/dev/batch-rename-plugin-protocol-v1.md` 补充脚本路径章节.
+- [x] (宿主) `BatchRenameTargetCollector`: 路径解析 (相对脚本工作目录), 去重, 目录递归 (不跟随符号链接, 深度 32, 总数 2000), 收集父目录既有名与大小写敏感性探测, 产出请求 Bundle. (原列于 P3.1, 只有脚本路径使用, 随脚本 API 实现) 证据: 宿主提交 `852afb776` (本地, 待维护者合并; `VERSION_BUILD=3786`, versionCode 5438), `core/plugin/batchrename/BatchRenameTargetCollector.kt`; JVM `BatchRenameTargetCollectorTest` 5 项. 偏差: (1) 产出脚本模型 (`BatchRenameTargets`), 由 `BatchRenameBundles` 转为请求 Bundle, 纯 JVM 可测; (2) 给出的路径本身是符号链接时报 `INVALID_PATHS`, 目录下遇到的链接跳过但仍计入 `existingNames`; 列目录失败报 `IO_FAILED`; (3) 深度按给出路径计 (给出的路径为 0), 只有更深一层确实有条目时才报 `LIMIT_EXCEEDED`; 父目录数 512 与既有名称 20000 的契约上限在宿主侧先行检查.
+- [x] (宿主) `augment/files/BatchRename.kt`: `keys = listOf(AugmentableKey("batchRename", withDollarPrefix = false))`, `Augmentable` + `Invokable`; `ScriptRuntime.kt:1044` 改为 `Files(this).augment(target, files).also { BatchRename(this).augment(it) }`; `selfAssignmentFunctions`: `plan`, `apply`, `undo`, `history`, `isAvailable`, `planAsync`, `applyAsync`, `undoAsync`; 参数守卫 (`ArgumentGuards`), `RegExp` 对象提取 (`NativeRegExp` 的 `source` / `flags`), `onProgress` 在脚本线程回调, 返回 `NativeObject` (plan / result / history 结构见附录 B.3), `BatchRenameErrorMapper` 映射错误码与插件中心引导文案. 证据: 同上; `runtime/api/augment/files/BatchRename.kt` 与 `BatchRenameJsErrors.kt` 只做 Rhino 转换, 逻辑在纯 Kotlin 的 `BatchRenameScriptService` (方案登记, 重新询问, 执行, 结果映射, 撤销, 历史) 与 `BatchRenameScriptArguments` (参数与 D17 默认值); `BatchRenamePluginHost.planForScript` / `isAvailable` 把选择失败分为 `PLUGIN_UNAVAILABLE` / `PLUGIN_DISABLED` / `PLUGIN_INCOMPATIBLE`, `TransactionTooLargeException` 为 `LIMIT_EXCEEDED`. 偏差: (1) 错误以脚本可见的 `files.batchRename.BatchRenameError` 类抛出 (`code`, `message`, 隐藏的 `javaException`), 与 `EpubError` 同构, 没有单独的 `BatchRenameErrorMapper` 类: 插件错误码映射在 `BatchRenameScriptCodes.fromPluginErrorCode`, 缺插件文案沿用 `AidlPluginHost` 选择失败的 `error_missing_required_plugin_for_module_label`; (2) `apply` 以 `applyPlan` 实现并以别名 `apply` 挂载 (避免与 Kotlin 作用域函数同名); (3) 同步形态以脚本的 Job 运行但去掉调度器, 执行器与 `onProgress` 都在脚本线程上; `onProgress` 抛出的异常不中断批次, 批次记入日志后再抛出; (4) 返回对象按附录 B.3 (P3.2 修订): 方案条目以 `overwrites` 代替 `twoPhase`, 结果计数增加 `excluded`, 增加撤销结果与历史条目的形态; 每个脚本保留 16 个方案, 修改 `excluded` 或覆盖 `onConflict` 时重新询问插件, 方案至多执行一次 (`PLAN_STALE`).
+- [x] (宿主) Async 变体: 复用宿主既有 Promise 桥接 (与其他 `xxxAsync` 方法一致), 后台线程执行, 异常转 reject. 证据: 同上; `planAsync` / `applyAsync` / `undoAsync` 在脚本协程作用域的 IO 线程上运行, 经 `ScriptAsyncDispatcher` 在脚本线程上送达进度与结果 (与 `EpubPromises` 相同的管道), 参数错误直接拒绝 Promise. 偏差: `history` 与 `isAvailable` 只有同步形态 (与附录 B.1 一致).
+- [x] (测试) 宿主 JVM: 参数规范化 (字符串 / 数组 / RegExp / 非法类型), 默认值, 错误码映射, plan 对象 `excluded` 回传; instrumentation: 安装插件后在真机上 `plan` / `apply` / `undo` / `history` 往返, 未安装时 `isAvailable()` 为 `false` 且 `plan` 抛 `PLUGIN_UNAVAILABLE`. 证据: JVM `BatchRenameScriptArgumentsTest` 7 项, `BatchRenameTargetCollectorTest` 5 项, `BatchRenameScriptServiceTest` 6 项 (替身方案器 + 临时目录上的真实执行器: 执行一次, 排除与换策略后重新询问, 拒绝, 覆盖失败, stale, 空批次, 撤销与历史, 方案淘汰, 应答与请求不符), 连同执行器用例共 34 项通过; instrumentation `BatchRenameScriptApiTest` (E3, 2026-10-15) 经正式 Rhino 引擎运行脚本, 在 `AVD_API_24` (emulator-5590) 与 `AVD_API_35_16K` (emulator-5594) 上: 未安装插件时通过 (`isAvailable()` 为假, 同步与异步都报 `PLUGIN_UNAVAILABLE`, 错误是 `BatchRenameError` 实例); 装上签名 release 插件 (804,745 字节, 插件 `78d1464` 构建) 后完整往返通过: 相对工作目录的路径, `RegExp` 搜索, 排除一项后重新询问, 带进度执行, 再次执行报 `PLAN_STALE`, 历史, 撤销与再次撤销 (`UNDO_UNAVAILABLE`), `PLAN_REJECTED`, 宿主与插件两侧的 `INVALID_OPTIONS`, `INVALID_PATHS`, 回调抛错不中断批次, `planAsync` / `applyAsync` / `undoAsync` 往返 (原始状态码确认插件用例实际执行, 另一用例按设计跳过); 变异检查 (Rhino 层忽略脚本设置的 `excluded`) 使往返用例失败, 恢复后重新通过; 宿主全部 JVM 测试 4437 项通过. 未执行: 真机.
+- [x] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 补全 `files.batchRename` 条目 (参阅 项目文档 链接; 其他语言由维护者同步), `docs/dev/batch-rename-plugin-protocol-v1.md` 补充脚本路径章节. 证据: 同上; changelog 只写 zh-Hans 一条 feature (链接暂指项目文档 "文件" 页, `batchRename` 小节随 P5.1 补上), 其他语言由维护者同步; 生成的 `CHANGELOG*.md` 与 README 发行历史随提交更新; 协议文档新增 "Script path" 一节并更新 Status.
 
 ---
 
@@ -548,23 +548,27 @@ P0 (骨架)
         depth: 0,
         newName: "Photo_0010_0001.jpg",
         status: "rename",     // "rename" | "unchanged" | "conflict" | "invalid" | "excluded"
-        reason: null,         // 冲突或非法的原因码与说明
-        excluded: false,      // 脚本可改为 true
-        twoPhase: false,
+        reason: null,         // 原因码 (契约 BatchRenameValues.REASON_*), 无则为 null
+        excluded: false,      // 脚本排除标志, 可改为 true 后再 apply (选项过滤掉的条目显示为 status "excluded" / reason "notIncluded")
+        overwrites: false,    // onConflict 为 "overwrite" 时将替换既有条目 (P3.2 起代替 twoPhase, 两阶段由宿主执行器自行判定)
     }],
     counts: { rename: 12, unchanged: 3, conflict: 0, invalid: 0, excluded: 1 },
-    rejected: false,          // onConflict 为 "fail" 且存在 conflict / invalid 时为 true
+    rejected: false,          // 存在 invalid, 或 onConflict 为 "fail" 且存在 conflict 时为 true
 }
-// result
+// result (apply)
 {
-    batchId: "b_19c4...",
-    counts: { renamed: 12, skipped: 0, failed: 0, stale: 0 },
-    items: [{ path, newPath, status: "renamed" | "skipped" | "failed" | "stale" | "excluded", reason }],
+    batchId: "b_19c4...",     // 没有可改名的条目时为 null
+    counts: { renamed: 12, skipped: 3, failed: 0, stale: 0, excluded: 1 },
+    items: [{ path, newPath, status: "renamed" | "skipped" | "failed" | "stale" | "excluded", reason }],  // 与 plan.items 一一对应, newPath 为执行后所在位置
     undoable: true,
 }
+// undo result
+{ batchId, state: "restored" | "recoveryRequired", counts: { restored, stale, failed }, items: [{ path, newPath, status, reason }], undoable }
 // history entry
-{ batchId, createdAt, source: "script" | "explorer", counts, undoable }
+{ batchId, source: "script" | "explorer", state, createdAt, updatedAt, counts: { renamed, notRenamed, restored }, undoable }
 ```
+
+P3.2 实现的补充约定: 每个脚本保留最近 16 个方案供 `apply` 使用; 脚本修改了 `excluded` 或经 `applyOptions.onConflict` 换了策略时, 宿主以同一枚举结果与 `now` 重新询问插件; 每个方案至多执行一次, 再次执行或执行已不保留的方案报 `PLAN_STALE`; 被拒绝的方案报 `PLAN_REJECTED` 且不改名. `onProgress` 抛出的异常不中断批次, 批次完成并记入日志后再抛出 (或拒绝 Promise). `undo` 也可撤销管理器路径产生的批次 (`history` 本就列出它们).
 
 ### B.4 d.ts 草案 (节选)
 
@@ -595,7 +599,7 @@ let plan = files.batchRename.plan("/sdcard/DCIM/Camera", {
     search: /^IMG_(\d+)/,
     replace: "$YYYY-$MM-$DD_${padding=3}_$1",
     enumerate: true,
-    includeSubfolders: false,
+    includeFolders: false, // 给出目录时, 目录本身是深度 0 的条目, 其下条目经 includeSubfolders (默认 true) 加入
 });
 plan.items.filter(it => it.status === "rename").forEach(it => log(it.name, "->", it.newName));
 if (!plan.rejected) {
