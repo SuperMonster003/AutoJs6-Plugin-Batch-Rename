@@ -8,7 +8,7 @@
 
 ###### 2026/10/15
 
-* `Aviso` Requiere AutoJs6 6.8.0 (5431) o posterior
+* `Aviso` Requiere AutoJs6 6.8.0 (5438) o posterior
 * `Función` Renombrado por lotes de archivos y carpetas en el gestor de archivos de AutoJs6 (entradas: barra de selección múltiple/menú de carpeta "Renombrar por lotes los elementos del interior"/menú "Más" del diálogo de renombrar)
 * `Función` Buscar y reemplazar con texto sin formato o expresiones regulares de JavaScript, todas las coincidencias, distinción de mayúsculas y cambio solo del nombre o de la extensión
 * `Función` Contadores, variables de fecha a partir de la hora de modificación o de la hora actual, cadenas aleatorias y UUID

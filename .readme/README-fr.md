@@ -65,7 +65,7 @@ Le plugin est un APK installé séparément, sans icône de lanceur. Il offre de
 
 ******
 
-1. Mettez à jour AutoJs6 vers la build 5431 (6.8.0) ou ultérieure.
+1. Mettez à jour AutoJs6 vers la build 5438 (6.8.0) ou ultérieure.
 2. Installez Batch Rename depuis le centre de plugins d'AutoJs6, ou téléchargez l'APK depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), puis autorisez-le et activez-le dans le centre de plugins.
 3. Dans le gestionnaire de fichiers, appuyez longuement pour sélectionner des éléments puis touchez "Renommer par lot", ou appelez `files.batchRename` dans un script.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- Nécessite AutoJs6 6.8.0 (build 5431) ou ultérieur et Android 7.0 (API 24) ou ultérieur.
+- Nécessite AutoJs6 6.8.0 (build 5438) ou ultérieur et Android 7.0 (API 24) ou ultérieur.
 - Les stockages FAT32 / exFAT, comme les cartes SD et les clés USB, ignorent la casse et n'acceptent pas `: * ? " < > |`, la barre oblique inverse et les caractères semblables; les nouveaux noms qui en contiennent sont signalés comme inutilisables, et "Remplacer les caractères interdits" les remplace automatiquement.
 - Un lot contient au plus 2000 éléments; les scripts descendent au plus de 32 niveaux sous les dossiers indiqués.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 
 _2026/10/15_
 
-- `Note` Nécessite AutoJs6 6.8.0 (5431) ou ultérieur
+- `Note` Nécessite AutoJs6 6.8.0 (5438) ou ultérieur
 - `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)
 - `Fonctionnalité` Rechercher et remplacer en texte brut ou par expressions régulières JavaScript, toutes les occurrences, respect de la casse et renommage du nom ou de l'extension seulement
 - `Fonctionnalité` Compteurs, variables de date tirées de la date de modification ou de l'heure actuelle, chaînes aléatoires et UUID

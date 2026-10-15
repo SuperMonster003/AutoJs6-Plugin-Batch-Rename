@@ -65,7 +65,7 @@
 
 ******
 
-1. حدث AutoJs6 إلى البناء 5431 (6.8.0) أو أحدث.
+1. حدث AutoJs6 إلى البناء 5438 (6.8.0) أو أحدث.
 2. ثبت Batch Rename من مركز الإضافات في AutoJs6, أو نزل ملف APK من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), ثم امنحه الإذن وفعله في مركز الإضافات.
 3. في مدير الملفات اضغط مطولا لتحديد العناصر ثم اضغط "إعادة التسمية الدفعية", أو استدع `files.batchRename` في سكربت.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- يتطلب AutoJs6 6.8.0 (الإصدار 5431) أو أحدث و Android 7.0 (API 24) أو أحدث.
+- يتطلب AutoJs6 6.8.0 (الإصدار 5438) أو أحدث و Android 7.0 (API 24) أو أحدث.
 - وحدات التخزين FAT32 / exFAT مثل بطاقات SD ومحركات USB لا تميز حالة الأحرف ولا تسمح بالأحرف `: * ? " < > |` والشرطة المائلة العكسية وما شابهها; تعلم الأسماء الجديدة التي تحتويها على أنها غير صالحة, ويستبدلها خيار "استبدال الأحرف غير المسموح بها" تلقائيا.
 - تضم الدفعة الواحدة 2000 عنصر كحد أقصى, وتصل السكربتات إلى 32 مستوى كحد أقصى تحت المجلدات المحددة.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 _2026/10/15_
 
-- `تلميح` يتطلب AutoJs6 6.8.0 (5431) أو أحدث
+- `تلميح` يتطلب AutoJs6 6.8.0 (5438) أو أحدث
 - `ميزة` إعادة تسمية دفعية للملفات والمجلدات في مدير ملفات AutoJs6 (المداخل: شريط التحديد المتعدد/قائمة المجلد "إعادة تسمية العناصر الداخلية دفعة واحدة"/قائمة "أكثر" في مربع حوار إعادة التسمية)
 - `ميزة` البحث والاستبدال بنص عادي أو بتعبيرات JavaScript النمطية, مع كل التطابقات ومراعاة حالة الأحرف وتغيير الاسم أو الامتداد فقط
 - `ميزة` العدادات ومتغيرات التاريخ من وقت التعديل أو الوقت الحالي والسلاسل العشوائية و UUID

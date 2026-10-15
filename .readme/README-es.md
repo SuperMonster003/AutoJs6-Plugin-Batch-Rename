@@ -65,7 +65,7 @@ El plugin es un APK que se instala por separado y no tiene icono en el lanzador.
 
 ******
 
-1. Actualice AutoJs6 a la compilación 5431 (6.8.0) o posterior.
+1. Actualice AutoJs6 a la compilación 5438 (6.8.0) o posterior.
 2. Instale Batch Rename desde el centro de plugins de AutoJs6, o descargue el APK desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), y luego autorícelo y actívelo en el centro de plugins.
 3. En el administrador de archivos, mantenga pulsado para seleccionar elementos y toque "Cambiar nombre por lotes", o llame a `files.batchRename` en un script.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- Requiere AutoJs6 6.8.0 (compilación 5431) o posterior y Android 7.0 (API 24) o posterior.
+- Requiere AutoJs6 6.8.0 (compilación 5438) o posterior y Android 7.0 (API 24) o posterior.
 - Los almacenamientos FAT32 / exFAT, como tarjetas SD y memorias USB, no distinguen mayúsculas y no admiten `: * ? " < > |`, la barra invertida y caracteres similares; los nombres nuevos que los contienen se marcan como no utilizables y "Reemplazar los caracteres no permitidos" los reemplaza automáticamente.
 - Un lote admite como máximo 2000 elementos; los scripts llegan como máximo a 32 niveles por debajo de las carpetas indicadas.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ Los planes, las decisiones de diseño y el progreso se registran como lista de v
 
 _2026/10/15_
 
-- `Aviso` Requiere AutoJs6 6.8.0 (5431) o posterior
+- `Aviso` Requiere AutoJs6 6.8.0 (5438) o posterior
 - `Función` Renombrado por lotes de archivos y carpetas en el gestor de archivos de AutoJs6 (entradas: barra de selección múltiple/menú de carpeta "Renombrar por lotes los elementos del interior"/menú "Más" del diálogo de renombrar)
 - `Función` Buscar y reemplazar con texto sin formato o expresiones regulares de JavaScript, todas las coincidencias, distinción de mayúsculas y cambio solo del nombre o de la extensión
 - `Función` Contadores, variables de fecha a partir de la hora de modificación o de la hora actual, cadenas aleatorias y UUID

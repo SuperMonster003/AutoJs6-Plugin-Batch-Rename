@@ -65,7 +65,7 @@ Batch Rename 插件为 AutoJs6 提供批量重命名能力, 功能参照 PowerTo
 
 ******
 
-1. 将 AutoJs6 升级到内部版本号 5431 (6.8.0) 或更高版本.
+1. 将 AutoJs6 升级到内部版本号 5438 (6.8.0) 或更高版本.
 2. 在 AutoJs6 的插件中心安装 Batch Rename, 或从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases) 下载 APK 安装, 然后在插件中心授权并启用.
 3. 在文件管理器中长按进入多选后点击 "批量重命名", 或在脚本中调用 `files.batchRename`.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- 需要 AutoJs6 6.8.0 (构建 5431) 或更高版本, 以及 Android 7.0 (API 24) 或更高版本.
+- 需要 AutoJs6 6.8.0 (构建 5438) 或更高版本, 以及 Android 7.0 (API 24) 或更高版本.
 - SD 卡或 U 盘等 FAT32 / exFAT 存储不区分大小写, 也不允许 `: * ? " < > |` 与反斜杠等字符; 含这些字符的新名称会被标为不可用, 开启 "替换不允许的字符" 可以自动替换.
 - 一个批次最多 2000 个条目; 脚本中给出的文件夹之下最多 32 层.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 _2026/10/15_
 
-- `提示` 需要 AutoJs6 6.8.0 (5431) 或更高版本
+- `提示` 需要 AutoJs6 6.8.0 (5438) 或更高版本
 - `新增` 在 AutoJs6 文件管理器中批量重命名文件与文件夹 (入口: 多选工具栏/文件夹菜单 "批量重命名其中的项目"/重命名对话框 "更多" 菜单)
 - `新增` 查找与替换, 支持纯文本或 JavaScript 正则表达式, 全部匹配, 区分大小写, 只改名称或扩展名
 - `新增` 计数器, 取文件修改时间或当前时间的日期变量, 随机字符串与 UUID

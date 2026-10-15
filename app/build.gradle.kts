@@ -18,12 +18,12 @@ plugins {
 
 val globalApplicationId = "io.github.supermonster003.autojs6.plugin.batch.rename"
 
-// Minimum host build (roadmap D26): 5431 is the first host build with the batch-rename contract, Explorer Action
-// protocol v25 and the Plugin Center registration (host commit dcc5bd98d). P5.4 replaces it with the final value;
+// Minimum host build (roadmap D26): 5438 is the first host build with every host change the plugin needs, from the
+// batch-rename contract to the files.batchRename script API (host commit 852afb776, VERSION_BUILD 3786 + 1652);
 // keep it in sync with BatchRenamePlugin.REQUIRED_HOST_VERSION and .readme/common.json.
-// zh-CN: 最低宿主构建号 (路线图 D26): 5431 是首个包含 batch-rename 契约, Explorer Action 协议 v25 与插件中心注册的宿主构建号
-// (宿主提交 dcc5bd98d). P5.4 回填最终值; 与 BatchRenamePlugin.REQUIRED_HOST_VERSION 及 .readme/common.json 保持一致.
-val requiredHostVersion = 5431
+// zh-CN: 最低宿主构建号 (路线图 D26): 5438 是首个包含插件所需全部宿主改动 (从 batch-rename 契约到 files.batchRename 脚本 API)
+// 的宿主构建号 (宿主提交 852afb776, VERSION_BUILD 3786 + 1652); 与 BatchRenamePlugin.REQUIRED_HOST_VERSION 及 .readme/common.json 保持一致.
+val requiredHostVersion = 5438
 
 val buildTypeDebug = "debug"
 val buildTypeRelease = "release"

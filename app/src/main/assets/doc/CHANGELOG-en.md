@@ -8,7 +8,7 @@
 
 ###### 2026/10/15
 
-* `Hint` Requires AutoJs6 6.8.0 (5431) or later
+* `Hint` Requires AutoJs6 6.8.0 (5438) or later
 * `Feature` Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu "Batch rename items inside"/"More" menu of the rename dialog)
 * `Feature` Search and replace with plain text or JavaScript regular expressions, every match, case sensitivity, and renaming of only the name or the extension
 * `Feature` Counters, date variables from the modification time or the current time, random strings and UUIDs

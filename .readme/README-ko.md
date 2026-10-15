@@ -65,7 +65,7 @@ Batch Rename 플러그인은 PowerToys의 [PowerRename](https://learn.microsoft.
 
 ******
 
-1. AutoJs6을 빌드 5431 (6.8.0) 이상으로 업데이트합니다.
+1. AutoJs6을 빌드 5438 (6.8.0) 이상으로 업데이트합니다.
 2. AutoJs6 플러그인 센터에서 Batch Rename을 설치하거나 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases)에서 APK를 내려받아 설치한 뒤, 플러그인 센터에서 승인하고 활성화합니다.
 3. 파일 관리자에서 길게 눌러 항목을 선택하고 "일괄 이름 변경"을 누르거나, 스크립트에서 `files.batchRename`을 호출합니다.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- AutoJs6 6.8.0 (빌드 5431) 이상과 Android 7.0 (API 24) 이상이 필요합니다.
+- AutoJs6 6.8.0 (빌드 5438) 이상과 Android 7.0 (API 24) 이상이 필요합니다.
 - SD 카드나 USB 메모리 같은 FAT32 / exFAT 저장소는 대소문자를 구분하지 않고 `: * ? " < > |` 와 역슬래시 같은 문자를 허용하지 않습니다. 이런 문자가 들어간 새 이름은 사용할 수 없다고 표시되며, "허용되지 않는 문자 바꾸기"를 켜면 자동으로 바꿉니다.
 - 한 묶음은 최대 2000 개 항목입니다. 스크립트에서 지정한 폴더 아래로는 최대 32 단계까지입니다.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 _2026/10/15_
 
-- `힌트` AutoJs6 6.8.0 (5431) 이상이 필요합니다
+- `힌트` AutoJs6 6.8.0 (5438) 이상이 필요합니다
 - `기능` AutoJs6 파일 관리자에서 파일과 폴더 이름을 일괄로 바꾸기 (입구: 여러 항목 선택 도구 모음/폴더 메뉴 "내부 항목 일괄 이름 바꾸기"/이름 바꾸기 대화 상자의 "더" 메뉴)
 - `기능` 찾기와 바꾸기: 일반 텍스트 또는 JavaScript 정규식, 모든 일치, 대소문자 구분, 이름이나 확장자만 바꾸기
 - `기능` 카운터, 수정 시간이나 현재 시간의 날짜 변수, 임의 문자열과 UUID

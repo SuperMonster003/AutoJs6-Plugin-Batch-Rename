@@ -8,7 +8,7 @@
 
 ###### 2026/10/15
 
-* `Note` Nécessite AutoJs6 6.8.0 (5431) ou ultérieur
+* `Note` Nécessite AutoJs6 6.8.0 (5438) ou ultérieur
 * `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)
 * `Fonctionnalité` Rechercher et remplacer en texte brut ou par expressions régulières JavaScript, toutes les occurrences, respect de la casse et renommage du nom ou de l'extension seulement
 * `Fonctionnalité` Compteurs, variables de date tirées de la date de modification ou de l'heure actuelle, chaînes aléatoires et UUID

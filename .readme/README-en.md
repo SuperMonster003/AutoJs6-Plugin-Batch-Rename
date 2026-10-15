@@ -65,7 +65,7 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 
 ******
 
-1. Update AutoJs6 to build 5431 (6.8.0) or later.
+1. Update AutoJs6 to build 5438 (6.8.0) or later.
 2. Install Batch Rename from the AutoJs6 Plugin Center, or download the APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), then authorize and enable it in the Plugin Center.
 3. Long-press in the file manager to select items and tap "Batch rename", or call `files.batchRename` in a script.
 
@@ -132,7 +132,7 @@ if (!plan.rejected) {
 
 ******
 
-- Requires AutoJs6 6.8.0 (build 5431) or later and Android 7.0 (API 24) or later.
+- Requires AutoJs6 6.8.0 (build 5438) or later and Android 7.0 (API 24) or later.
 - FAT32 / exFAT storage such as SD cards and USB drives ignores case and does not allow `: * ? " < > |`, the backslash and similar characters; new names containing them are marked as unusable, and "Replace characters that are not allowed" replaces them automatically.
 - A batch holds at most 2000 items; scripts can reach at most 32 levels below the folders they name.
 
@@ -195,7 +195,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5431
+minimum host build: 5438
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -219,7 +219,7 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 
 _2026/10/15_
 
-- `Hint` Requires AutoJs6 6.8.0 (5431) or later
+- `Hint` Requires AutoJs6 6.8.0 (5438) or later
 - `Feature` Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu "Batch rename items inside"/"More" menu of the rename dialog)
 - `Feature` Search and replace with plain text or JavaScript regular expressions, every match, case sensitivity, and renaming of only the name or the extension
 - `Feature` Counters, date variables from the modification time or the current time, random strings and UUIDs
