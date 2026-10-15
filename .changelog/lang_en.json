@@ -1,0 +1,26 @@
+{
+  "changelog_label_hint": "Hint",
+  "changelog_label_feature": "Feature",
+  "changelog_label_fix": "Fix",
+  "changelog_label_improvement": "Improvement",
+  "changelog_label_dependency": "Dependency",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/10/15",
+      "hint": [
+        "Development preview: AutoJs6 recognizes the plugin, while the rename screen, the file manager entries and the files.batchRename script API are not delivered yet",
+        "Requires AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) or later (the exact minimum build is filled in once the host-side changes land)"
+      ],
+      "feature": [
+        "Plugin skeleton: Wake activation, the Plugin Center identity service, the script capability service and the file manager action service (empty action catalog for now)",
+        "README, Plugin Center instructions and changelog in 10 languages, generated from JSON sources"
+      ],
+      "dependency": [
+        "Attach Jetpack Compose BOM {{ compose_bom }}",
+        "Attach AndroidX Activity Compose 1.12.2",
+        "Attach AndroidX Core KTX 1.15.0",
+        "Attach Kotlin Coroutines 1.11.0"
+      ]
+    }
+  }
+}

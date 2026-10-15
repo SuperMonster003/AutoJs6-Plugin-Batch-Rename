@@ -1,0 +1,78 @@
+{
+  "$name": "Español",
+  "text_current_lowercase": "actual",
+  "text_plugin_synopsis": "Cambia el nombre de archivos y carpetas por lotes con buscar y reemplazar, expresiones regulares, contadores y variables de fecha",
+  "h3_languages_with_ascii": "Idiomas (Languages)",
+  "p_languages_all_supported_for_readme": "El README.md actual admite los siguientes idiomas",
+  "h3_introduction": "Introducción",
+  "h3_features": "Funciones Destacadas",
+  "h3_usage": "Uso",
+  "h3_script_api": "API De Script",
+  "h3_faq": "Preguntas Frecuentes",
+  "h3_security": "Permisos Y Seguridad",
+  "h3_plugin_interface": "Interfaz Del Plugin",
+  "p_plugin_interface": "La siguiente información está dirigida a los desarrolladores del host AutoJs6 y de plugins; el host usa estos identificadores para descubrir el plugin y negociar capacidades",
+  "h3_roadmap": "Hoja De Ruta",
+  "text_link_roadmap": "Ver ROADMAP.md",
+  "h3_release_history": "Historial De Versiones",
+  "h5_for_more_release_history": "Para más historial de versiones",
+  "h3_build": "Compilación",
+  "p_build_intro": "Esta sección está dirigida a desarrolladores que quieran compilar el plugin desde el código fuente.",
+  "h3_license": "Licencia",
+  "h3_links": "Enlaces",
+  "text_link_autojs6": "Proyecto AutoJs6",
+  "p_introduction_what": "El plugin Batch Rename añade el cambio de nombre por lotes a AutoJs6, inspirado en [PowerRename]({{ powerrename_url }}) de PowerToys. Cambia el nombre de muchos archivos y carpetas a la vez con buscar y reemplazar, expresiones regulares, contadores, variables de fecha y cadenas aleatorias, muestra una vista previa completa antes de cambiar nada y permite deshacer después.",
+  "p_introduction_how": "El plugin es un APK que se instala por separado y no tiene icono en el lanzador. Ofrece dos puntos de entrada: \"Cambiar nombre por lotes\" en la barra de selección múltiple, el menú de carpetas y el diálogo de cambio de nombre del administrador de archivos, y `files.batchRename` en los scripts. El plugin solo calcula los nombres nuevos; AutoJs6 realiza los cambios de nombre, las comprobaciones de conflictos y el historial para deshacer, por lo que el plugin no necesita permiso de almacenamiento.",
+  "p_status_note": "Esta es una versión preliminar de desarrollo: AutoJs6 reconoce el plugin, pero la pantalla de cambio de nombre, las entradas del administrador de archivos y la API de script aún no están disponibles. Las secciones siguientes describen los objetivos de la versión 1.0.0; consulte la hoja de ruta para ver el progreso.",
+  "features": [
+    "Buscar y reemplazar: texto sin formato o expresiones regulares, todas las coincidencias o solo la primera, con o sin distinción entre mayúsculas y minúsculas, aplicado al nombre, a la extensión o al nombre completo.",
+    "Variables: contadores (`${start=1;increment=1;padding=3}`), variables de fecha basadas en la fecha de modificación (`$YYYY`, `$MM`, `$DD` y otras) y cadenas aleatorias, con la misma sintaxis que PowerRename.",
+    "Limpieza de texto: conversión de mayúsculas y minúsculas, normalización Unicode, conversión de ancho completo a medio ancho, eliminación de caracteres no válidos, recorte de espacios y puntos iniciales y finales, y numeración que continúa una secuencia existente.",
+    "Primero la vista previa: cada elemento muestra su nombre anterior y el nuevo, se pueden excluir elementos y se marcan los conflictos y los nombres no válidos; ante un conflicto se puede rechazar el lote, omitir el elemento, añadir un número o sobrescribir.",
+    "Deshacer: AutoJs6 conserva los últimos 20 lotes de cambios de nombre; tanto el administrador de archivos como los scripts pueden deshacerlos, después de comprobar que los archivos no han vuelto a cambiar."
+  ],
+  "usage_steps": [
+    "Actualice AutoJs6 a la compilación {{ required_host_version_code }} ({{ required_host_version_name }}) o posterior.",
+    "Instale Batch Rename desde el centro de plugins de AutoJs6, o descargue el APK desde [Releases]({{ repo_url }}/releases), y luego autorícelo y actívelo en el centro de plugins.",
+    "En el administrador de archivos, mantenga pulsado para seleccionar elementos y toque \"Cambiar nombre por lotes\", o llame a `files.batchRename` en un script."
+  ],
+  "p_usage_note": "El plugin se distribuye como un único APK universal para Android {{ min_android_version }} (API {{ android_min_sdk }}) y posteriores. No añade ningún icono al lanzador.",
+  "h3_variables": "Variables de reemplazo",
+  "p_variables_intro": "El texto de reemplazo puede contener las siguientes variables",
+  "th_variable": "Variable",
+  "th_meaning": "Significado",
+  "td_variable_counter": "Contador con valor inicial, incremento y relleno con ceros; solo avanza para los elementos que cambian de nombre",
+  "td_variable_date": "Año, mes, día, hora, minuto, segundo y milisegundo de la fecha de modificación, o de la hora actual",
+  "td_variable_random": "Cadenas aleatorias alfanuméricas, de letras o de dígitos y UUID",
+  "td_variable_regex": "Grupos de captura y coincidencia completa, como en `String.prototype.replace` de JavaScript",
+  "p_script_api_intro": "Los scripts usan el mismo motor mediante `files.batchRename` (borrador de diseño de 1.0.0; prevalece la documentación publicada)",
+  "api_points": [
+    "`files.batchRename.plan(paths, options)` calcula sin cambiar nombres y devuelve un resultado por elemento; modifique `items[i].excluded` y pase el plan a `apply`.",
+    "`files.batchRename(paths, options)` cambia los nombres en un solo paso y devuelve el identificador del lote con un resultado por elemento; `files.batchRename.undo(result)` deshace ese lote.",
+    "Las expresiones regulares se comportan exactamente como `RegExp` en los scripts, y se pueden pasar objetos `RegExp` directamente. `planAsync`, `applyAsync` y `undoAsync` devuelven promesas."
+  ],
+  "faq": [
+    {
+      "q": "Por qué no hay icono en el lanzador?",
+      "a": "El plugin no tiene una entrada propia. AutoJs6 lo detecta tras la instalación y todo se hace en el administrador de archivos de AutoJs6 o en los scripts."
+    },
+    {
+      "q": "El plugin necesita permiso de almacenamiento?",
+      "a": "No. El plugin solo calcula los nombres nuevos a partir de los nombres de archivo; AutoJs6 recorre las carpetas y cambia los nombres con el acceso que ya tiene."
+    },
+    {
+      "q": "En qué se diferencia de PowerRename?",
+      "a": "Las variables de fecha usan la fecha de modificación, porque la fecha de creación no es fiable en Android. Añade normalización Unicode, conversión de ancho completo, limpieza de caracteres no válidos e historial de lotes que se pueden deshacer. Las variables EXIF de fotos están previstas para la versión 1.1.0."
+    }
+  ],
+  "p_security_intro": "El plugin reduce al mínimo sus permisos:",
+  "security_points": [
+    "Mínimo privilegio: el manifiesto solo declara el permiso de plugin de AutoJs6 (`org.autojs.permission.PLUGIN`), sin permisos de red ni de almacenamiento.",
+    "Ejecución en el host: el plugin solo devuelve un plan de cambios de nombre; AutoJs6 vuelve a validar cada elemento antes de cambiar el nombre y nunca sobrescribe archivos existentes salvo que se elija explícitamente la política de sobrescritura.",
+    "Puntos de entrada protegidos: los servicios y la pantalla de cambio de nombre exigen el permiso de plugin, por lo que otras aplicaciones no pueden llamarlos."
+  ],
+  "p_roadmap": "Los planes, las decisiones de diseño y el progreso se registran como lista de verificación en ROADMAP.md. Los elementos sin marcar son planes, no funciones de la versión actual.",
+  "p_license": "El proyecto se distribuye bajo la [Mozilla Public License 2.0]({{ license_url }}). El diseño de las funciones sigue la documentación pública de PowerToys PowerRename y no contiene su código ni sus recursos.",
+  "text_link_powerrename": "Documentación de PowerToys PowerRename (referencia de funciones)",
+  "p_instruction_docs": "Consulte la [página del proyecto]({{ repo_url }}) para ver el progreso y el diseño."
+}

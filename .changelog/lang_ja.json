@@ -1,0 +1,26 @@
+{
+  "changelog_label_hint": "ヒント",
+  "changelog_label_feature": "機能",
+  "changelog_label_fix": "修正",
+  "changelog_label_improvement": "改善",
+  "changelog_label_dependency": "依存関係",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/10/15",
+      "hint": [
+        "開発プレビュー: AutoJs6 はプラグインを認識しますが, 名前変更画面, ファイルマネージャーの入口, files.batchRename スクリプト API はまだ提供されていません",
+        "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 以降が必要です (正確な最小ビルド番号はホスト側の変更が取り込まれた後に補完されます)"
+      ],
+      "feature": [
+        "プラグインの骨格: Wake による有効化, プラグインセンター向け識別サービス, スクリプト向け機能サービス, ファイルマネージャー向けアクションサービス (アクション一覧は現在空)",
+        "JSON ソースから生成される 10 言語の README, プラグインセンターの説明, 更新履歴"
+      ],
+      "dependency": [
+        "Jetpack Compose BOM {{ compose_bom }} を追加",
+        "AndroidX Activity Compose 1.12.2 を追加",
+        "AndroidX Core KTX 1.15.0 を追加",
+        "Kotlin Coroutines 1.11.0 を追加"
+      ]
+    }
+  }
+}

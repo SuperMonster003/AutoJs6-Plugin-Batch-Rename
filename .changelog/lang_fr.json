@@ -1,0 +1,26 @@
+{
+  "changelog_label_hint": "Note",
+  "changelog_label_feature": "Fonctionnalité",
+  "changelog_label_fix": "Correctif",
+  "changelog_label_improvement": "Amélioration",
+  "changelog_label_dependency": "Dépendance",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/10/15",
+      "hint": [
+        "Aperçu de développement: AutoJs6 reconnaît le plugin, mais l'écran de renommage, les entrées du gestionnaire de fichiers et l'API de script files.batchRename ne sont pas encore livrés",
+        "Nécessite AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) ou ultérieur (le numéro de build minimal exact sera renseigné une fois les changements côté hôte intégrés)"
+      ],
+      "feature": [
+        "Squelette du plugin: activation Wake, service d'identité du centre de plugins, service de capacité pour les scripts et service d'actions du gestionnaire de fichiers (catalogue d'actions vide pour l'instant)",
+        "README, instructions du centre de plugins et journal des modifications en 10 langues, générés à partir de sources JSON"
+      ],
+      "dependency": [
+        "Ajout de Jetpack Compose BOM {{ compose_bom }}",
+        "Ajout de AndroidX Activity Compose 1.12.2",
+        "Ajout de AndroidX Core KTX 1.15.0",
+        "Ajout de Kotlin Coroutines 1.11.0"
+      ]
+    }
+  }
+}

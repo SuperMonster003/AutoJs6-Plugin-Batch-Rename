@@ -1,0 +1,78 @@
+{
+  "$name": "简体中文",
+  "text_current_lowercase": "当前",
+  "text_plugin_synopsis": "使用查找替换, 正则表达式, 计数器与日期变量批量重命名文件与文件夹",
+  "h3_languages_with_ascii": "语言 (Languages)",
+  "p_languages_all_supported_for_readme": "当前 README.md 支持以下语言",
+  "h3_introduction": "简介",
+  "h3_features": "功能亮点",
+  "h3_usage": "使用方法",
+  "h3_script_api": "脚本 API",
+  "h3_faq": "常见问题",
+  "h3_security": "权限与安全",
+  "h3_plugin_interface": "插件接口",
+  "p_plugin_interface": "以下信息面向 AutoJs6 宿主与插件开发者, 宿主通过这些标识发现插件并完成能力协商",
+  "h3_roadmap": "开发路线图",
+  "text_link_roadmap": "查看 ROADMAP.md",
+  "h3_release_history": "发行历史",
+  "h5_for_more_release_history": "更多发行历史可参阅",
+  "h3_build": "构建",
+  "p_build_intro": "本节面向希望从源码构建插件的开发者.",
+  "h3_license": "许可",
+  "h3_links": "相关链接",
+  "text_link_autojs6": "AutoJs6 项目",
+  "p_introduction_what": "Batch Rename 插件为 AutoJs6 提供批量重命名能力, 功能参照 PowerToys 的 [PowerRename]({{ powerrename_url }}): 用查找替换, 正则表达式, 计数器, 日期与随机变量一次性重命名多个文件和文件夹, 执行前可完整预览, 执行后可以撤销.",
+  "p_introduction_how": "插件是独立安装的 APK, 没有桌面图标. 它提供两个入口: 文件管理器的多选工具栏, 文件夹菜单与重命名对话框中的 \"批量重命名\", 以及脚本中的 `files.batchRename`. 插件只负责计算新名称, 实际的重命名, 冲突检查与撤销记录由 AutoJs6 完成, 因此插件不需要任何存储权限.",
+  "p_status_note": "当前为开发预览版: 插件可以被 AutoJs6 识别, 但重命名界面, 文件管理器入口与脚本 API 尚未交付. 下文描述的是 1.0.0 的设计目标, 进度见开发路线图.",
+  "features": [
+    "查找与替换: 支持纯文本与正则表达式, 可选择全部匹配或仅替换第一处, 区分或忽略大小写, 只作用于文件名, 扩展名或完整名称.",
+    "变量: 计数器 (`${start=1;increment=1;padding=3}`), 文件修改时间的日期变量 (`$YYYY`, `$MM`, `$DD` 等) 与随机字符串, 写法与 PowerRename 一致.",
+    "文本整理: 大小写转换, Unicode 规范化, 全角转半角, 清理非法字符, 修剪首尾空格与点号, 从已有序号继续编号.",
+    "先预览后执行: 逐项显示原名与新名, 可排除个别项目, 冲突与非法名称会被标出; 冲突可选择整批拒绝, 跳过, 自动编号或覆盖.",
+    "可以撤销: AutoJs6 保存最近 20 批重命名记录, 文件管理器和脚本都能撤销, 撤销前会检查文件是否已被再次修改."
+  ],
+  "usage_steps": [
+    "将 AutoJs6 升级到内部版本号 {{ required_host_version_code }} ({{ required_host_version_name }}) 或更高版本.",
+    "在 AutoJs6 的插件中心安装 Batch Rename, 或从 [Releases]({{ repo_url }}/releases) 下载 APK 安装, 然后在插件中心授权并启用.",
+    "在文件管理器中长按进入多选后点击 \"批量重命名\", 或在脚本中调用 `files.batchRename`."
+  ],
+  "p_usage_note": "插件只有一个通用安装包, 支持 Android {{ min_android_version }} (API {{ android_min_sdk }}) 及以上的设备. 安装后不会在桌面创建图标.",
+  "h3_variables": "替换变量",
+  "p_variables_intro": "替换文本中可以使用以下变量",
+  "th_variable": "变量",
+  "th_meaning": "含义",
+  "td_variable_counter": "计数器: 可设置起始值, 步长与补零位数, 只对实际改名的项目递增",
+  "td_variable_date": "文件修改时间的年, 月, 日, 时, 分, 秒与毫秒, 也可改用当前时间",
+  "td_variable_random": "随机字母数字串, 字母串, 数字串与 UUID",
+  "td_variable_regex": "正则捕获组与整个匹配, 写法与 JavaScript 的 `String.prototype.replace` 相同",
+  "p_script_api_intro": "脚本通过 `files.batchRename` 使用同一套能力 (1.0.0 设计草案, 以发布版本的文档为准)",
+  "api_points": [
+    "`files.batchRename.plan(paths, options)` 只计算不执行, 返回逐项结果; 修改 `items[i].excluded` 后可交给 `apply` 执行.",
+    "`files.batchRename(paths, options)` 一步完成, 返回批次编号与每一项的结果; `files.batchRename.undo(result)` 撤销该批次.",
+    "正则表达式的语义与脚本中的 `RegExp` 完全一致, 可以直接传入 `RegExp` 对象. 另有 `planAsync` / `applyAsync` / `undoAsync` 异步版本."
+  ],
+  "faq": [
+    {
+      "q": "为什么桌面上没有插件图标?",
+      "a": "插件没有独立界面入口, 安装后由 AutoJs6 自动发现, 全部操作都在 AutoJs6 的文件管理器或脚本中进行."
+    },
+    {
+      "q": "插件需要存储权限吗?",
+      "a": "不需要. 插件只根据文件名计算新名称, 读取目录与实际重命名都由 AutoJs6 使用其已有的权限完成."
+    },
+    {
+      "q": "和 PowerRename 有什么不同?",
+      "a": "日期变量使用文件修改时间 (Android 上的创建时间并不可靠), 另外增加了 Unicode 规范化, 全角转半角, 非法字符清理与可撤销的批次记录. 照片 EXIF 变量计划在 1.1.0 提供."
+    }
+  ],
+  "p_security_intro": "插件在设计上尽量收窄权限面:",
+  "security_points": [
+    "最小权限: 只声明 AutoJs6 插件权限 (`org.autojs.permission.PLUGIN`), 不申请网络或存储权限.",
+    "宿主执行: 插件只返回改名方案, AutoJs6 在执行前重新校验每一项, 不会覆盖已有文件, 除非明确选择覆盖策略.",
+    "受保护的入口: 服务与界面入口均受插件权限保护, 第三方应用无法直接调用."
+  ],
+  "p_roadmap": "功能规划, 设计决策与完成情况以可勾选清单维护在 ROADMAP.md 中. 未勾选条目表示规划意向, 不代表当前版本能力.",
+  "p_license": "项目代码使用 [Mozilla Public License 2.0]({{ license_url }}). 功能设计参照 PowerToys PowerRename 的公开文档, 不包含其代码或资源.",
+  "text_link_powerrename": "PowerToys PowerRename 文档 (功能参照)",
+  "p_instruction_docs": "开发进度与设计见 [项目主页]({{ repo_url }})."
+}

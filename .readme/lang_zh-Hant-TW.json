@@ -1,0 +1,78 @@
+{
+  "$name": "繁體中文 (台灣)",
+  "text_current_lowercase": "目前",
+  "text_plugin_synopsis": "使用尋找取代, 正則表示式, 計數器與日期變數批次重新命名檔案與資料夾",
+  "h3_languages_with_ascii": "語言 (Languages)",
+  "p_languages_all_supported_for_readme": "目前 README.md 支援以下語言",
+  "h3_introduction": "簡介",
+  "h3_features": "功能亮點",
+  "h3_usage": "使用方法",
+  "h3_script_api": "腳本 API",
+  "h3_faq": "常見問題",
+  "h3_security": "權限與安全",
+  "h3_plugin_interface": "外掛介面",
+  "p_plugin_interface": "以下資訊面向 AutoJs6 主程式與外掛開發者, 主程式透過這些識別碼發現外掛並完成能力協商",
+  "h3_roadmap": "開發路線圖",
+  "text_link_roadmap": "檢視 ROADMAP.md",
+  "h3_release_history": "發行歷史",
+  "h5_for_more_release_history": "更多發行歷史可參閱",
+  "h3_build": "建置",
+  "p_build_intro": "本節面向希望從原始碼建置外掛的開發者.",
+  "h3_license": "授權",
+  "h3_links": "相關連結",
+  "text_link_autojs6": "AutoJs6 專案",
+  "p_introduction_what": "Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參照 PowerToys 的 [PowerRename]({{ powerrename_url }}): 以尋找取代, 正則表示式, 計數器, 日期與隨機變數一次重新命名多個檔案和資料夾, 執行前可完整預覽, 執行後可以復原.",
+  "p_introduction_how": "外掛程式是獨立安裝的 APK, 沒有桌面圖示. 它提供兩個入口: 檔案管理員的多選工具列, 資料夾選單與重新命名對話方塊中的 \"批次重新命名\", 以及指令碼中的 `files.batchRename`. 外掛程式只負責計算新名稱, 實際的重新命名, 衝突檢查與復原記錄由 AutoJs6 完成, 因此外掛程式不需要任何儲存空間權限.",
+  "p_status_note": "目前為開發預覽版: 外掛程式可以被 AutoJs6 識別, 但重新命名介面, 檔案管理員入口與指令碼 API 尚未交付. 下文描述的是 1.0.0 的設計目標, 進度請見開發路線圖.",
+  "features": [
+    "尋找與取代: 支援純文字與正則表示式, 可選擇全部相符或僅取代第一處, 區分或忽略大小寫, 只作用於檔名, 副檔名或完整名稱.",
+    "變數: 計數器 (`${start=1;increment=1;padding=3}`), 檔案修改時間的日期變數 (`$YYYY`, `$MM`, `$DD` 等) 與隨機字串, 寫法與 PowerRename 一致.",
+    "文字整理: 大小寫轉換, Unicode 正規化, 全形轉半形, 清除不合法字元, 修剪首尾空格與句點, 從既有序號繼續編號.",
+    "先預覽再執行: 逐項顯示原名與新名, 可排除個別項目, 衝突與不合法名稱會被標示; 衝突可選擇整批拒絕, 略過, 自動編號或覆寫.",
+    "可以復原: AutoJs6 保存最近 20 批重新命名記錄, 檔案管理員和指令碼都能復原, 復原前會檢查檔案是否已被再次修改."
+  ],
+  "usage_steps": [
+    "將 AutoJs6 升級到內部版本號 {{ required_host_version_code }} ({{ required_host_version_name }}) 或更新版本.",
+    "在 AutoJs6 的外掛程式中心安裝 Batch Rename, 或從 [Releases]({{ repo_url }}/releases) 下載 APK 安裝, 然後在外掛程式中心授權並啟用.",
+    "在檔案管理員中長按進入多選後點選 \"批次重新命名\", 或在指令碼中呼叫 `files.batchRename`."
+  ],
+  "p_usage_note": "外掛程式只有一個通用安裝檔, 支援 Android {{ min_android_version }} (API {{ android_min_sdk }}) 以上的裝置. 安裝後不會在桌面建立圖示.",
+  "h3_variables": "取代變數",
+  "p_variables_intro": "取代文字中可以使用下列變數",
+  "th_variable": "變數",
+  "th_meaning": "意義",
+  "td_variable_counter": "計數器: 可設定起始值, 間隔與補零位數, 只對實際重新命名的項目遞增",
+  "td_variable_date": "檔案修改時間的年, 月, 日, 時, 分, 秒與毫秒, 也可改用目前時間",
+  "td_variable_random": "隨機英數字串, 字母字串, 數字字串與 UUID",
+  "td_variable_regex": "正則表示式的擷取群組與整個相符結果, 寫法與 JavaScript 的 `String.prototype.replace` 相同",
+  "p_script_api_intro": "指令碼透過 `files.batchRename` 使用同一套能力 (1.0.0 設計草案, 以正式版本的文件為準)",
+  "api_points": [
+    "`files.batchRename.plan(paths, options)` 只計算不執行, 傳回逐項結果; 修改 `items[i].excluded` 後可交給 `apply` 執行.",
+    "`files.batchRename(paths, options)` 一次完成, 傳回批次編號與每一項的結果; `files.batchRename.undo(result)` 復原該批次.",
+    "正則表示式的語意與指令碼中的 `RegExp` 完全一致, 可以直接傳入 `RegExp` 物件. 另有 `planAsync` / `applyAsync` / `undoAsync` 非同步版本."
+  ],
+  "faq": [
+    {
+      "q": "為什麼桌面上沒有外掛程式圖示?",
+      "a": "外掛程式沒有獨立介面入口, 安裝後由 AutoJs6 自動探索, 所有操作都在 AutoJs6 的檔案管理員或指令碼中進行."
+    },
+    {
+      "q": "外掛程式需要儲存空間權限嗎?",
+      "a": "不需要. 外掛程式只根據檔名計算新名稱, 讀取資料夾與實際重新命名都由 AutoJs6 使用其既有的權限完成."
+    },
+    {
+      "q": "和 PowerRename 有什麼不同?",
+      "a": "日期變數使用檔案修改時間 (Android 上的建立時間並不可靠), 另外加入了 Unicode 正規化, 全形轉半形, 不合法字元清除與可復原的批次記錄. 相片 EXIF 變數預計在 1.1.0 提供."
+    }
+  ],
+  "p_security_intro": "外掛程式在設計上盡量縮小權限範圍:",
+  "security_points": [
+    "最小權限: 只宣告 AutoJs6 外掛程式權限 (`org.autojs.permission.PLUGIN`), 不要求網路或儲存空間權限.",
+    "宿主執行: 外掛程式只傳回重新命名方案, AutoJs6 在執行前重新驗證每一項, 不會覆寫既有檔案, 除非明確選擇覆寫策略.",
+    "受保護的入口: 服務與介面入口均受外掛程式權限保護, 第三方應用程式無法直接呼叫."
+  ],
+  "p_roadmap": "功能規劃, 設計決策與完成情況以可勾選清單維護在 ROADMAP.md 中. 未勾選的項目表示規劃意向, 不代表目前版本的能力.",
+  "p_license": "專案程式碼採用 [Mozilla Public License 2.0]({{ license_url }}). 功能設計參照 PowerToys PowerRename 的公開文件, 不包含其程式碼或資源.",
+  "text_link_powerrename": "PowerToys PowerRename 文件 (功能參照)",
+  "p_instruction_docs": "開發進度與設計請見 [專案首頁]({{ repo_url }})."
+}

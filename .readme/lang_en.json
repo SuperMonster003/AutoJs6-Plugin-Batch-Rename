@@ -1,0 +1,78 @@
+{
+  "$name": "English",
+  "text_current_lowercase": "current",
+  "text_plugin_synopsis": "Batch renames files and folders with search and replace, regular expressions, counters and date variables",
+  "h3_languages_with_ascii": "Languages",
+  "p_languages_all_supported_for_readme": "The README.md file is currently available in the following languages",
+  "h3_introduction": "Introduction",
+  "h3_features": "Features",
+  "h3_usage": "Usage",
+  "h3_script_api": "Script API",
+  "h3_faq": "FAQ",
+  "h3_security": "Permissions and security",
+  "h3_plugin_interface": "Plugin interface",
+  "p_plugin_interface": "The following information targets AutoJs6 host and plugin developers; the host uses these identifiers to discover the plugin and negotiate capabilities",
+  "h3_roadmap": "Roadmap",
+  "text_link_roadmap": "View ROADMAP.md",
+  "h3_release_history": "Release history",
+  "h5_for_more_release_history": "For more release history, refer to",
+  "h3_build": "Build",
+  "p_build_intro": "This section targets developers who want to build the plugin from source.",
+  "h3_license": "License",
+  "h3_links": "Related links",
+  "text_link_autojs6": "AutoJs6 project",
+  "p_introduction_what": "The Batch Rename plugin adds batch renaming to AutoJs6, modeled on [PowerRename]({{ powerrename_url }}) from PowerToys: rename many files and folders at once with search and replace, regular expressions, counters, date and random variables, preview every result before anything changes, and undo afterwards.",
+  "p_introduction_how": "The plugin is a separately installed APK without a launcher icon. It has two entry points: \"Batch rename\" in the file manager's multi-select toolbar, folder menu and rename dialog, and `files.batchRename` in scripts. The plugin only computes the new names; AutoJs6 performs the renames, the conflict checks and the undo records, so the plugin needs no storage permission.",
+  "p_status_note": "This is a development preview: AutoJs6 recognizes the plugin, but the rename screen, the file manager entries and the script API are not delivered yet. The sections below describe the design goals of 1.0.0; see the roadmap for progress.",
+  "features": [
+    "Search and replace: plain text or regular expressions, all matches or only the first, case sensitive or not, applied to the file name, the extension or the whole name.",
+    "Variables: counters (`${start=1;increment=1;padding=3}`), date variables from the modification time (`$YYYY`, `$MM`, `$DD` and more) and random strings, written as in PowerRename.",
+    "Text cleanup: case conversion, Unicode normalization, full-width to half-width conversion, illegal character cleanup, trimming of leading and trailing spaces and dots, and numbering that continues existing sequences.",
+    "Preview first: every item shows its old and new name, single items can be excluded, and conflicts and invalid names are marked; a conflict can reject the batch, skip the item, add a number or overwrite.",
+    "Undo: AutoJs6 keeps the last 20 rename batches; both the file manager and scripts can undo them after checking that the files have not changed again."
+  ],
+  "usage_steps": [
+    "Update AutoJs6 to build {{ required_host_version_code }} ({{ required_host_version_name }}) or later.",
+    "Install Batch Rename from the AutoJs6 Plugin Center, or download the APK from [Releases]({{ repo_url }}/releases), then authorize and enable it in the Plugin Center.",
+    "Long-press in the file manager to select items and tap \"Batch rename\", or call `files.batchRename` in a script."
+  ],
+  "p_usage_note": "The plugin ships a single universal APK for Android {{ min_android_version }} (API {{ android_min_sdk }}) and later. It does not add a launcher icon.",
+  "h3_variables": "Replacement variables",
+  "p_variables_intro": "The replacement text can contain the following variables",
+  "th_variable": "Variable",
+  "th_meaning": "Meaning",
+  "td_variable_counter": "Counter with start value, step and zero padding; it only advances for items that are renamed",
+  "td_variable_date": "Year, month, day, hour, minute, second and millisecond of the modification time, or of the current time",
+  "td_variable_random": "Random alphanumeric, letter or digit strings and UUIDs",
+  "td_variable_regex": "Regular expression groups and the whole match, as in JavaScript's `String.prototype.replace`",
+  "p_script_api_intro": "Scripts use the same engine through `files.batchRename` (1.0.0 design draft; the released documentation is authoritative)",
+  "api_points": [
+    "`files.batchRename.plan(paths, options)` computes without renaming and returns a result per item; set `items[i].excluded` and pass the plan to `apply`.",
+    "`files.batchRename(paths, options)` renames in one step and returns the batch ID with a result per item; `files.batchRename.undo(result)` undoes that batch.",
+    "Regular expressions behave exactly like `RegExp` in scripts, and `RegExp` objects can be passed directly. `planAsync`, `applyAsync` and `undoAsync` return promises."
+  ],
+  "faq": [
+    {
+      "q": "Why is there no launcher icon?",
+      "a": "The plugin has no standalone entry. AutoJs6 discovers it after installation, and everything happens in the AutoJs6 file manager or in scripts."
+    },
+    {
+      "q": "Does the plugin need storage permission?",
+      "a": "No. The plugin only computes new names from file names; AutoJs6 lists folders and renames files with the access it already has."
+    },
+    {
+      "q": "How does it differ from PowerRename?",
+      "a": "Date variables use the modification time, because creation times are unreliable on Android. It adds Unicode normalization, full-width conversion, illegal character cleanup and undoable batch records. Photo EXIF variables are planned for 1.1.0."
+    }
+  ],
+  "p_security_intro": "The plugin keeps its permission surface small:",
+  "security_points": [
+    "Least privilege: the Manifest only declares the AutoJs6 plugin permission (`org.autojs.permission.PLUGIN`), with no network or storage permission.",
+    "Host execution: the plugin only returns a rename plan; AutoJs6 validates every item again before renaming and never overwrites existing files unless the overwrite policy is chosen explicitly.",
+    "Protected entry points: the services and the rename screen require the plugin permission, so other apps cannot call them."
+  ],
+  "p_roadmap": "Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. Unchecked items are plans, not features of the current version.",
+  "p_license": "The project is licensed under the [Mozilla Public License 2.0]({{ license_url }}). The feature design follows the public PowerToys PowerRename documentation and contains none of its code or resources.",
+  "text_link_powerrename": "PowerToys PowerRename documentation (feature reference)",
+  "p_instruction_docs": "See the [project page]({{ repo_url }}) for progress and design."
+}

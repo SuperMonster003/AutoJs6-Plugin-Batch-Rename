@@ -1,0 +1,26 @@
+{
+  "changelog_label_hint": "تلميح",
+  "changelog_label_feature": "ميزة",
+  "changelog_label_fix": "إصلاح",
+  "changelog_label_improvement": "تحسين",
+  "changelog_label_dependency": "تبعية",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/10/15",
+      "hint": [
+        "معاينة تطوير: يتعرف AutoJs6 على الإضافة, بينما لم تسلم شاشة إعادة التسمية ونقاط الدخول في مدير الملفات وواجهة برمجة السكربتات files.batchRename بعد",
+        "يتطلب AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) أو أحدث (يستكمل رقم البناء الأدنى الدقيق بعد اعتماد تغييرات جانب المضيف)"
+      ],
+      "feature": [
+        "هيكل الإضافة: التفعيل عبر Wake وخدمة هوية مركز الإضافات وخدمة القدرات للسكربتات وخدمة إجراءات مدير الملفات (قائمة الإجراءات فارغة حاليا)",
+        "README وتعليمات مركز الإضافات وسجل التغييرات بعشر لغات, مولدة من مصادر JSON"
+      ],
+      "dependency": [
+        "إرفاق Jetpack Compose BOM {{ compose_bom }}",
+        "إرفاق AndroidX Activity Compose 1.12.2",
+        "إرفاق AndroidX Core KTX 1.15.0",
+        "إرفاق Kotlin Coroutines 1.11.0"
+      ]
+    }
+  }
+}

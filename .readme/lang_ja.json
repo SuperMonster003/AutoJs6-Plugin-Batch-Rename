@@ -1,0 +1,78 @@
+{
+  "$name": "日本語",
+  "text_current_lowercase": "現在",
+  "text_plugin_synopsis": "検索と置換, 正規表現, カウンター, 日付変数でファイルとフォルダーの名前を一括変更",
+  "h3_languages_with_ascii": "言語 (Languages)",
+  "p_languages_all_supported_for_readme": "現在の README.md は次の言語に対応しています",
+  "h3_introduction": "概要",
+  "h3_features": "機能ハイライト",
+  "h3_usage": "使用方法",
+  "h3_script_api": "スクリプト API",
+  "h3_faq": "よくある質問",
+  "h3_security": "権限とセキュリティ",
+  "h3_plugin_interface": "プラグインインターフェース",
+  "p_plugin_interface": "以下の情報は AutoJs6 ホストとプラグイン開発者向けです. ホストはこれらの識別子でプラグインを検出し, 機能ネゴシエーションを行います",
+  "h3_roadmap": "開発ロードマップ",
+  "text_link_roadmap": "ROADMAP.md を見る",
+  "h3_release_history": "リリース履歴",
+  "h5_for_more_release_history": "その他のリリース履歴は以下を参照",
+  "h3_build": "ビルド",
+  "p_build_intro": "この節はソースからプラグインをビルドしたい開発者向けです.",
+  "h3_license": "ライセンス",
+  "h3_links": "関連リンク",
+  "text_link_autojs6": "AutoJs6 プロジェクト",
+  "p_introduction_what": "Batch Rename プラグインは, PowerToys の [PowerRename]({{ powerrename_url }}) を参考にした一括リネーム機能を AutoJs6 に追加します. 検索と置換, 正規表現, カウンター, 日付変数, ランダム文字列で多数のファイルとフォルダーの名前を一度に変更でき, 変更前にすべての結果をプレビューし, 変更後に元に戻せます.",
+  "p_introduction_how": "プラグインは個別にインストールする APK で, ランチャーアイコンはありません. 入口は 2 つあります: ファイルマネージャーの複数選択ツールバー, フォルダーメニュー, 名前の変更ダイアログにある \"一括で名前を変更\" と, スクリプトの `files.batchRename` です. プラグインは新しい名前を計算するだけで, 実際の名前の変更, 競合チェック, 取り消し履歴は AutoJs6 が行うため, プラグインにストレージ権限は不要です.",
+  "p_status_note": "現在は開発プレビューです: AutoJs6 はプラグインを認識しますが, 名前変更画面, ファイルマネージャーの入口, スクリプト API はまだ提供されていません. 以下は 1.0.0 の設計目標で, 進捗はロードマップを参照してください.",
+  "features": [
+    "検索と置換: プレーンテキストまたは正規表現, すべての一致または最初の一致のみ, 大文字と小文字の区別の有無を選べ, ファイル名, 拡張子, 名前全体のいずれかに適用できます.",
+    "変数: カウンター (`${start=1;increment=1;padding=3}`), 更新日時の日付変数 (`$YYYY`, `$MM`, `$DD` など), ランダム文字列を PowerRename と同じ書式で使えます.",
+    "テキストの整理: 大文字小文字の変換, Unicode 正規化, 全角から半角への変換, 使用できない文字の除去, 先頭と末尾の空白とピリオドの削除, 既存の連番からの続き番号に対応します.",
+    "先にプレビュー: 各項目の旧名と新名を表示し, 個別に除外でき, 競合や無効な名前は強調表示されます. 競合時は一括拒否, スキップ, 自動採番, 上書きから選べます.",
+    "元に戻す: AutoJs6 は直近 20 回分の一括リネームを記録し, ファイルが再び変更されていないことを確認したうえで, ファイルマネージャーとスクリプトの両方から元に戻せます."
+  ],
+  "usage_steps": [
+    "AutoJs6 をビルド {{ required_host_version_code }} ({{ required_host_version_name }}) 以降に更新します.",
+    "AutoJs6 のプラグインセンターから Batch Rename をインストールするか, [Releases]({{ repo_url }}/releases) から APK をダウンロードしてインストールし, プラグインセンターで許可して有効にします.",
+    "ファイルマネージャーで長押しして項目を選択し \"一括で名前を変更\" をタップするか, スクリプトで `files.batchRename` を呼び出します."
+  ],
+  "p_usage_note": "プラグインは Android {{ min_android_version }} (API {{ android_min_sdk }}) 以降に対応する単一のユニバーサル APK として配布され, ランチャーにアイコンを追加しません.",
+  "h3_variables": "置換変数",
+  "p_variables_intro": "置換テキストでは次の変数を使えます",
+  "th_variable": "変数",
+  "th_meaning": "意味",
+  "td_variable_counter": "開始値, 増分, ゼロ埋め桁数を指定できるカウンター. 実際に名前を変更する項目でのみ進みます",
+  "td_variable_date": "更新日時 (または現在時刻) の年, 月, 日, 時, 分, 秒, ミリ秒",
+  "td_variable_random": "ランダムな英数字列, 英字列, 数字列と UUID",
+  "td_variable_regex": "正規表現のキャプチャグループと一致全体. JavaScript の `String.prototype.replace` と同じ書式です",
+  "p_script_api_intro": "スクリプトからは `files.batchRename` で同じエンジンを使えます (1.0.0 の設計案であり, 公開版のドキュメントが優先されます)",
+  "api_points": [
+    "`files.batchRename.plan(paths, options)` は名前を変更せずに計算し, 項目ごとの結果を返します. `items[i].excluded` を変更してから `apply` に渡せます.",
+    "`files.batchRename(paths, options)` は 1 ステップで名前を変更し, バッチ ID と項目ごとの結果を返します. `files.batchRename.undo(result)` でそのバッチを元に戻せます.",
+    "正規表現の動作はスクリプトの `RegExp` と完全に同じで, `RegExp` オブジェクトをそのまま渡せます. `planAsync`, `applyAsync`, `undoAsync` は Promise を返します."
+  ],
+  "faq": [
+    {
+      "q": "ランチャーにアイコンがないのはなぜですか?",
+      "a": "プラグインには独立した入口がありません. インストール後に AutoJs6 が自動で検出し, すべての操作は AutoJs6 のファイルマネージャーまたはスクリプトで行います."
+    },
+    {
+      "q": "ストレージ権限は必要ですか?",
+      "a": "不要です. プラグインはファイル名から新しい名前を計算するだけで, フォルダーの読み取りと実際の名前の変更は AutoJs6 が既存の権限で行います."
+    },
+    {
+      "q": "PowerRename との違いは何ですか?",
+      "a": "Android では作成日時が信頼できないため, 日付変数は更新日時を使います. また Unicode 正規化, 全角変換, 使用できない文字の除去, 元に戻せる一括履歴を追加しています. 写真の EXIF 変数は 1.1.0 で提供予定です."
+    }
+  ],
+  "p_security_intro": "プラグインは権限を最小限に抑えています:",
+  "security_points": [
+    "最小権限: マニフェストは AutoJs6 プラグイン権限 (`org.autojs.permission.PLUGIN`) のみを宣言し, ネットワークやストレージの権限は要求しません.",
+    "ホストによる実行: プラグインは名前変更の計画を返すだけで, AutoJs6 が変更前に各項目を再検証します. 上書きポリシーを明示的に選ばない限り, 既存のファイルを上書きしません.",
+    "保護された入口: サービスと名前変更画面にはプラグイン権限が必要で, 他のアプリから直接呼び出すことはできません."
+  ],
+  "p_roadmap": "計画, 設計上の決定, 進捗は ROADMAP.md のチェックリストで管理しています. 未チェックの項目は計画であり, 現在のバージョンの機能ではありません.",
+  "p_license": "このプロジェクトは [Mozilla Public License 2.0]({{ license_url }}) で提供されます. 機能設計は PowerToys PowerRename の公開ドキュメントに基づいており, そのコードやリソースは含みません.",
+  "text_link_powerrename": "PowerToys PowerRename ドキュメント (機能の参考)",
+  "p_instruction_docs": "進捗と設計は [プロジェクトページ]({{ repo_url }}) を参照してください."
+}
