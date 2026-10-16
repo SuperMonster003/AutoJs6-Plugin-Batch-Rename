@@ -225,6 +225,13 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 ******
 
+#### v1.1.1
+
+_2026/10/16_
+
+- `提示` 需要 AutoJs6 6.8.0 (5455) 或更新版本
+- `修復` 部分系統 (如 ColorOS 的應用程式資訊頁) 將應用程式圖示顯示在黑色底板上, 圖示難以辨認的問題
+
 #### v1.1.0
 
 _2026/10/16_

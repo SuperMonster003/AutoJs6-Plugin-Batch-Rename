@@ -5,10 +5,19 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
-    "v1.1.0": {
+    "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [
         "需要 AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 或更高版本"
+      ],
+      "fix": [
+        "部分系统 (如 ColorOS 的应用信息页) 将应用图标显示在黑色底板上, 图标难以辨认的问题"
+      ]
+    },
+    "v1.1.0": {
+      "released_date": "2026/10/16",
+      "hint": [
+        "需要 AutoJs6 6.8.0 (5455) 或更高版本"
       ],
       "feature": [
         "汉字转拼音: \"名称清理\" 中的 \"汉字转拼音\" 与替换变量 `${pinyin}`, 可选声调, 音节分隔, 大小写与只取首字母, 多音字按词组判断",

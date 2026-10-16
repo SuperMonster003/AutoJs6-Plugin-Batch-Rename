@@ -225,6 +225,13 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 
 ******
 
+#### v1.1.1
+
+_2026/10/16_
+
+- `ヒント` AutoJs6 6.8.0 (5455) 以降が必要です
+- `修正` 一部のシステム (ColorOS のアプリ情報画面など) でアプリアイコンが黒い背景に表示され, 見分けにくい問題
+
 #### v1.1.0
 
 _2026/10/16_

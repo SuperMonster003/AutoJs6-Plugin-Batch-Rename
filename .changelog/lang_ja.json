@@ -5,10 +5,19 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
-    "v1.1.0": {
+    "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [
         "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 以降が必要です"
+      ],
+      "fix": [
+        "一部のシステム (ColorOS のアプリ情報画面など) でアプリアイコンが黒い背景に表示され, 見分けにくい問題"
+      ]
+    },
+    "v1.1.0": {
+      "released_date": "2026/10/16",
+      "hint": [
+        "AutoJs6 6.8.0 (5455) 以降が必要です"
       ],
       "feature": [
         "ピンイン変換: \"名前の整理\" の \"漢字をピンインに変換\" と置換変数 `${pinyin}`. 声調, 音節の区切り, 大文字小文字, 頭文字のみを選択でき, 多音字は語句から判断",

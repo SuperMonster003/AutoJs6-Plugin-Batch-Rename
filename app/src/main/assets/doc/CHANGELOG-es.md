@@ -4,6 +4,13 @@
 
 ******
 
+# v1.1.1
+
+###### 2026/10/16
+
+* `Aviso` Requiere AutoJs6 6.8.0 (5455) o posterior
+* `Corrección` En algunos sistemas (como la página de información de la aplicación de ColorOS) el icono de la aplicación aparecía sobre un fondo negro y apenas se distinguía
+
 # v1.1.0
 
 ###### 2026/10/16

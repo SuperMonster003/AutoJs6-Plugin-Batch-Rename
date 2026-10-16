@@ -4,6 +4,13 @@
 
 ******
 
+# v1.1.1
+
+###### 2026/10/16
+
+* `Note` Nécessite AutoJs6 6.8.0 (5455) ou ultérieur
+* `Correctif` Sur certains systèmes (comme la page d'informations de l'application de ColorOS), l'icône de l'application s'affichait sur un fond noir et se distinguait mal
+
 # v1.1.0
 
 ###### 2026/10/16

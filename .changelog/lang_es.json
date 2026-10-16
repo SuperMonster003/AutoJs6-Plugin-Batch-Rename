@@ -5,10 +5,19 @@
   "changelog_label_improvement": "Mejora",
   "changelog_label_dependency": "Dependencia",
   "$data": {
-    "v1.1.0": {
+    "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [
         "Requiere AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) o posterior"
+      ],
+      "fix": [
+        "En algunos sistemas (como la página de información de la aplicación de ColorOS) el icono de la aplicación aparecía sobre un fondo negro y apenas se distinguía"
+      ]
+    },
+    "v1.1.0": {
+      "released_date": "2026/10/16",
+      "hint": [
+        "Requiere AutoJs6 6.8.0 (5455) o posterior"
       ],
       "feature": [
         "Pinyin: \"Caracteres chinos a pinyin\" en \"Limpieza del nombre\" y la variable `${pinyin}`, con tonos, separador de sílabas, mayúsculas y solo iniciales opcionales; los caracteres con varias lecturas se resuelven por palabras",

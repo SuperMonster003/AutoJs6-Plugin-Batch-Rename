@@ -225,6 +225,13 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 
 ******
 
+#### v1.1.1
+
+_2026/10/16_
+
+- `Note` Nécessite AutoJs6 6.8.0 (5455) ou ultérieur
+- `Correctif` Sur certains systèmes (comme la page d'informations de l'application de ColorOS), l'icône de l'application s'affichait sur un fond noir et se distinguait mal
+
 #### v1.1.0
 
 _2026/10/16_

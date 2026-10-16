@@ -5,10 +5,19 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
-    "v1.1.0": {
+    "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [
         "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 이상이 필요합니다"
+      ],
+      "fix": [
+        "일부 시스템 (ColorOS의 앱 정보 화면 등)에서 앱 아이콘이 검은 배경 위에 표시되어 알아보기 어려운 문제"
+      ]
+    },
+    "v1.1.0": {
+      "released_date": "2026/10/16",
+      "hint": [
+        "AutoJs6 6.8.0 (5455) 이상이 필요합니다"
       ],
       "feature": [
         "병음 변환: \"이름 정리\" 의 \"한자를 병음으로 변환\" 과 치환 변수 `${pinyin}`, 성조, 음절 구분자, 대소문자, 첫 글자만 사용 선택 가능, 다음자는 단어로 판단",

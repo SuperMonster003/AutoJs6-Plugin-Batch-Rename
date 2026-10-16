@@ -225,6 +225,13 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 
 ******
 
+#### v1.1.1
+
+_2026/10/16_
+
+- `Hint` Requires AutoJs6 6.8.0 (5455) or later
+- `Fix` The app icon was shown on a black plate and hard to make out on some systems (such as the app info page of ColorOS)
+
 #### v1.1.0
 
 _2026/10/16_
