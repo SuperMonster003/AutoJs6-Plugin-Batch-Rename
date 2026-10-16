@@ -173,8 +173,9 @@ class BatchRenameScreenTest {
             Thread.sleep(500)
             screenshot("presets-manage")
             compose.onNodeWithTag(TAG_EXPORT_CLIPBOARD).performClick()
-            compose.waitForIdle()
-            assertTrue(clipboardText().orEmpty().contains("\"photos\""))
+            // Polled: a slow emulator can read the clipboard before the closing dialog hands the focus back.
+            // zh-CN: 轮询读取: 较慢的模拟器上, 对话框关闭交还焦点之前读取剪贴板可能为空.
+            compose.waitUntil(TIMEOUT) { clipboardText().orEmpty().contains("\"photos\"") }
 
             compose.onNodeWithTag(TAG_PRESETS).performClick()
             compose.onNodeWithTag(TAG_MANAGE_PRESETS).performClick()
@@ -205,9 +206,11 @@ class BatchRenameScreenTest {
     }
 
     /**
-     * Metadata variables (roadmap P6.4): hidden on hosts before v26; on a v26 host the screen reads the metadata of the
+     * Metadata variables (roadmap P6.4): hidden when the host reports no version (the minimum host 5455 of roadmap D52
+     * already has v26, so no supported host lacks them); with the host version the screen reads the metadata of the
      * listed files once and names the rows, an image without the value gets an empty one.
-     * zh-CN: 元数据变量 (路线图 P6.4): v26 之前的宿主上不显示; v26 宿主上界面读取一次已列出文件的元数据并为各行命名, 缺少该值的图片得到空值.
+     * zh-CN: 元数据变量 (路线图 P6.4): 宿主未报告版本时不显示 (路线图 D52 的最低宿主 5455 已具备 v26, 受支持的宿主都有该功能);
+     * 带宿主版本时界面读取一次已列出文件的元数据并为各行命名, 缺少该值的图片得到空值.
      */
     @Test
     fun metadataVariablesNameRowsFromTheHostMetadata() {
@@ -217,14 +220,15 @@ class BatchRenameScreenTest {
         })
         val session = FakeHostSession(parent = listOf("IMG_1.jpg", "IMG_2.jpg"), metadata = metadata)
         val targets = arrayOf(target("IMG_1.jpg"), target("IMG_2.jpg"))
-        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-selection", session, *targets)).use {
+        val unversioned = request("batch-rename-selection", session, *targets).apply { removeExtra(ExplorerActionIntentExtras.HOST_VERSION_CODE) }
+        ActivityScenario.launch<BatchRenameActivity>(unversioned).use {
             waitForTag(row("IMG_1.jpg", targetId = "IMG_1.jpg"))
             inList(TAG_OPTIONS).performClick()
             compose.waitForIdle()
-            assertTrue("hidden on a host before v26", !exists(TAG_METADATA))
+            assertTrue("hidden without a host version", !exists(TAG_METADATA))
         }
-        val v26 = request("batch-rename-selection", session, *targets).putExtra(ExplorerActionIntentExtras.HOST_VERSION_CODE, BatchRenamePlugin.METADATA_HOST_VERSION)
-        ActivityScenario.launch<BatchRenameActivity>(v26).use {
+        assertTrue(BatchRenamePlugin.REQUIRED_HOST_VERSION >= BatchRenamePlugin.METADATA_HOST_VERSION)
+        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-selection", session, *targets)).use {
             waitForTag(row("IMG_1.jpg", targetId = "IMG_1.jpg"))
             inList(TAG_OPTIONS).performClick()
             inList(TAG_METADATA).performClick()
