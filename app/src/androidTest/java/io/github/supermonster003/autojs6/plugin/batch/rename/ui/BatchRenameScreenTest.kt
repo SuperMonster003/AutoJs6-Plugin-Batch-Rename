@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.batch.rename.ui
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -126,8 +127,10 @@ class BatchRenameScreenTest {
     /**
      * Saves the screen as `files/screenshots/<name>.png` of the app for review (roadmap R2); pull it with
      * `adb exec-out run-as <package> cat files/screenshots/<name>.png` before the test package is uninstalled.
+     * Compose captures through `PixelCopy.request(Window, ...)`, which API 24 / 25 lack, so older systems skip it.
      */
     private fun screenshot(name: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         compose.waitForIdle()
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
         val directory = java.io.File(context.filesDir, "screenshots").apply { mkdirs() }
