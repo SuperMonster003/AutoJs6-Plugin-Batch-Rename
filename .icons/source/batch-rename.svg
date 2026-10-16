@@ -1,0 +1,9 @@
+<!-- Batch Rename icon source (roadmap D41, chosen on 2026-10-16): three text lines of different lengths and one text
+     caret across them, "editing many names at once". Only the shape matters: Icon Studio takes the alpha of the
+     rendered PNG sources (mipmap/ic_launcher.png, mipmap-night/ic_launcher.png and .icons/assets) and paints it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect x="64" y="116" width="252" height="64" rx="32" fill="#000"/>
+  <rect x="64" y="224" width="300" height="64" rx="32" fill="#000"/>
+  <rect x="64" y="332" width="208" height="64" rx="32" fill="#000"/>
+  <path d="M424 104 V 408 M384 92 H 464 M384 420 H 464" fill="none" stroke="#000" stroke-width="36" stroke-linecap="round"/>
+</svg>

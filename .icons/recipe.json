@@ -9,8 +9,8 @@
   "launcher": false,
   "params": {
     "sources": {
-      "day": "c7d8751f831ead92f82e24230f05c137b9a6f618953d09df5c645c12068207f8",
-      "night": "c9e83c7189dc1978f78f1960ef346b5a5b290f4e7f037abf00f23a1b922a0b01",
+      "day": "956ea2a1471c51140dc2175ff24a3ec037c82648bebe030a32a7e5733a91d89d",
+      "night": "480e676ecdd0fb616e189b9c8e10e672f85a6863da9bd9b51c61096bd38730b9",
       "alphaMode": "alpha"
     },
     "geometry": {
@@ -45,8 +45,8 @@
   "baseline": {
     "params": {
       "sources": {
-        "day": "c7d8751f831ead92f82e24230f05c137b9a6f618953d09df5c645c12068207f8",
-        "night": "c9e83c7189dc1978f78f1960ef346b5a5b290f4e7f037abf00f23a1b922a0b01",
+        "day": "956ea2a1471c51140dc2175ff24a3ec037c82648bebe030a32a7e5733a91d89d",
+        "night": "480e676ecdd0fb616e189b9c8e10e672f85a6863da9bd9b51c61096bd38730b9",
         "alphaMode": "alpha"
       },
       "geometry": {
@@ -78,8 +78,8 @@
         "night": "transparent"
       }
     },
-    "day": "c7d8751f831ead92f82e24230f05c137b9a6f618953d09df5c645c12068207f8",
-    "night": "c9e83c7189dc1978f78f1960ef346b5a5b290f4e7f037abf00f23a1b922a0b01"
+    "day": "956ea2a1471c51140dc2175ff24a3ec037c82648bebe030a32a7e5733a91d89d",
+    "night": "480e676ecdd0fb616e189b9c8e10e672f85a6863da9bd9b51c61096bd38730b9"
   },
   "outputs": {
     "app/src/main/res/mipmap/ic_plugin_center.png": {
@@ -128,8 +128,8 @@
     }
   },
   "assets": [
-    "c7d8751f831ead92f82e24230f05c137b9a6f618953d09df5c645c12068207f8",
-    "c9e83c7189dc1978f78f1960ef346b5a5b290f4e7f037abf00f23a1b922a0b01"
+    "956ea2a1471c51140dc2175ff24a3ec037c82648bebe030a32a7e5733a91d89d",
+    "480e676ecdd0fb616e189b9c8e10e672f85a6863da9bd9b51c61096bd38730b9"
   ],
   "legacyGenerator": null,
   "backgroundDefaults": {
