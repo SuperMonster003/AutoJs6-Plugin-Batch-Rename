@@ -250,7 +250,7 @@ class BatchRenamePluginContractTest {
         )
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, capabilities.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
         assertEquals(1, capabilities.getInt(BatchRenameCapabilityKeys.CONTRACT_VERSION))
-        assertArrayEquals(arrayOf("counter", "dateTime", "random", "cleanup"), capabilities.getStringArray(BatchRenameCapabilityKeys.FEATURES))
+        assertArrayEquals(arrayOf("counter", "dateTime", "random", "cleanup", "pinyin"), capabilities.getStringArray(BatchRenameCapabilityKeys.FEATURES))
         assertEquals(2000, capabilities.getInt(BatchRenameCapabilityKeys.MAX_ITEMS))
         assertEquals("ecmascript", capabilities.getString(BatchRenameCapabilityKeys.REGEX_DIALECT))
     }

@@ -5,6 +5,7 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.Te
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart.Date
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart.Dollar
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart.Literal
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart.Pinyin
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart.Random
 import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
 import org.junit.Assert.assertEquals
@@ -27,6 +28,14 @@ class ReplacementTemplateTest {
         assertEquals(listOf(Counter(CounterSpec(start = 10, increment = 2, padding = 4))), parse("\${padding=4;increment=2;start=10}"))
         assertEquals(listOf(Counter(CounterSpec(start = -3))), parse("\${start=-3}"))
         assertEquals(listOf(Counter(CounterSpec(increment = 5)), Counter(CounterSpec(padding = 2))), parse("\${increment=5}\${padding=2}"))
+    }
+
+    @Test
+    fun `the pinyin variable needs no option and $$ keeps it literal`() {
+        assertEquals(listOf(Literal("a"), Pinyin, Literal("_")), parse("a\${pinyin}_", enumerate = false, random = false, dateTime = false))
+        assertEquals(listOf(Pinyin, Counter(CounterSpec())), parse("\${pinyin}\${}"))
+        assertEquals(listOf(Dollar, Literal("{pinyin}")), parse("\$\${pinyin}"))
+        assertEquals(listOf(Literal("\${Pinyin}")), parse("\${Pinyin}", enumerate = false, random = false, dateTime = false))
     }
 
     @Test

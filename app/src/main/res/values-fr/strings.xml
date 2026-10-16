@@ -59,12 +59,26 @@
     <string name="option_match_all">Toutes les occurrences</string>
     <string name="option_normalize">Normalisation Unicode</string>
     <string name="option_number_pattern">Format du numéro ({n} est le numéro)</string>
+    <string name="option_pinyin">Caractères chinois en pinyin</string>
+    <string name="option_pinyin_case">Casse du pinyin</string>
+    <string name="option_pinyin_initials">Initiales seulement</string>
+    <string name="option_pinyin_separator">Entre les syllabes</string>
+    <string name="option_pinyin_tone">Tons du pinyin</string>
     <string name="option_random">Chaînes aléatoires</string>
     <string name="option_regex">Expressions régulières</string>
     <string name="option_sanitize">Remplacer les caractères interdits</string>
     <string name="option_sanitize_replacement">Remplacement des caractères interdits</string>
     <string name="option_text_format">Mise en forme du texte</string>
     <string name="option_trim">Supprimer les espaces aux extrémités</string>
+    <string name="pinyin_case_capitalize">Majuscule À Chaque Syllabe</string>
+    <string name="pinyin_case_lower">minuscules</string>
+    <string name="pinyin_separator_hyphen">Trait d\'union (-)</string>
+    <string name="pinyin_separator_none">Rien</string>
+    <string name="pinyin_separator_space">Espace</string>
+    <string name="pinyin_separator_underscore">Tiret bas (_)</string>
+    <string name="pinyin_tone_mark">Accents (zhào)</string>
+    <string name="pinyin_tone_none">Sans tons</string>
+    <string name="pinyin_tone_number">Chiffres (zhao4)</string>
     <string name="plugin_description">Renomme des fichiers et des dossiers par lot avec rechercher-remplacer, expressions régulières, compteurs et variables de date</string>
     <string name="preview_only_renamed">Seulement renommés</string>
     <string name="preview_title">Aperçu</string>
@@ -108,6 +122,7 @@
     <string name="variable_minute">minute, 2 chiffres</string>
     <string name="variable_month">mois, 2 chiffres</string>
     <string name="variable_month_name">nom du mois</string>
+    <string name="variable_pinyin">texte d\'origine en pinyin (style dans \"Nettoyage du nom\")</string>
     <string name="variable_random_alnum">8 lettres et chiffres aléatoires</string>
     <string name="variable_random_digits">4 chiffres aléatoires</string>
     <string name="variable_second">seconde, 2 chiffres</string>
@@ -117,6 +132,7 @@
     <string name="variables_counter">Compteurs (activez \"Compteurs\")</string>
     <string name="variables_date">Date et heure</string>
     <string name="variables_hint">Utilisez $$ pour un $ littéral</string>
+    <string name="variables_pinyin">Pinyin</string>
     <string name="variables_random">Valeurs aléatoires (activez \"Chaînes aléatoires\")</string>
     <string name="variables_regex">Expression régulière</string>
 </resources>

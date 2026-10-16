@@ -59,12 +59,26 @@
     <string name="option_match_all">مطابقة كل التكرارات</string>
     <string name="option_normalize">تسوية Unicode</string>
     <string name="option_number_pattern">نمط الرقم ({n} هو الرقم)</string>
+    <string name="option_pinyin">تحويل الأحرف الصينية إلى بينيين</string>
+    <string name="option_pinyin_case">حالة أحرف البينيين</string>
+    <string name="option_pinyin_initials">الأحرف الأولى فقط</string>
+    <string name="option_pinyin_separator">بين المقاطع</string>
+    <string name="option_pinyin_tone">نغمات البينيين</string>
     <string name="option_random">سلاسل عشوائية</string>
     <string name="option_regex">التعابير النمطية</string>
     <string name="option_sanitize">استبدال الأحرف غير المسموح بها</string>
     <string name="option_sanitize_replacement">بديل الأحرف غير المسموح بها</string>
     <string name="option_text_format">تنسيق النص</string>
     <string name="option_trim">إزالة المسافات من الطرفين</string>
+    <string name="pinyin_case_capitalize">تكبير أول حرف من كل مقطع</string>
+    <string name="pinyin_case_lower">أحرف صغيرة</string>
+    <string name="pinyin_separator_hyphen">شرطة (-)</string>
+    <string name="pinyin_separator_none">لا شيء</string>
+    <string name="pinyin_separator_space">مسافة</string>
+    <string name="pinyin_separator_underscore">شرطة سفلية (_)</string>
+    <string name="pinyin_tone_mark">علامات (zhào)</string>
+    <string name="pinyin_tone_none">بدون نغمات</string>
+    <string name="pinyin_tone_number">أرقام (zhao4)</string>
     <string name="plugin_description">إعادة تسمية الملفات والمجلدات دفعة واحدة باستخدام البحث والاستبدال والتعبيرات النمطية والعدادات ومتغيرات التاريخ</string>
     <string name="preview_only_renamed">المعاد تسميتها فقط</string>
     <string name="preview_title">معاينة</string>
@@ -108,6 +122,7 @@
     <string name="variable_minute">الدقيقة, رقمان</string>
     <string name="variable_month">الشهر, رقمان</string>
     <string name="variable_month_name">اسم الشهر</string>
+    <string name="variable_pinyin">النص الأصلي بالبينيين (النمط في \"تنظيف الاسم\")</string>
     <string name="variable_random_alnum">8 أحرف وأرقام عشوائية</string>
     <string name="variable_random_digits">4 أرقام عشوائية</string>
     <string name="variable_second">الثانية, رقمان</string>
@@ -117,6 +132,7 @@
     <string name="variables_counter">العدادات (فعّل \"العدادات\")</string>
     <string name="variables_date">التاريخ والوقت</string>
     <string name="variables_hint">استخدم $$ للحصول على $ حرفيا</string>
+    <string name="variables_pinyin">البينيين</string>
     <string name="variables_random">قيم عشوائية (فعّل \"سلاسل عشوائية\")</string>
     <string name="variables_regex">تعبير نمطي</string>
 </resources>

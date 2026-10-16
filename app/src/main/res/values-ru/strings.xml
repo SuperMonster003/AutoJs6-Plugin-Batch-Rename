@@ -59,12 +59,26 @@
     <string name="option_match_all">Все вхождения</string>
     <string name="option_normalize">Нормализация Unicode</string>
     <string name="option_number_pattern">Шаблон номера ({n} - номер)</string>
+    <string name="option_pinyin">Китайские иероглифы в пиньинь</string>
+    <string name="option_pinyin_case">Регистр пиньиня</string>
+    <string name="option_pinyin_initials">Только первые буквы</string>
+    <string name="option_pinyin_separator">Между слогами</string>
+    <string name="option_pinyin_tone">Тоны пиньиня</string>
     <string name="option_random">Случайные строки</string>
     <string name="option_regex">Регулярные выражения</string>
     <string name="option_sanitize">Заменять недопустимые символы</string>
     <string name="option_sanitize_replacement">Замена недопустимых символов</string>
     <string name="option_text_format">Форматирование текста</string>
     <string name="option_trim">Удалять пробелы по краям</string>
+    <string name="pinyin_case_capitalize">Каждый Слог С Заглавной</string>
+    <string name="pinyin_case_lower">строчные</string>
+    <string name="pinyin_separator_hyphen">Дефис (-)</string>
+    <string name="pinyin_separator_none">Ничего</string>
+    <string name="pinyin_separator_space">Пробел</string>
+    <string name="pinyin_separator_underscore">Подчёркивание (_)</string>
+    <string name="pinyin_tone_mark">Знаки (zhào)</string>
+    <string name="pinyin_tone_none">Без тонов</string>
+    <string name="pinyin_tone_number">Цифры (zhao4)</string>
     <string name="plugin_description">Пакетное переименование файлов и папок с поиском и заменой, регулярными выражениями, счетчиками и переменными даты</string>
     <string name="preview_only_renamed">Только изменяемые</string>
     <string name="preview_title">Предпросмотр</string>
@@ -108,6 +122,7 @@
     <string name="variable_minute">минута, 2 цифры</string>
     <string name="variable_month">месяц, 2 цифры</string>
     <string name="variable_month_name">название месяца</string>
+    <string name="variable_pinyin">исходный текст пиньинем (стиль в разделе \"Очистка имени\")</string>
     <string name="variable_random_alnum">8 случайных букв и цифр</string>
     <string name="variable_random_digits">4 случайные цифры</string>
     <string name="variable_second">секунда, 2 цифры</string>
@@ -117,6 +132,7 @@
     <string name="variables_counter">Счетчики (включите \"Счетчики\")</string>
     <string name="variables_date">Дата и время</string>
     <string name="variables_hint">Для символа $ используйте $$</string>
+    <string name="variables_pinyin">Пиньинь</string>
     <string name="variables_random">Случайные значения (включите \"Случайные строки\")</string>
     <string name="variables_regex">Регулярное выражение</string>
 </resources>

@@ -59,12 +59,26 @@
     <string name="option_match_all">全部匹配</string>
     <string name="option_normalize">Unicode 规范化</string>
     <string name="option_number_pattern">编号格式 ({n} 为编号)</string>
+    <string name="option_pinyin">汉字转拼音</string>
+    <string name="option_pinyin_case">拼音大小写</string>
+    <string name="option_pinyin_initials">仅首字母</string>
+    <string name="option_pinyin_separator">音节分隔</string>
+    <string name="option_pinyin_tone">拼音声调</string>
     <string name="option_random">随机字符串</string>
     <string name="option_regex">正则表达式</string>
     <string name="option_sanitize">替换不允许的字符</string>
     <string name="option_sanitize_replacement">不允许字符的替换文本</string>
     <string name="option_text_format">文本格式</string>
     <string name="option_trim">去除首尾空格</string>
+    <string name="pinyin_case_capitalize">每个音节首字母大写</string>
+    <string name="pinyin_case_lower">全部小写</string>
+    <string name="pinyin_separator_hyphen">短横线 (-)</string>
+    <string name="pinyin_separator_none">无</string>
+    <string name="pinyin_separator_space">空格</string>
+    <string name="pinyin_separator_underscore">下划线 (_)</string>
+    <string name="pinyin_tone_mark">符号 (zhào)</string>
+    <string name="pinyin_tone_none">无</string>
+    <string name="pinyin_tone_number">数字 (zhao4)</string>
     <string name="plugin_description">使用查找替换, 正则表达式, 计数器与日期变量批量重命名文件与文件夹</string>
     <string name="preview_only_renamed">仅显示改名项</string>
     <string name="preview_title">预览</string>
@@ -108,6 +122,7 @@
     <string name="variable_minute">分, 2 位</string>
     <string name="variable_month">月, 2 位</string>
     <string name="variable_month_name">月份名称</string>
+    <string name="variable_pinyin">原文的拼音 (样式见 \"名称清理\")</string>
     <string name="variable_random_alnum">8 个随机字母与数字</string>
     <string name="variable_random_digits">4 个随机数字</string>
     <string name="variable_second">秒, 2 位</string>
@@ -117,6 +132,7 @@
     <string name="variables_counter">计数器 (需开启 \"计数器\")</string>
     <string name="variables_date">日期与时间</string>
     <string name="variables_hint">使用 $$ 表示字面的 $</string>
+    <string name="variables_pinyin">拼音</string>
     <string name="variables_random">随机值 (需开启 \"随机字符串\")</string>
     <string name="variables_regex">正则表达式</string>
 </resources>

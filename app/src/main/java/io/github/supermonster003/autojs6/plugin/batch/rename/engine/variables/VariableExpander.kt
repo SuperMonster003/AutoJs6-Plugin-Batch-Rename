@@ -22,13 +22,17 @@ internal class VariableExpander(
     private val regexMode: Boolean,
     private val dates: DateFieldFormatter,
     private val random: RandomSource,
+    /** Writes `${pinyin}`; called only when the template holds it. zh-CN: 书写 `${pinyin}`; 仅当模板含有该变量时调用. */
+    private val pinyin: (String) -> String = { it },
 ) {
 
     /**
      * @param dateMillis epoch milliseconds of the date variables (modification time or `now`).
      * @param renamedBefore items renamed before this one, plus the continued numbering offset.
+     * @param original the original text of the `target` part, for `${pinyin}`.
      */
-    fun expand(dateMillis: Long, renamedBefore: Long): String = buildString {
+    fun expand(dateMillis: Long, renamedBefore: Long, original: String = ""): String = buildString {
+        val romanized by lazy(LazyThreadSafetyMode.NONE) { JsRegexSyntax.escapeReplacement(pinyin(original)) }
         template.parts.forEach { part ->
             when (part) {
                 is TemplatePart.Literal -> append(if (regexMode) part.text else JsRegexSyntax.escapeReplacement(part.text))
@@ -36,6 +40,7 @@ internal class VariableExpander(
                 is TemplatePart.Counter -> append(JsRegexSyntax.escapeReplacement(part.spec.format(part.spec.valueAt(renamedBefore))))
                 is TemplatePart.Date -> append(JsRegexSyntax.escapeReplacement(dates.format(part.field, dateMillis)))
                 is TemplatePart.Random -> append(JsRegexSyntax.escapeReplacement(random.next(part.kind, part.length)))
+                TemplatePart.Pinyin -> append(romanized)
             }
         }
     }

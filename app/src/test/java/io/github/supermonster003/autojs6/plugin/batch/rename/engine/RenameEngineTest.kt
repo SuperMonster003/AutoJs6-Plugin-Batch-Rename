@@ -216,4 +216,26 @@ class RenameEngineTest {
             assertEquals(error.message, code, error.code)
         }
     }
+
+    @Test
+    fun `pinyin runs after the replacement and before the text format`() {
+        val all = RenameOptions(search = "", pinyin = true)
+        assertEquals(listOf("wodezhaopian.jpg", "chongqing", "IMG_0001.jpg"), newNames(all, "我的照片.jpg", "重慶/", "IMG_0001.jpg"))
+        val replaced = RenameOptions(search = "照片", replace = "相片", pinyin = true, pinyinSeparator = PinyinSeparator.SPACE)
+        assertEquals(listOf("wo de xiang pian.jpg", "视频.mp4"), newNames(replaced, "我的照片.jpg", "视频.mp4"))
+        val formatted = RenameOptions(search = "", target = RenameTarget.NAME, pinyin = true, pinyinSeparator = PinyinSeparator.UNDERSCORE, format = TextFormat.UPPER)
+        assertEquals(listOf("ZHANG_SAN.pdf"), newNames(formatted, "张三.pdf"))
+    }
+
+    @Test
+    fun `the pinyin variable writes the original target part in the pinyin style`() {
+        val name = RenameOptions(search = "^", regex = true, replace = "\${pinyin}_", target = RenameTarget.NAME)
+        assertEquals(listOf("chongqing_重庆.jpg"), newNames(name, "重庆.jpg"))
+        val styled = name.copy(pinyinCase = PinyinCase.CAPITALIZE, pinyinSeparator = PinyinSeparator.HYPHEN)
+        assertEquals(listOf("Chong-Qing_重庆.jpg"), newNames(styled, "重庆.jpg"))
+        // A `$` of the name is not read as a replacement token. zh-CN: 名称中的 `$` 不会被当作替换记号.
+        val whole = RenameOptions(search = ".+", regex = true, replace = "\${pinyin}", target = RenameTarget.NAME)
+        assertEquals(listOf("jiage\$1.txt"), newNames(whole, "价格\$1.txt"))
+        assertEquals(listOf("\${pinyin}.txt"), newNames(RenameOptions(search = "价格", replace = "\$\${pinyin}"), "价格.txt"))
+    }
 }

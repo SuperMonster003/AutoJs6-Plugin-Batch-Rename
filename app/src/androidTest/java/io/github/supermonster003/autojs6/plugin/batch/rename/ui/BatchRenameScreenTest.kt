@@ -114,6 +114,23 @@ class BatchRenameScreenTest {
         }
     }
 
+    /** The "Chinese characters to pinyin" cleanup with an empty search (roadmap P6.1). zh-CN: 查找为空时的 "汉字转拼音" 整理. */
+    @Test
+    fun pinyinCleanupRenamesChineseNames() {
+        val session = FakeHostSession(parent = listOf("我的照片.jpg", "notes.txt"))
+        val targets = arrayOf(target("我的照片.jpg"), target("notes.txt"))
+        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-selection", session, *targets)).use {
+            waitForTag(row("我的照片.jpg", targetId = "我的照片.jpg"))
+            inList(TAG_CLEANUP).performClick()
+            inList(TAG_PINYIN).performClick()
+            compose.waitUntil(TIMEOUT) { applyEnabled() }
+            screenshot("pinyin")
+            compose.onNodeWithTag(TAG_APPLY).performClick()
+            compose.waitUntil(TIMEOUT) { session.renameRequests.isNotEmpty() }
+            assertEquals(listOf("wodezhaopian.jpg"), session.renameRequests.single().map { it.third })
+        }
+    }
+
     @Test
     fun anOlderProtocolEndsTheScreenAndClosesTheSession() {
         val session = FakeHostSession(parent = listOf("a.txt"))

@@ -2,6 +2,9 @@ package io.github.supermonster003.autojs6.plugin.batch.rename.settings
 
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.ConflictPolicy
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.DateTimeSource
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinCase
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinSeparator
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinTone
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameOptions
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameTarget
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.TextFormat
@@ -45,6 +48,11 @@ class PreferencesStoreTest {
         dateTime = DateTimeSource.NOW,
         onConflict = ConflictPolicy.NUMBER,
         conflictNumberPattern = "_{n}",
+        pinyin = true,
+        pinyinTone = PinyinTone.NUMBER,
+        pinyinSeparator = PinyinSeparator.HYPHEN,
+        pinyinCase = PinyinCase.CAPITALIZE,
+        pinyinInitials = true,
         includeSubfolders = false,
     )
 

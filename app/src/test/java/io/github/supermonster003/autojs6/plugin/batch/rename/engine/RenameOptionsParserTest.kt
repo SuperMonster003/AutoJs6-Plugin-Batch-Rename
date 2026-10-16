@@ -31,6 +31,8 @@ class RenameOptionsParserTest {
         assertEquals(ConflictPolicy.FAIL, options.onConflict)
         assertEquals(" ({n})", options.conflictNumberPattern)
         assertEquals("i", options.flags)
+        assertEquals(false, options.pinyin)
+        assertEquals(PinyinStyle(PinyinTone.NONE, PinyinSeparator.NONE, PinyinCase.LOWER, initials = false), options.pinyinStyle)
         assertEquals(emptySet<String>(), parsed.unknownKeys)
     }
 
@@ -42,7 +44,8 @@ class RenameOptionsParserTest {
                 "target" to "extension", "includeFiles" to false, "includeFolders" to false, "includeSubfolders" to false,
                 "format" to "capitalize", "enumerate" to true, "random" to true, "dateTime" to "now", "normalize" to "nfd",
                 "halfWidth" to true, "sanitize" to true, "sanitizeReplacement" to "-", "trim" to true, "continueNumbering" to true,
-                "onConflict" to "number", "conflictNumberPattern" to "_{n}",
+                "onConflict" to "number", "conflictNumberPattern" to "_{n}", "pinyin" to true, "pinyinTone" to "number",
+                "pinyinSeparator" to "hyphen", "pinyinCase" to "capitalize", "pinyinInitials" to true,
             ),
         ).options
         assertEquals(
@@ -51,7 +54,8 @@ class RenameOptionsParserTest {
                 target = RenameTarget.EXTENSION, includeFiles = false, includeFolders = false, includeSubfolders = false,
                 format = TextFormat.CAPITALIZE, enumerate = true, random = true, dateTime = DateTimeSource.NOW, normalize = Normalization.NFD,
                 halfWidth = true, sanitize = true, sanitizeReplacement = "-", trim = true, continueNumbering = true,
-                onConflict = ConflictPolicy.NUMBER, conflictNumberPattern = "_{n}",
+                onConflict = ConflictPolicy.NUMBER, conflictNumberPattern = "_{n}", pinyin = true, pinyinTone = PinyinTone.NUMBER,
+                pinyinSeparator = PinyinSeparator.HYPHEN, pinyinCase = PinyinCase.CAPITALIZE, pinyinInitials = true,
             ),
             options,
         )
@@ -83,6 +87,11 @@ class RenameOptionsParserTest {
             mapOf("search" to "a", "sanitizeReplacement" to "/"),
             mapOf("search" to "a", "conflictNumberPattern" to " (n)"),
             mapOf("search" to "a", "conflictNumberPattern" to "/{n}"),
+            mapOf("search" to "a", "pinyin" to "true"),
+            mapOf("search" to "a", "pinyinTone" to "marks"),
+            mapOf("search" to "a", "pinyinSeparator" to "_"),
+            mapOf("search" to "a", "pinyinCase" to "upper"),
+            mapOf("search" to "a", "pinyinInitials" to 1),
         )
         invalid.forEach { values -> assertEquals(values.toString(), BatchRenameErrorCodes.INVALID_OPTIONS, errorCode(values)) }
         assertEquals(BatchRenameErrorCodes.LIMIT_EXCEEDED, errorCode(mapOf("search" to "a".repeat(4097))))

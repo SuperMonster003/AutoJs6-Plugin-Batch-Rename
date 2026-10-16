@@ -243,7 +243,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 与真机联调已完成 2026-10-15; 剩三项失败路径) |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 已完成 (2026-10-16, v1.0.0 已发布并登记索引) |
-| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 方向已定 (D31-D42, 2026-10-16), 未开始实施 |
+| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D42 定于 2026-10-16; P6.1 拼音已完成) |
 
 依赖顺序:
 
@@ -454,10 +454,10 @@ P0 (骨架)
 
 ### P6.1 拼音 (D35)
 
-- [ ] (插件) 词典: 单字 + 常用词组 (多音字按词组判断, 繁体同样转换), 来源与许可证写入第三方声明; 记录 APK 增量 (预算 3.5 MB).
-- [ ] (插件) 名称整理选项 "汉字转拼音" (流水线位置: 替换之后, 文本格式之前) 与替换变量 `${pinyin}` (展开为 `target` 指定部分的原名拼音), 共用风格选项: 声调 `none` / `mark` / `number`, 音节分隔 `none` / `space` / `underscore` / `hyphen`, 大小写 `lower` / `capitalize`, 仅首字母; 默认无声调, 无分隔, 小写; 非汉字原样保留.
-- [ ] (契约 / 宿主) 新选项键 (契约追加键或 v2, 设计时定), 脚本参数解析与默认值.
-- [ ] (测试) JVM: 常见多音字 ("重庆", "银行", "长大", "行长"), 繁体, 各风格组合; Compose 界面用例; 宿主脚本 API 用例.
+- [x] (插件) 词典: 单字 + 常用词组 (多音字按词组判断, 繁体同样转换), 来源与许可证写入第三方声明; 记录 APK 增量 (预算 3.5 MB). 证据 (2026-10-16): 数据源经维护者选定为 mozillazg 数据, 原样存于 `third_party/` (`-text`, SHA-256 由生成器校验): pinyin-data `9193766` (MIT, 单字取首个读音), phrase-pinyin-data `cee0ed6` (MIT, 只用 `pinyin.txt`; `large_pinyin.txt` 含 CC BY-SA 的 CC-CEDICT 数据, 不用), OpenCC `ver.1.4.2` 的 `TSCharacters.txt` (Apache-2.0). `.python/generate_pinyin_dictionary.py` 生成 Java 资源 `pinyin/` (JVM 测试与设备共用 ClassLoader 加载): 单字 44,435 个, 只保留读音与逐字读音不同的词组 8,758 个, 繁转简单字 3,222 个, 另有三份许可证全文的 `NOTICE.txt`; 本仓库修正 `.python/pinyin_overwrite.txt` 4 条 (34 个常见词样本中上游错 3 个: 照片, 相片, 还款; 另补影片). Build integrity 工作流运行 `--check`. 第三方声明新增 "Pinyin dictionary" 一节. release APK 2,520,244 字节 (1.0.0 为 2,203,815 字节, 增 316,429 字节, 其中 `pinyin/` 四个文件压缩后 303,629 字节), 在 D28 预算 3.5 MB 内. 词典首次加载 (即首次拼音预览的额外延迟): XQ-AT72 148 ms (再次约 55 ms), 低端 G8441 471 ms (再次约 130 ms), 均在后台线程.
+- [x] (插件) 名称整理选项 "汉字转拼音" (流水线位置: 替换之后, 文本格式之前) 与替换变量 `${pinyin}` (展开为 `target` 指定部分的原名拼音), 共用风格选项: 声调 `none` / `mark` / `number`, 音节分隔 `none` / `space` / `underscore` / `hyphen`, 大小写 `lower` / `capitalize`, 仅首字母; 默认无声调, 无分隔, 小写; 非汉字原样保留. 证据: `engine/pinyin` (`PinyinDictionary` 惰性加载, 码点有序数组二分查找; `PinyinConverter` 在繁转简后的文本上按最长词组匹配, 单字优先用本字读音). 实施细节: 分隔符只放在相邻音节之间 (`IMG_照片2024` -> `IMG_zhao_pian2024`); 无声调与数字声调时 `ü` 写作 `v`, `ê` 写作 `e`, 使名称保持 ASCII; 轻声不加数字; 仅首字母取每个音节的第一个字母且不带声调; `${pinyin}` 与其他变量不同, 无需开关 (`$${pinyin}` 保持字面); 界面在 "名称清理" 首行加开关, 开关打开或替换文本含 `${pinyin}` 时显示四项样式, 变量面板新增 "拼音" 组; 10 种语言 16 条字符串; 选项随 "记住上次选项" 保存. `BatchRenamePlugin.FEATURES` 加入 `pinyin`.
+- [x] (契约 / 宿主) 新选项键 (契约追加键或 v2, 设计时定), 脚本参数解析与默认值. 证据: 定为契约 v1 追加键 + 可选功能 `pinyin` (不升 v2): 宿主提交 `09b781edf` (`BatchRenameOptionKeys` 5 个键, `BatchRenameValues` 取值集合与 `FEATURE_PINYIN`, 协议文档; `VERSION_BUILD=3797`), 插件 `libs/batch-rename-api.aar` 由此重新暂存 (SHA-256 `65886980...cc7b9`). 宿主提交 `d4f69c187`: `files.batchRename` 解析五个选项 (`pinyinTone` / `pinyinSeparator` 接受 `false`, `plan.options` 显示默认值); 插件未声明 `pinyin` 时不发送这些键, 脚本用到 `pinyin` 选项或 `${pinyin}` 变量则报 `PLUGIN_INCOMPATIBLE`; zh-Hans changelog 两条既有条目补充 "汉字转拼音". 两个宿主提交均仅在本地.
+- [x] (测试) JVM: 常见多音字 ("重庆", "银行", "长大", "行长"), 繁体, 各风格组合; Compose 界面用例; 宿主脚本 API 用例. 证据: 插件 JVM `PinyinConverterTest` 8 项 (19 个多音词, 6 个繁体词, 三种声调, 分隔, 大小写, 首字母, 非汉字与扩展 B 区字符), `RenameEngineTest` 新增流水线顺序与变量 2 项, 选项解析, 模板, 偏好往返同步扩充, 共 127 项通过; 设备 (XQ-AT72, API 31) `connectedDebugAndroidTest` 15 项通过 (含 `pinyinCleanupRenamesChineseNames`), `PinyinDictionaryDeviceTest` 在 XQ-AT72 与 G8441 通过. 宿主 JVM `BatchRenameScriptArgumentsTest` 新增 2 项 (共 9 项通过); 设备: `device_smoke.py` 以 release 候选包 (versionCode 33) 在 XQ-AT72 上 5 + 2 + 4 项通过, 其中 `BatchRenamePluginRoundTripTest.pinyinComesFromTheBuiltInDictionary` 证明 R8 后的词典可跨进程使用, `BatchRenameScriptApiTest.scriptsConvertChineseNamesToPinyin` 通过; 换回 1.0.0 发布包后 `olderPluginsRefuseScriptsThatUsePinyin` 通过 (设备保持 1.0.0 插件).
 
 ### P6.2 命名预设 (D36)
 
@@ -789,5 +789,5 @@ P1.2 已落地 (宿主 `95c9f0455`), 以宿主 `docs/dev/explorer-action-protoco
 | 跨目录移动 (`move`) | 与改名语义混淆, 宿主已有 "移动到"; 不纳入 |
 | 压缩包内条目改名 | `IExplorerArchiveSession` 已有 `MUTATION_RENAME`, 归 3-Stack Archive |
 | AI 生成正则 | 需联网或 3-Stone AI, 超出插件职责; 文档中提供正则速查即可 |
-| 拼音 / 转写变量 | 需跨插件调用 (Pinyin / 3-Hanzi CC), 宿主中转协议未定; 1.1.0 后再评估 |
+| 跨插件的转写变量 (繁简转换等) | 需跨插件调用 (3-Hanzi CC), 宿主中转协议未定; 1.1.0 后再评估. 拼音已改为插件内置词典 (D35, 1.1.0) |
 | MediaStore 扫描与相册式选择 | 由 3-Maple Image 负责, 本插件只处理宿主交来的目标 |

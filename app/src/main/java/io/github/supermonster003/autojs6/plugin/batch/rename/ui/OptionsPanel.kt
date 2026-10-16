@@ -57,6 +57,9 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.R
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.ConflictPolicy
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.DateTimeSource
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.Normalization
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinCase
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinSeparator
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PinyinTone
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanItemStatus
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanReason
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameOptions
@@ -156,7 +159,9 @@ internal fun OptionsPanel(state: ScreenState, model: BatchRenameViewModel) {
         )
     }
 
-    ExpandableSection(R.string.section_cleanup) {
+    ExpandableSection(R.string.section_cleanup, Modifier.testTag(TAG_CLEANUP)) {
+        SwitchRow(R.string.option_pinyin, options.pinyin, Modifier.testTag(TAG_PINYIN)) { value -> model.setOptions { it.copy(pinyin = value) } }
+        if (options.pinyin || PINYIN_VARIABLE in options.replace) PinyinStyleRows(options, model)
         ChoiceRow(
             label = stringResource(R.string.option_normalize),
             choices = listOf(
@@ -253,9 +258,9 @@ private fun ToggleChip(label: Int, selected: Boolean, onChange: (Boolean) -> Uni
 }
 
 @Composable
-private fun SwitchRow(label: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(label: Int, checked: Boolean, modifier: Modifier = Modifier, onChange: (Boolean) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange).padding(vertical = 6.dp),
+        modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange).padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(stringResource(label), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -286,13 +291,49 @@ private fun <T> ChoiceRow(label: String, choices: List<Pair<T, Int>>, selected: 
     }
 }
 
+/**
+ * The pinyin style (roadmap D35), shown while the cleanup or the `${pinyin}` variable uses it.
+ * zh-CN: 拼音样式 (路线图 D35), 在整理选项或 `${pinyin}` 变量用到时显示.
+ */
 @Composable
-private fun ExpandableSection(title: Int, content: @Composable () -> Unit) {
+private fun PinyinStyleRows(options: RenameOptions, model: BatchRenameViewModel) {
+    ChoiceRow(
+        label = stringResource(R.string.option_pinyin_tone),
+        choices = listOf(
+            PinyinTone.NONE to R.string.pinyin_tone_none,
+            PinyinTone.MARK to R.string.pinyin_tone_mark,
+            PinyinTone.NUMBER to R.string.pinyin_tone_number,
+        ),
+        selected = options.pinyinTone,
+        onSelect = { value -> model.setOptions { it.copy(pinyinTone = value) } },
+    )
+    ChoiceRow(
+        label = stringResource(R.string.option_pinyin_separator),
+        choices = listOf(
+            PinyinSeparator.NONE to R.string.pinyin_separator_none,
+            PinyinSeparator.SPACE to R.string.pinyin_separator_space,
+            PinyinSeparator.UNDERSCORE to R.string.pinyin_separator_underscore,
+            PinyinSeparator.HYPHEN to R.string.pinyin_separator_hyphen,
+        ),
+        selected = options.pinyinSeparator,
+        onSelect = { value -> model.setOptions { it.copy(pinyinSeparator = value) } },
+    )
+    ChoiceRow(
+        label = stringResource(R.string.option_pinyin_case),
+        choices = listOf(PinyinCase.LOWER to R.string.pinyin_case_lower, PinyinCase.CAPITALIZE to R.string.pinyin_case_capitalize),
+        selected = options.pinyinCase,
+        onSelect = { value -> model.setOptions { it.copy(pinyinCase = value) } },
+    )
+    SwitchRow(R.string.option_pinyin_initials, options.pinyinInitials) { value -> model.setOptions { it.copy(pinyinInitials = value) } }
+}
+
+@Composable
+private fun ExpandableSection(title: Int, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val label = stringResource(title)
     val state = stringResource(if (expanded) R.string.state_expanded else R.string.state_collapsed)
     Row(
-        Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(top = 12.dp, bottom = 4.dp)
+        modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(top = 12.dp, bottom = 4.dp)
             .semantics { stateDescription = state },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -349,6 +390,9 @@ private fun ConflictChoices(options: RenameOptions, model: BatchRenameViewModel)
     }
 }
 
+/** The variable that writes the original text in pinyin (roadmap D35). zh-CN: 以拼音书写原文的变量 (路线图 D35). */
+private const val PINYIN_VARIABLE = "\${pinyin}"
+
 /** A token the variables sheet inserts and what it stands for. zh-CN: 变量面板插入的记号及其含义. */
 private data class Variable(val token: String, val description: Int)
 
@@ -376,6 +420,7 @@ private fun VariablesSheet(options: RenameOptions, onInsert: (String) -> Unit) {
                 Variable("\${ruuidv4}", R.string.variable_uuid),
             ),
         )
+        add(R.string.variables_pinyin to listOf(Variable(PINYIN_VARIABLE, R.string.variable_pinyin)))
         if (options.regex) add(R.string.variables_regex to listOf(Variable("\$1", R.string.variable_group), Variable("\$&", R.string.variable_match)))
     }
     LazyColumn(Modifier.fillMaxWidth().padding(bottom = 24.dp)) {

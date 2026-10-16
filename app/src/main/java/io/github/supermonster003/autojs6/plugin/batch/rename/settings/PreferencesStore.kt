@@ -100,6 +100,7 @@ internal object OptionsCodec {
         BatchRenameOptionKeys.INCLUDE_FILES, BatchRenameOptionKeys.INCLUDE_FOLDERS, BatchRenameOptionKeys.INCLUDE_SUBFOLDERS,
         BatchRenameOptionKeys.ENUMERATE, BatchRenameOptionKeys.RANDOM, BatchRenameOptionKeys.HALF_WIDTH,
         BatchRenameOptionKeys.SANITIZE, BatchRenameOptionKeys.TRIM, BatchRenameOptionKeys.CONTINUE_NUMBERING,
+        BatchRenameOptionKeys.PINYIN, BatchRenameOptionKeys.PINYIN_INITIALS,
     )
 
     fun encode(options: RenameOptions): Map<String, String> = linkedMapOf(
@@ -125,6 +126,11 @@ internal object OptionsCodec {
         BatchRenameOptionKeys.CONTINUE_NUMBERING to options.continueNumbering.toString(),
         BatchRenameOptionKeys.ON_CONFLICT to options.onConflict.value,
         BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN to options.conflictNumberPattern,
+        BatchRenameOptionKeys.PINYIN to options.pinyin.toString(),
+        BatchRenameOptionKeys.PINYIN_TONE to options.pinyinTone.value,
+        BatchRenameOptionKeys.PINYIN_SEPARATOR to options.pinyinSeparator.value,
+        BatchRenameOptionKeys.PINYIN_CASE to options.pinyinCase.value,
+        BatchRenameOptionKeys.PINYIN_INITIALS to options.pinyinInitials.toString(),
     )
 
     val KEYS: List<String> = encode(RenameOptions(search = "")).keys.toList()

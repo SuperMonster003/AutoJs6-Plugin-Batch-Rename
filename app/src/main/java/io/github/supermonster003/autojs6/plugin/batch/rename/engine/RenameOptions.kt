@@ -38,6 +38,36 @@ internal enum class ConflictPolicy(val value: String) {
     OVERWRITE(BatchRenameValues.CONFLICT_OVERWRITE),
 }
 
+internal enum class PinyinTone(val value: String) {
+    NONE(BatchRenameValues.PINYIN_TONE_NONE),
+    MARK(BatchRenameValues.PINYIN_TONE_MARK),
+    NUMBER(BatchRenameValues.PINYIN_TONE_NUMBER),
+}
+
+internal enum class PinyinSeparator(val value: String, val text: String) {
+    NONE(BatchRenameValues.PINYIN_SEPARATOR_NONE, ""),
+    SPACE(BatchRenameValues.PINYIN_SEPARATOR_SPACE, " "),
+    UNDERSCORE(BatchRenameValues.PINYIN_SEPARATOR_UNDERSCORE, "_"),
+    HYPHEN(BatchRenameValues.PINYIN_SEPARATOR_HYPHEN, "-"),
+}
+
+internal enum class PinyinCase(val value: String) {
+    LOWER(BatchRenameValues.PINYIN_CASE_LOWER),
+    CAPITALIZE(BatchRenameValues.PINYIN_CASE_CAPITALIZE),
+}
+
+/**
+ * How pinyin is written (roadmap D35), shared by the `pinyin` cleanup and the `${pinyin}` variable.
+ * zh-CN: 拼音的书写方式 (路线图 D35), 由 `pinyin` 整理选项与 `${pinyin}` 变量共用.
+ */
+internal data class PinyinStyle(
+    val tone: PinyinTone = PinyinTone.NONE,
+    val separator: PinyinSeparator = PinyinSeparator.NONE,
+    val case: PinyinCase = PinyinCase.LOWER,
+    /** Only the first letter of each syllable, without tone. zh-CN: 每个音节只取首字母, 不带声调. */
+    val initials: Boolean = false,
+)
+
 /**
  * The rename options of contract v1 with the PowerRename defaults of roadmap D17; the local extensions (roadmap D5) are
  * off by default.
@@ -68,6 +98,12 @@ internal data class RenameOptions(
     val continueNumbering: Boolean = false,
     val onConflict: ConflictPolicy = ConflictPolicy.FAIL,
     val conflictNumberPattern: String = BatchRenameValues.DEFAULT_CONFLICT_NUMBER_PATTERN,
+    /** Chinese characters to pinyin after the replacement, before [format] (roadmap D35). zh-CN: 替换之后, 格式化之前汉字转拼音. */
+    val pinyin: Boolean = false,
+    val pinyinTone: PinyinTone = PinyinTone.NONE,
+    val pinyinSeparator: PinyinSeparator = PinyinSeparator.NONE,
+    val pinyinCase: PinyinCase = PinyinCase.LOWER,
+    val pinyinInitials: Boolean = false,
 ) {
     /** The ECMAScript source of [search]: plain text is escaped (roadmap D15). zh-CN: [search] 对应的 ECMAScript 源码. */
     val pattern: String
@@ -75,6 +111,9 @@ internal data class RenameOptions(
 
     val flags: String
         get() = JsRegexSyntax.flags(matchAll, caseSensitive, regexFlags)
+
+    val pinyinStyle: PinyinStyle
+        get() = PinyinStyle(pinyinTone, pinyinSeparator, pinyinCase, pinyinInitials)
 }
 
 /**
@@ -98,6 +137,8 @@ internal object RenameOptionsParser {
         BatchRenameOptionKeys.NORMALIZE, BatchRenameOptionKeys.HALF_WIDTH, BatchRenameOptionKeys.SANITIZE,
         BatchRenameOptionKeys.SANITIZE_REPLACEMENT, BatchRenameOptionKeys.TRIM, BatchRenameOptionKeys.CONTINUE_NUMBERING,
         BatchRenameOptionKeys.ON_CONFLICT, BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN,
+        BatchRenameOptionKeys.PINYIN, BatchRenameOptionKeys.PINYIN_TONE, BatchRenameOptionKeys.PINYIN_SEPARATOR,
+        BatchRenameOptionKeys.PINYIN_CASE, BatchRenameOptionKeys.PINYIN_INITIALS,
     )
 
     /** Characters a sanitize replacement or a number pattern must not bring into a name. */
@@ -131,6 +172,12 @@ internal object RenameOptionsParser {
             onConflict = values.choice(BatchRenameOptionKeys.ON_CONFLICT, ConflictPolicy.entries, ConflictPolicy::value) ?: defaults.onConflict,
             conflictNumberPattern = values.text(BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN)?.also(::checkNumberPattern)
                 ?: defaults.conflictNumberPattern,
+            pinyin = values.flag(BatchRenameOptionKeys.PINYIN) ?: defaults.pinyin,
+            pinyinTone = values.choice(BatchRenameOptionKeys.PINYIN_TONE, PinyinTone.entries, PinyinTone::value) ?: defaults.pinyinTone,
+            pinyinSeparator = values.choice(BatchRenameOptionKeys.PINYIN_SEPARATOR, PinyinSeparator.entries, PinyinSeparator::value)
+                ?: defaults.pinyinSeparator,
+            pinyinCase = values.choice(BatchRenameOptionKeys.PINYIN_CASE, PinyinCase.entries, PinyinCase::value) ?: defaults.pinyinCase,
+            pinyinInitials = values.flag(BatchRenameOptionKeys.PINYIN_INITIALS) ?: defaults.pinyinInitials,
         )
         return ParsedOptions(options, values.keys - KNOWN_KEYS)
     }

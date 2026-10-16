@@ -59,12 +59,26 @@
     <string name="option_match_all">Match all occurrences</string>
     <string name="option_normalize">Unicode normalization</string>
     <string name="option_number_pattern">Number pattern ({n} is the number)</string>
+    <string name="option_pinyin">Chinese characters to pinyin</string>
+    <string name="option_pinyin_case">Pinyin case</string>
+    <string name="option_pinyin_initials">Initials only</string>
+    <string name="option_pinyin_separator">Between syllables</string>
+    <string name="option_pinyin_tone">Pinyin tones</string>
     <string name="option_random">Random strings</string>
     <string name="option_regex">Regular expressions</string>
     <string name="option_sanitize">Replace characters that are not allowed</string>
     <string name="option_sanitize_replacement">Replacement for characters that are not allowed</string>
     <string name="option_text_format">Text formatting</string>
     <string name="option_trim">Trim spaces</string>
+    <string name="pinyin_case_capitalize">Capitalize Each Syllable</string>
+    <string name="pinyin_case_lower">lowercase</string>
+    <string name="pinyin_separator_hyphen">Hyphen (-)</string>
+    <string name="pinyin_separator_none">Nothing</string>
+    <string name="pinyin_separator_space">Space</string>
+    <string name="pinyin_separator_underscore">Underscore (_)</string>
+    <string name="pinyin_tone_mark">Marks (zhào)</string>
+    <string name="pinyin_tone_none">None</string>
+    <string name="pinyin_tone_number">Numbers (zhao4)</string>
     <string name="plugin_description">Batch renames files and folders with search and replace, regular expressions, counters and date variables</string>
     <string name="preview_only_renamed">Only renamed</string>
     <string name="preview_title">Preview</string>
@@ -108,6 +122,7 @@
     <string name="variable_minute">minute, 2 digits</string>
     <string name="variable_month">month, 2 digits</string>
     <string name="variable_month_name">month name</string>
+    <string name="variable_pinyin">original text in pinyin (style under \"Name cleanup\")</string>
     <string name="variable_random_alnum">8 random letters and digits</string>
     <string name="variable_random_digits">4 random digits</string>
     <string name="variable_second">second, 2 digits</string>
@@ -117,6 +132,7 @@
     <string name="variables_counter">Counters (turn on Counters)</string>
     <string name="variables_date">Date and time</string>
     <string name="variables_hint">Use $$ for a literal $</string>
+    <string name="variables_pinyin">Pinyin</string>
     <string name="variables_random">Random values (turn on Random strings)</string>
     <string name="variables_regex">Regular expression</string>
 </resources>

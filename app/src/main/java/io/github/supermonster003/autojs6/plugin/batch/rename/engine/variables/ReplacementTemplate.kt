@@ -5,7 +5,8 @@ import org.autojs.plugin.batchrename.api.BatchRenameLimits
 
 /**
  * The `replace` option split into literal text and PowerRename variables (roadmap D5 / D16, appendix A): counters
- * `${...}`, the 20 date and time variables `$YYYY` ... `$f` and the random values `${rstring...=N}` / `${ruuidv4}`.
+ * `${...}`, the 20 date and time variables `$YYYY` ... `$f` and the random values `${rstring...=N}` / `${ruuidv4}`, plus
+ * `${pinyin}` (roadmap D35), the pinyin of the original text of the `target` part, which needs no option.
  *
  * - `$$` is a literal `$` in both search modes and keeps the following text from being read as a variable (`$$YYYY`
  *   stays `$YYYY`).
@@ -13,7 +14,7 @@ import org.autojs.plugin.batchrename.api.BatchRenameLimits
  * - Date variables are case sensitive and the longest name wins (`$MMM` before `$MM`, `$Mm` is `$M` plus `m`).
  *
  * zh-CN: 把 `replace` 选项拆分为字面文本与 PowerRename 变量 (路线图 D5 / D16, 附录 A): 计数器 `${...}`, 20 个日期时间变量
- * `$YYYY` ... `$f`, 以及随机值 `${rstring...=N}` / `${ruuidv4}`. `$$` 在两种查找模式下都表示一个字面 `$`, 并使其后文本不被
+ * `$YYYY` ... `$f`, 随机值 `${rstring...=N}` / `${ruuidv4}`, 以及无需开关的 `${pinyin}` (路线图 D35, `target` 部分原文的拼音). `$$` 在两种查找模式下都表示一个字面 `$`, 并使其后文本不被
  * 识别为变量 (`$$YYYY` 保持为 `$YYYY`). 选项关闭的变量以及无法解析的内容都保持为字面文本, 与 PowerRename 一致. 日期变量区分
  * 大小写且最长名称优先 (`$MMM` 先于 `$MM`, `$Mm` 为 `$M` 加 `m`).
  */
@@ -24,6 +25,8 @@ internal class ReplacementTemplate private constructor(val parts: List<TemplateP
     val hasVariables: Boolean = parts.any { it !is TemplatePart.Literal && it !is TemplatePart.Dollar }
 
     companion object {
+
+        private const val PINYIN = "pinyin"
 
         /**
          * @throws PlanException with `LIMIT_EXCEEDED` for a random string longer than [BatchRenameLimits.MAX_RANDOM_LENGTH].
@@ -75,6 +78,7 @@ internal class ReplacementTemplate private constructor(val parts: List<TemplateP
             val close = text.indexOf('}', start + 2)
             if (close < 0) return null
             val body = text.substring(start + 2, close)
+            if (body == PINYIN) return TemplatePart.Pinyin to close + 1
             val part = (if (enumerate) CounterSpec.parse(body)?.let(TemplatePart::Counter) else null)
                 ?: (if (random) parseRandom(body) else null)
                 ?: return null
@@ -108,6 +112,9 @@ internal sealed interface TemplatePart {
     data class Date(val field: DateField) : TemplatePart
 
     data class Random(val kind: RandomKind, val length: Int) : TemplatePart
+
+    /** `${pinyin}`: the original text of the `target` part in pinyin. zh-CN: `target` 部分原文的拼音. */
+    data object Pinyin : TemplatePart
 }
 
 /**
