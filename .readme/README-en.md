@@ -42,7 +42,7 @@ The README.md file is currently available in the following languages:
 
 ******
 
-The Batch Rename plugin adds batch renaming to AutoJs6, modeled on [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename) from PowerToys: rename many files and folders at once with search and replace, regular expressions, counters, date and random variables, preview every result before anything changes, and undo afterwards.
+The Batch Rename plugin adds batch renaming to AutoJs6, modeled on [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename) from PowerToys: rename many files and folders at once with search and replace, regular expressions, counters, date and random variables, photo metadata and Chinese to pinyin, preview every result before anything changes, and undo afterwards.
 
 The plugin is a separately installed APK without a launcher icon. It has two entry points: "Batch rename" in the file manager's multi-select toolbar, folder menu and rename dialog, and `files.batchRename` in scripts. The plugin only computes the new names; AutoJs6 performs the renames, the conflict checks and the undo records, so the plugin needs no storage permission.
 
@@ -54,9 +54,12 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 
 - Search and replace: plain text or JavaScript regular expressions, every match or only the first, case sensitive or not, applied to the name, the extension or both.
 - Variables: counters (`${start=1;increment=1;padding=3}`), date variables from the modification time or the current time (`$YYYY`, `$MM`, `$DD` and more) and random strings, written as in PowerRename.
+- Chinese to pinyin: "Chinese characters to pinyin" under "Name cleanup" turns the Chinese characters of the new name into pinyin, and the `${pinyin}` variable inserts the pinyin of the original name; tones, syllable separators, capitalization and initials only are optional, and polyphonic characters follow their words.
+- Photo metadata: with "Metadata variables" on under "Scope and format", name photos by the date taken, camera, lens, aperture, shutter speed, ISO, GPS and more, 25 values in all (`$DATE_TAKEN_YYYY`, `$CAMERA_MODEL` and so on); rows without metadata are marked.
+- Named presets: save the current options as a preset with the "Presets" button in the top bar and load it with one tap; presets can be renamed, deleted, imported and exported through files or the clipboard, and scripts can use them too.
 - Name cleanup: case conversion, Unicode normalization, full-width to half-width, replacement of characters that are not allowed, trimming of surrounding spaces, and numbering that continues existing names.
 - Preview before renaming: old and new names side by side, uncheck items to exclude them, show only the items that change; when a new name is taken, refuse, skip, add a number or replace the existing entry.
-- Undo: AutoJs6 keeps the last 20 rename batches, which can be undone from the file manager and from scripts; undo checks first whether a file was changed again.
+- Undo: AutoJs6 keeps the last 20 rename batches of scripts and of each plugin (50 or 100 if you prefer); they can be undone from the file manager and from scripts, or viewed, undone and deleted on the "Rename history" page of AutoJs6; undo checks first whether a file was changed again.
 - The screen follows the AutoJs6 theme color, dark mode and language, and can remember the last options and recent search and replace texts.
 
 ******
@@ -65,7 +68,7 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 
 ******
 
-1. Update AutoJs6 to build 5438 (6.8.0) or later.
+1. Update AutoJs6 to build 5455 (6.8.0) or later.
 2. Install Batch Rename from the AutoJs6 Plugin Center, or download the APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), then authorize and enable it in the Plugin Center.
 3. Long-press in the file manager to select items and tap "Batch rename", or call `files.batchRename` in a script.
 
@@ -81,8 +84,8 @@ Once the plugin is installed and enabled, the AutoJs6 file manager offers three 
 
 - Multiple selection: select files or folders and tap "Batch rename" in the selection bar (under "More" when several plugin actions are available).
 - Folder menu: choose "Batch rename items inside" in the menu of a folder to rename what it contains.
-- Rename dialog: while renaming a single file or folder, open the "More" menu in the top right corner of the dialog and choose "Batch rename...".
-- Type what to search and replace on the plugin screen and the preview updates at once; uncheck items to exclude them, tap "Rename", and tap "Undo last batch" to restore the old names.
+- Rename dialog: while renaming a single file or folder, open the "More" menu in the top right corner of the dialog and choose "Batch rename...". "Rename history" at the end of the same menu shows past batches and undoes them.
+- Type what to search and replace on the plugin screen and the preview updates at once; uncheck items to exclude them, tap "Rename", and tap "Undo last batch" to restore the old names. "Rename history" at the end of the "More options" menu in the top bar opens the rename history page of AutoJs6.
 
 ******
 
@@ -97,6 +100,8 @@ The replacement text can contain the following variables:
 | `${}` `${start=X;increment=X;padding=X}` | Counter with start value, step and zero padding; it only advances for items that are renamed |
 | `$YYYY` `$YY` `$MM` `$MMM` `$DD` `$DDDD` `$hh` `$mm` `$ss` `$fff` | Year, month, day, hour, minute, second and millisecond of the modification time, or of the current time |
 | `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` | Random alphanumeric, letter or digit strings and UUIDs |
+| `${pinyin}` | The pinyin of the original name, in the style of the "Chinese characters to pinyin" options |
+| `$CAMERA_MODEL` `$LENS` `$APERTURE` `$SHUTTER` `$ISO` `$DATE_TAKEN_YYYY` `$LATITUDE` ... | Camera, lens, exposure, size, author, copyright, GPS, date taken, orientation and color space of a photo (25 values; needs "Metadata variables") |
 | `$1` `$<name>` `$&` `$$` | Regular expression groups and the whole match, as in JavaScript's `String.prototype.replace` |
 
 ******
@@ -125,6 +130,7 @@ if (!plan.rejected) {
 - `files.batchRename.plan(paths, options)` computes without renaming and returns the new name and status of every item; set `items[i].excluded` to `true` and pass the plan to `apply`.
 - `files.batchRename(paths, options)` does both in one step; `files.batchRename.undo(result)` undoes the batch and `files.batchRename.history()` lists recent batches (file manager batches included).
 - Regular expressions behave like `RegExp` in scripts, and a `RegExp` object can be passed directly. `planAsync` / `applyAsync` / `undoAsync` are the asynchronous forms; failures throw a `BatchRenameError` with a `code`.
+- `files.batchRename.preview(name, options)` computes a new name without any file; `presets()` and `importPresets(json)` list and import named presets, and `preset` in the options uses one; `deleteHistory` and `clearHistory` remove batches from the history; metadata variables need `metadata: true`.
 
 ******
 
@@ -132,7 +138,7 @@ if (!plan.rejected) {
 
 ******
 
-- Requires AutoJs6 6.8.0 (build 5438) or later and Android 7.0 (API 24) or later.
+- Requires AutoJs6 6.8.0 (build 5455) or later and Android 7.0 (API 24) or later.
 - FAT32 / exFAT storage such as SD cards and USB drives ignores case and does not allow `: * ? " < > |`, the backslash and similar characters; new names containing them are marked as unusable, and "Replace characters that are not allowed" replaces them automatically.
 - A batch holds at most 2000 items; scripts can reach at most 32 levels below the folders they name.
 
@@ -152,7 +158,7 @@ No. The plugin only computes new names from file names; AutoJs6 lists the folder
 
 #### How does it differ from PowerRename?
 
-Date variables use the modification time (creation times are unreliable on Android), and there are additional Unicode normalization, full-width to half-width conversion, replacement of characters that are not allowed and undoable batches. Photo EXIF variables are planned for 1.1.0.
+Date variables use the modification time (creation times are unreliable on Android), and there are additional Chinese to pinyin, named presets, Unicode normalization, full-width to half-width conversion, replacement of characters that are not allowed and undoable batches. All 25 photo metadata variables of PowerRename are supported.
 
 #### Are regular expressions written as in JavaScript?
 
@@ -161,6 +167,10 @@ Yes. The plugin uses the same Rhino regular expression engine as AutoJs6 scripts
 #### Why does the counter not increase?
 
 Turn on the "Counter" option first (`enumerate: true` in scripts); otherwise `${}` stays as it is. The counter only counts items whose names change; unchanged or excluded items do not take a number.
+
+#### Why do metadata variables expand to nothing?
+
+Turn on "Metadata variables" under "Scope and format" first (`metadata: true` in scripts). Values the photo does not record expand to nothing and the row is marked "missing metadata": some RAW files record no ISO, for instance, and pictures saved by social apps carry no EXIF. A missing date taken falls back to the modification time.
 
 #### Why is batch rename missing from the rename dialog?
 
@@ -195,7 +205,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5438
+minimum host build: 5455
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -214,6 +224,19 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 ### Release history
 
 ******
+
+#### v1.1.0
+
+_2026/10/16_
+
+- `Hint` Requires AutoJs6 6.8.0 (5455) or later
+- `Feature` Chinese to pinyin: "Chinese characters to pinyin" under "Name cleanup" and the `${pinyin}` variable, with optional tones, syllable separators, capitalization and initials only; polyphonic characters follow their words
+- `Feature` Photo metadata variables: name photos by the date taken, camera, lens, aperture, shutter speed, ISO, GPS and more, 25 values in all; rows without metadata are marked (turn on "Metadata variables" under "Scope and format")
+- `Feature` Named presets: save the current options as a preset and load it with one tap, rename, delete, import and export presets through files or the clipboard (entry: "Presets" button in the top bar)
+- `Feature` Rename history: view, search, undo or delete the rename batches of the file manager and of scripts in AutoJs6, and set how many batches are kept (entry: "More options" in the top bar > "Rename history")
+- `Feature` Chinese to pinyin, photo metadata, named presets and name previews without files for the files.batchRename script API of AutoJs6
+- `Improvement` New plugin icon
+- `Improvement` "Clear history" in the "More options" menu of the top bar is now "Clear recently used", so it is not mistaken for "Rename history"
 
 #### v1.0.0
 

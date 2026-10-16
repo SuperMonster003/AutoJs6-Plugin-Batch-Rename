@@ -4,6 +4,19 @@
 
 ******
 
+# v1.1.0
+
+###### 2026/10/16
+
+* `Hint` Requires AutoJs6 6.8.0 (5455) or later
+* `Feature` Chinese to pinyin: "Chinese characters to pinyin" under "Name cleanup" and the `${pinyin}` variable, with optional tones, syllable separators, capitalization and initials only; polyphonic characters follow their words
+* `Feature` Photo metadata variables: name photos by the date taken, camera, lens, aperture, shutter speed, ISO, GPS and more, 25 values in all; rows without metadata are marked (turn on "Metadata variables" under "Scope and format")
+* `Feature` Named presets: save the current options as a preset and load it with one tap, rename, delete, import and export presets through files or the clipboard (entry: "Presets" button in the top bar)
+* `Feature` Rename history: view, search, undo or delete the rename batches of the file manager and of scripts in AutoJs6, and set how many batches are kept (entry: "More options" in the top bar > "Rename history")
+* `Feature` Chinese to pinyin, photo metadata, named presets and name previews without files for the files.batchRename script API of AutoJs6
+* `Improvement` New plugin icon
+* `Improvement` "Clear history" in the "More options" menu of the top bar is now "Clear recently used", so it is not mistaken for "Rename history"
+
 # v1.0.0
 
 ###### 2026/10/16

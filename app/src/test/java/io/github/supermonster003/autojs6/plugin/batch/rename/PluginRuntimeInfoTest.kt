@@ -41,7 +41,7 @@ class PluginRuntimeInfoTest {
         // Roadmap D28: one universal APK, so no ABI restriction is reported to the Plugin Center.
         assertEquals(emptyList<String>(), fields.supportedAbis)
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, fields.requiredHostVersion)
-        assertEquals(5438L, BatchRenamePlugin.REQUIRED_HOST_VERSION)
+        assertEquals(5455L, BatchRenamePlugin.REQUIRED_HOST_VERSION)
         // Contract v1 capabilities; the engine of roadmap P2, the pinyin (D35) and the presets (D36) of 1.1.0 implement every optional feature.
         assertEquals(1, fields.contractVersion)
         assertEquals(listOf("counter", "dateTime", "random", "cleanup", "pinyin", "presets", "metadata"), fields.features)

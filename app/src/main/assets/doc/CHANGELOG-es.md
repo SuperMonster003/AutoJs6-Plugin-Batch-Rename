@@ -4,6 +4,19 @@
 
 ******
 
+# v1.1.0
+
+###### 2026/10/16
+
+* `Aviso` Requiere AutoJs6 6.8.0 (5455) o posterior
+* `Función` Pinyin: "Caracteres chinos a pinyin" en "Limpieza del nombre" y la variable `${pinyin}`, con tonos, separador de sílabas, mayúsculas y solo iniciales opcionales; los caracteres con varias lecturas se resuelven por palabras
+* `Función` Variables de metadatos de fotos: nombrar fotos por fecha de captura, cámara, objetivo, apertura, velocidad de obturación, ISO, GPS y más, 25 valores en total; las filas sin metadatos se marcan (active "Variables de metadatos" en "Ámbito y formato")
+* `Función` Preajustes con nombre: guardar las opciones actuales como preajuste y cargarlo con un toque, renombrar, eliminar, importar y exportar preajustes con archivos o el portapapeles (acceso: botón "Preajustes" de la barra superior)
+* `Función` Historial de cambios de nombre: ver, buscar, deshacer o eliminar en AutoJs6 los lotes del gestor de archivos y de los scripts, y fijar cuántos lotes se guardan (acceso: "Más opciones" de la barra superior > "Historial de cambios de nombre")
+* `Función` Pinyin, metadatos de fotos, preajustes con nombre y cálculo de nombres sin archivos para la API de scripts files.batchRename de AutoJs6
+* `Mejora` Nuevo icono del plugin
+* `Mejora` "Borrar el historial" del menú "Más opciones" de la barra superior pasa a llamarse "Borrar usados recientemente" para no confundirlo con "Historial de cambios de nombre"
+
 # v1.0.0
 
 ###### 2026/10/16

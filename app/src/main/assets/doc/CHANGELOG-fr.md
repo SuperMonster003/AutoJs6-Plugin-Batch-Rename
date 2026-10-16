@@ -4,6 +4,19 @@
 
 ******
 
+# v1.1.0
+
+###### 2026/10/16
+
+* `Note` Nécessite AutoJs6 6.8.0 (5455) ou ultérieur
+* `Fonctionnalité` Pinyin: "Caractères chinois en pinyin" dans "Nettoyage du nom" et la variable `${pinyin}`, avec tons, séparateur de syllabes, casse et initiales seules au choix; les caractères à plusieurs lectures sont résolus d'après les mots
+* `Fonctionnalité` Variables de métadonnées des photos: nommer les photos d'après la date de prise de vue, l'appareil, l'objectif, l'ouverture, la vitesse d'obturation, la sensibilité ISO, le GPS et plus, 25 valeurs en tout; les lignes sans métadonnées sont signalées (activez "Variables de métadonnées" dans "Portée et format")
+* `Fonctionnalité` Préréglages nommés: enregistrer les options actuelles comme préréglage et le charger d'un appui, renommer, supprimer, importer et exporter des préréglages par fichier ou presse-papiers (accès: bouton "Préréglages" de la barre supérieure)
+* `Fonctionnalité` Historique des renommages: consulter, rechercher, annuler ou supprimer dans AutoJs6 les lots du gestionnaire de fichiers et des scripts, et régler le nombre de lots conservés (accès: "Plus d'options" de la barre supérieure > "Historique des renommages")
+* `Fonctionnalité` Pinyin, métadonnées des photos, préréglages nommés et calcul de noms sans fichier pour l'API de script files.batchRename d'AutoJs6
+* `Amélioration` Nouvelle icône du plugin
+* `Amélioration` "Effacer l'historique" du menu "Plus d'options" de la barre supérieure devient "Effacer les éléments récemment utilisés" pour ne pas le confondre avec "Historique des renommages"
+
 # v1.0.0
 
 ###### 2026/10/16

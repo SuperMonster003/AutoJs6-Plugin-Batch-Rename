@@ -42,7 +42,7 @@
 
 ******
 
-Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參照 PowerToys 的 [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename): 以尋找取代, 正則表示式, 計數器, 日期與隨機變數一次重新命名多個檔案和資料夾, 執行前可完整預覽, 執行後可以復原.
+Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參照 PowerToys 的 [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename): 以尋找取代, 正則表示式, 計數器, 日期與隨機變數, 相片中繼資料及漢字轉拼音一次重新命名多個檔案和資料夾, 執行前可完整預覽, 執行後可以復原.
 
 外掛程式是獨立安裝的 APK, 沒有桌面圖示. 它提供兩個入口: 檔案管理員的多選工具列, 資料夾選單與重新命名對話方塊中的 "批次重新命名", 以及指令碼中的 `files.batchRename`. 外掛程式只負責計算新名稱, 實際的重新命名, 衝突檢查與復原記錄由 AutoJs6 完成, 因此外掛程式不需要任何儲存空間權限.
 
@@ -54,9 +54,12 @@ Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參�
 
 - 尋找與取代: 支援純文字或 JavaScript 規則運算式, 可選全部比對或只取代第一處, 區分或忽略大小寫, 只作用於名稱, 副檔名或兩者.
 - 變數: 計數器 (`${start=1;increment=1;padding=3}`), 取檔案修改時間或目前時間的日期變數 (`$YYYY`, `$MM`, `$DD` 等) 與隨機字串, 寫法與 PowerRename 一致.
+- 漢字轉拼音: "名稱清理" 中的 "漢字轉拼音" 把新名稱中的漢字轉為拼音, 取代變數 `${pinyin}` 插入原名的拼音; 可選聲調, 音節分隔, 大小寫與只取首字母, 破音字按詞組判斷.
+- 相片中繼資料: 開啟 "範圍與格式" 中的 "中繼資料變數" 後, 可用拍攝時間, 相機, 鏡頭, 光圈, 快門, 感光度, GPS 等 25 項資訊命名相片 (`$DATE_TAKEN_YYYY`, `$CAMERA_MODEL` 等), 缺少中繼資料的列會標出.
+- 命名預設: 用頂端列的 "預設" 按鈕把目前選項儲存為預設並一點載入, 可重新命名, 刪除, 透過檔案或剪貼簿匯入匯出, 腳本中也能引用.
 - 名稱整理: 大小寫轉換, Unicode 正規化, 全形轉半形, 取代不允許的字元, 去除首尾空格, 以及接續既有名稱的編號.
 - 先預覽再執行: 逐項顯示原名與新名, 可取消勾選排除項目, 可只顯示改名項目; 新名稱被占用時可選擇不重新命名, 略過, 加上編號或取代既有項目.
-- 可以復原: AutoJs6 保存最近 20 個重新命名批次, 檔案管理器與腳本中都能復原, 復原前會檢查檔案是否已再次修改.
+- 可以復原: AutoJs6 為腳本與每個外掛各保存最近 20 個重新命名批次 (可改為 50 或 100), 檔案管理器與腳本中都能復原, 也可在 AutoJs6 的 "重新命名記錄" 頁面中檢視, 復原或刪除; 復原前會檢查檔案是否已再次修改.
 - 介面跟隨 AutoJs6 的主題色, 夜間模式與語言, 可記住上次選項與最近使用的尋找和取代文字.
 
 ******
@@ -65,7 +68,7 @@ Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參�
 
 ******
 
-1. 將 AutoJs6 升級到內部版本號 5438 (6.8.0) 或更新版本.
+1. 將 AutoJs6 升級到內部版本號 5455 (6.8.0) 或更新版本.
 2. 在 AutoJs6 的外掛程式中心安裝 Batch Rename, 或從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases) 下載 APK 安裝, 然後在外掛程式中心授權並啟用.
 3. 在檔案管理員中長按進入多選後點選 "批次重新命名", 或在指令碼中呼叫 `files.batchRename`.
 
@@ -81,8 +84,8 @@ Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參�
 
 - 多選: 選取若干檔案或資料夾, 在選取列中點 "批次重新命名" (有多個外掛動作時位於 "更多" 中).
 - 資料夾選單: 在資料夾的選單中選擇 "批次重新命名其中的項目", 為該資料夾中的項目改名.
-- 重新命名對話方塊: 重新命名單一檔案或資料夾時, 點對話方塊右上角的 "更多" 選單, 選擇 "批次重新命名...".
-- 在外掛介面中輸入尋找與取代內容, 預覽會即時更新; 取消勾選可排除項目, 點 "重新命名" 執行, 之後可以點 "復原上一批" 恢復原名.
+- 重新命名對話方塊: 重新命名單一檔案或資料夾時, 點對話方塊右上角的 "更多" 選單, 選擇 "批次重新命名...". 同一選單末尾的 "重新命名記錄" 可檢視與復原以往的批次.
+- 在外掛介面中輸入尋找與取代內容, 預覽會即時更新; 取消勾選可排除項目, 點 "重新命名" 執行, 之後可以點 "復原上一批" 恢復原名. 頂端列 "更多選項" 選單末尾的 "重新命名記錄" 會開啟 AutoJs6 的重新命名記錄頁面.
 
 ******
 
@@ -97,6 +100,8 @@ Batch Rename 外掛程式為 AutoJs6 提供批次重新命名能力, 功能參�
 | `${}` `${start=X;increment=X;padding=X}` | 計數器: 可設定起始值, 間隔與補零位數, 只對實際重新命名的項目遞增 |
 | `$YYYY` `$YY` `$MM` `$MMM` `$DD` `$DDDD` `$hh` `$mm` `$ss` `$fff` | 檔案修改時間的年, 月, 日, 時, 分, 秒與毫秒, 也可改用目前時間 |
 | `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` | 隨機英數字串, 字母字串, 數字字串與 UUID |
+| `${pinyin}` | 原名的拼音, 樣式與 "漢字轉拼音" 的選項相同 |
+| `$CAMERA_MODEL` `$LENS` `$APERTURE` `$SHUTTER` `$ISO` `$DATE_TAKEN_YYYY` `$LATITUDE` ... | 相片的相機, 鏡頭, 曝光參數, 尺寸, 作者, 版權, GPS, 拍攝時間, 方向與色彩空間 (共 25 項, 需開啟 "中繼資料變數") |
 | `$1` `$<name>` `$&` `$$` | 正則表示式的擷取群組與整個相符結果, 寫法與 JavaScript 的 `String.prototype.replace` 相同 |
 
 ******
@@ -125,6 +130,7 @@ if (!plan.rejected) {
 - `files.batchRename.plan(paths, options)` 只計算不改名, 傳回每一項的新名稱與狀態; 把 `items[i].excluded` 設為 `true` 後再交給 `apply` 執行.
 - `files.batchRename(paths, options)` 一步完成; `files.batchRename.undo(result)` 復原該批次, `files.batchRename.history()` 列出最近的批次 (包括檔案管理器中的批次).
 - 規則運算式與腳本中的 `RegExp` 一致, 可以直接傳入 `RegExp` 物件. 另有 `planAsync` / `applyAsync` / `undoAsync` 非同步形態; 失敗時擲出帶有 `code` 的 `BatchRenameError`.
+- `files.batchRename.preview(name, options)` 不存取檔案即可試算新名稱; `presets()` 與 `importPresets(json)` 讀取和匯入命名預設, 選項中的 `preset` 引用預設; `deleteHistory` 與 `clearHistory` 清除記錄中的批次; 中繼資料變數需要 `metadata: true`.
 
 ******
 
@@ -132,7 +138,7 @@ if (!plan.rejected) {
 
 ******
 
-- 需要 AutoJs6 6.8.0 (組建 5438) 或更新版本, 以及 Android 7.0 (API 24) 或更新版本.
+- 需要 AutoJs6 6.8.0 (組建 5455) 或更新版本, 以及 Android 7.0 (API 24) 或更新版本.
 - SD 卡或隨身碟等 FAT32 / exFAT 儲存空間不區分大小寫, 也不允許 `: * ? " < > |` 與反斜線等字元; 含這些字元的新名稱會被標為不可用, 開啟 "取代不允許的字元" 可以自動取代.
 - 一個批次最多 2000 個項目; 腳本中指定的資料夾之下最多 32 層.
 
@@ -152,7 +158,7 @@ if (!plan.rejected) {
 
 #### 和 PowerRename 有什麼不同?
 
-日期變數使用檔案修改時間 (Android 上的建立時間並不可靠), 另外增加了 Unicode 正規化, 全形轉半形, 不允許字元的取代與可復原的批次記錄. 相片 EXIF 變數預計在 1.1.0 提供.
+日期變數使用檔案修改時間 (Android 上的建立時間並不可靠), 另外增加了漢字轉拼音, 命名預設, Unicode 正規化, 全形轉半形, 不允許字元的取代與可復原的批次記錄. PowerRename 的 25 個相片中繼資料變數均已支援.
 
 #### 規則運算式的寫法和 JavaScript 一樣嗎?
 
@@ -161,6 +167,10 @@ if (!plan.rejected) {
 #### 為什麼計數器沒有遞增?
 
 需要先開啟 "計數器" 選項 (腳本中為 `enumerate: true`), 否則 `${}` 會原樣保留. 計數器只為新名稱有變化的項目計數, 名稱不變或被排除的項目不占用編號.
+
+#### 為什麼中繼資料變數展開為空?
+
+需要先開啟 "範圍與格式" 中的 "中繼資料變數" (腳本中為 `metadata: true`). 相片中沒有記錄的資訊會展開為空, 該列標為 "缺少中繼資料": 例如部分 RAW 檔案不記錄 ISO, 社群應用程式儲存的圖片沒有 EXIF. 拍攝時間缺失時改用檔案修改時間.
 
 #### 為什麼重新命名對話方塊中看不到批次重新命名?
 
@@ -195,7 +205,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5438
+minimum host build: 5455
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -214,6 +224,19 @@ native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ### 發行歷史
 
 ******
+
+#### v1.1.0
+
+_2026/10/16_
+
+- `提示` 需要 AutoJs6 6.8.0 (5455) 或更新版本
+- `新增` 漢字轉拼音: "名稱清理" 中的 "漢字轉拼音" 與取代變數 `${pinyin}`, 可選聲調, 音節分隔, 大小寫與只取首字母, 破音字按詞組判斷
+- `新增` 相片中繼資料變數: 用拍攝時間, 相機, 鏡頭, 光圈, 快門, 感光度, GPS 等 25 項資訊命名相片, 缺少中繼資料的列會標出 (在 "範圍與格式" 中開啟 "中繼資料變數")
+- `新增` 命名預設: 把目前選項儲存為預設並一點載入, 可重新命名, 刪除, 透過檔案或剪貼簿匯入匯出 (入口: 頂端列 "預設" 按鈕)
+- `新增` 重新命名記錄: 在 AutoJs6 中檢視, 搜尋, 復原或刪除檔案管理器與腳本的重新命名批次, 並設定保留的批數 (入口: 頂端列 "更多選項" > "重新命名記錄")
+- `新增` 為 AutoJs6 的 files.batchRename 腳本 API 提供漢字轉拼音, 相片中繼資料, 命名預設與不存取檔案的名稱試算
+- `優化` 新的外掛圖示
+- `優化` 頂端列 "更多選項" 選單中的 "清除記錄" 改為 "清除最近使用", 以免與 "重新命名記錄" 混淆
 
 #### v1.0.0
 

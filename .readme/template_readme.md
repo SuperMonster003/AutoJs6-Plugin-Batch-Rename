@@ -78,6 +78,8 @@
 | `${}` `${start=X;increment=X;padding=X}` | {{ td_variable_counter }} |
 | `$YYYY` `$YY` `$MM` `$MMM` `$DD` `$DDDD` `$hh` `$mm` `$ss` `$fff` | {{ td_variable_date }} |
 | `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` | {{ td_variable_random }} |
+| `${pinyin}` | {{ td_variable_pinyin }} |
+| `$CAMERA_MODEL` `$LENS` `$APERTURE` `$SHUTTER` `$ISO` `$DATE_TAKEN_YYYY` `$LATITUDE` ... | {{ td_variable_metadata }} |
 | `$1` `$<name>` `$&` `$$` | {{ td_variable_regex }} |
 
 ******

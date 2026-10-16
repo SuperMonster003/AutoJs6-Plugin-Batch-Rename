@@ -42,7 +42,7 @@ El README.md actual admite los siguientes idiomas:
 
 ******
 
-El plugin Batch Rename añade el cambio de nombre por lotes a AutoJs6, inspirado en [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename) de PowerToys. Cambia el nombre de muchos archivos y carpetas a la vez con buscar y reemplazar, expresiones regulares, contadores, variables de fecha y cadenas aleatorias, muestra una vista previa completa antes de cambiar nada y permite deshacer después.
+El plugin Batch Rename añade el cambio de nombre por lotes a AutoJs6, inspirado en [PowerRename](https://learn.microsoft.com/windows/powertoys/powerrename) de PowerToys. Cambia el nombre de muchos archivos y carpetas a la vez con buscar y reemplazar, expresiones regulares, contadores, variables de fecha, cadenas aleatorias, metadatos de fotos y pinyin para caracteres chinos, muestra una vista previa completa antes de cambiar nada y permite deshacer después.
 
 El plugin es un APK que se instala por separado y no tiene icono en el lanzador. Ofrece dos puntos de entrada: "Cambiar nombre por lotes" en la barra de selección múltiple, el menú de carpetas y el diálogo de cambio de nombre del administrador de archivos, y `files.batchRename` en los scripts. El plugin solo calcula los nombres nuevos; AutoJs6 realiza los cambios de nombre, las comprobaciones de conflictos y el historial para deshacer, por lo que el plugin no necesita permiso de almacenamiento.
 
@@ -54,9 +54,12 @@ El plugin es un APK que se instala por separado y no tiene icono en el lanzador.
 
 - Buscar y reemplazar: texto sin formato o expresiones regulares de JavaScript, todas las coincidencias o solo la primera, con o sin distinción de mayúsculas, aplicado al nombre, a la extensión o a ambos.
 - Variables: contadores (`${start=1;increment=1;padding=3}`), variables de fecha a partir de la hora de modificación o de la hora actual (`$YYYY`, `$MM`, `$DD` y más) y cadenas aleatorias, con la misma sintaxis que PowerRename.
+- Pinyin: "Caracteres chinos a pinyin" en "Limpieza del nombre" convierte los caracteres chinos del nuevo nombre en pinyin, y la variable `${pinyin}` inserta el pinyin del nombre original; los tonos, el separador de sílabas, las mayúsculas y solo las iniciales son opcionales, y los caracteres con varias lecturas se resuelven por palabras.
+- Metadatos de fotos: con "Variables de metadatos" activado en "Ámbito y formato", se puede nombrar fotos por fecha de captura, cámara, objetivo, apertura, velocidad de obturación, ISO, GPS y más, 25 valores en total (`$DATE_TAKEN_YYYY`, `$CAMERA_MODEL`, etc.); las filas sin metadatos se marcan.
+- Preajustes con nombre: el botón "Preajustes" de la barra superior guarda las opciones actuales como preajuste y lo carga con un toque; los preajustes se pueden renombrar, eliminar, importar y exportar con archivos o el portapapeles, y también usarse desde scripts.
 - Limpieza de nombres: cambio de mayúsculas y minúsculas, normalización Unicode, paso de ancho completo a medio ancho, reemplazo de caracteres no permitidos, recorte de espacios en los extremos y numeración que continúa los nombres existentes.
 - Vista previa antes de renombrar: nombres antiguos y nuevos lado a lado, desmarque elementos para excluirlos o muestre solo los que cambian; si un nombre nuevo ya existe, puede rechazar, omitir, añadir un número o reemplazar el elemento existente.
-- Deshacer: AutoJs6 guarda los últimos 20 lotes de renombrado, que se pueden deshacer desde el gestor de archivos y desde scripts; antes de deshacer se comprueba si un archivo volvió a cambiar.
+- Deshacer: AutoJs6 guarda los últimos 20 lotes de renombrado de los scripts y de cada plugin (o 50 o 100), que se pueden deshacer desde el gestor de archivos y desde scripts, o ver, deshacer y eliminar en la página "Historial de cambios de nombre" de AutoJs6; antes de deshacer se comprueba si un archivo volvió a cambiar.
 - La pantalla sigue el color del tema, el modo oscuro y el idioma de AutoJs6, y puede recordar las últimas opciones y los textos de búsqueda y reemplazo recientes.
 
 ******
@@ -65,7 +68,7 @@ El plugin es un APK que se instala por separado y no tiene icono en el lanzador.
 
 ******
 
-1. Actualice AutoJs6 a la compilación 5438 (6.8.0) o posterior.
+1. Actualice AutoJs6 a la compilación 5455 (6.8.0) o posterior.
 2. Instale Batch Rename desde el centro de plugins de AutoJs6, o descargue el APK desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Batch-Rename/releases), y luego autorícelo y actívelo en el centro de plugins.
 3. En el administrador de archivos, mantenga pulsado para seleccionar elementos y toque "Cambiar nombre por lotes", o llame a `files.batchRename` en un script.
 
@@ -81,8 +84,8 @@ Con el plugin instalado y activado, el gestor de archivos de AutoJs6 ofrece tres
 
 - Selección múltiple: seleccione archivos o carpetas y toque "Renombrar por lotes" en la barra de selección (dentro de "Más" si hay varias acciones de plugins).
 - Menú de carpeta: elija "Renombrar por lotes los elementos del interior" en el menú de una carpeta para renombrar su contenido.
-- Diálogo de renombrar: al renombrar un solo archivo o carpeta, abra el menú "Más" en la esquina superior derecha del diálogo y elija "Renombrar por lotes...".
-- Escriba qué buscar y reemplazar en la pantalla del plugin y la vista previa se actualiza al instante; desmarque elementos para excluirlos, toque "Renombrar" y luego "Deshacer el último lote" para recuperar los nombres anteriores.
+- Diálogo de renombrar: al renombrar un solo archivo o carpeta, abra el menú "Más" en la esquina superior derecha del diálogo y elija "Renombrar por lotes...". "Historial de cambios de nombre", al final del mismo menú, muestra los lotes anteriores y permite deshacerlos.
+- Escriba qué buscar y reemplazar en la pantalla del plugin y la vista previa se actualiza al instante; desmarque elementos para excluirlos, toque "Renombrar" y luego "Deshacer el último lote" para recuperar los nombres anteriores. "Historial de cambios de nombre", al final del menú "Más opciones" de la barra superior, abre la página del historial de AutoJs6.
 
 ******
 
@@ -97,6 +100,8 @@ El texto de reemplazo puede contener las siguientes variables:
 | `${}` `${start=X;increment=X;padding=X}` | Contador con valor inicial, incremento y relleno con ceros; solo avanza para los elementos que cambian de nombre |
 | `$YYYY` `$YY` `$MM` `$MMM` `$DD` `$DDDD` `$hh` `$mm` `$ss` `$fff` | Año, mes, día, hora, minuto, segundo y milisegundo de la fecha de modificación, o de la hora actual |
 | `${rstringalnum=N}` `${rstringalpha=N}` `${rstringdigit=N}` `${ruuidv4}` | Cadenas aleatorias alfanuméricas, de letras o de dígitos y UUID |
+| `${pinyin}` | El pinyin del nombre original, con el estilo de las opciones de "Caracteres chinos a pinyin" |
+| `$CAMERA_MODEL` `$LENS` `$APERTURE` `$SHUTTER` `$ISO` `$DATE_TAKEN_YYYY` `$LATITUDE` ... | Cámara, objetivo, exposición, tamaño, autor, copyright, GPS, fecha de captura, orientación y espacio de color de una foto (25 valores; requiere "Variables de metadatos") |
 | `$1` `$<name>` `$&` `$$` | Grupos de captura y coincidencia completa, como en `String.prototype.replace` de JavaScript |
 
 ******
@@ -125,6 +130,7 @@ if (!plan.rejected) {
 - `files.batchRename.plan(paths, options)` calcula sin renombrar y devuelve el nombre nuevo y el estado de cada elemento; ponga `items[i].excluded` a `true` y pase el plan a `apply`.
 - `files.batchRename(paths, options)` lo hace todo en un paso; `files.batchRename.undo(result)` deshace el lote y `files.batchRename.history()` enumera los lotes recientes (incluidos los del gestor de archivos).
 - Las expresiones regulares se comportan como `RegExp` en los scripts y se puede pasar un objeto `RegExp` directamente. `planAsync` / `applyAsync` / `undoAsync` son las formas asíncronas; los fallos lanzan un `BatchRenameError` con un `code`.
+- `files.batchRename.preview(name, options)` calcula un nombre nuevo sin archivos; `presets()` e `importPresets(json)` enumeran e importan preajustes, y `preset` en las opciones usa uno; `deleteHistory` y `clearHistory` eliminan lotes del historial; las variables de metadatos requieren `metadata: true`.
 
 ******
 
@@ -132,7 +138,7 @@ if (!plan.rejected) {
 
 ******
 
-- Requiere AutoJs6 6.8.0 (compilación 5438) o posterior y Android 7.0 (API 24) o posterior.
+- Requiere AutoJs6 6.8.0 (compilación 5455) o posterior y Android 7.0 (API 24) o posterior.
 - Los almacenamientos FAT32 / exFAT, como tarjetas SD y memorias USB, no distinguen mayúsculas y no admiten `: * ? " < > |`, la barra invertida y caracteres similares; los nombres nuevos que los contienen se marcan como no utilizables y "Reemplazar los caracteres no permitidos" los reemplaza automáticamente.
 - Un lote admite como máximo 2000 elementos; los scripts llegan como máximo a 32 niveles por debajo de las carpetas indicadas.
 
@@ -152,7 +158,7 @@ No. El plugin solo calcula nombres nuevos a partir de los nombres de archivo; Au
 
 #### En qué se diferencia de PowerRename?
 
-Las variables de fecha usan la hora de modificación (la hora de creación no es fiable en Android) y se añaden normalización Unicode, conversión de ancho completo a medio ancho, reemplazo de caracteres no permitidos y lotes que se pueden deshacer. Las variables EXIF de fotos están previstas para la 1.1.0.
+Las variables de fecha usan la hora de modificación (la hora de creación no es fiable en Android) y se añaden pinyin para caracteres chinos, preajustes con nombre, normalización Unicode, conversión de ancho completo a medio ancho, reemplazo de caracteres no permitidos y lotes que se pueden deshacer. Se admiten las 25 variables de metadatos de fotos de PowerRename.
 
 #### Las expresiones regulares se escriben como en JavaScript?
 
@@ -161,6 +167,10 @@ Sí. El plugin usa el mismo motor de expresiones regulares Rhino que los scripts
 #### Por qué no aumenta el contador?
 
 Active primero la opción "Contador" (`enumerate: true` en scripts); de lo contrario `${}` se queda tal cual. El contador solo cuenta los elementos cuyo nombre cambia; los elementos sin cambios o excluidos no ocupan número.
+
+#### Por qué las variables de metadatos quedan vacías?
+
+Primero active "Variables de metadatos" en "Ámbito y formato" (`metadata: true` en scripts). Los valores que la foto no registra quedan vacíos y la fila se marca con "faltan metadatos": por ejemplo, algunos archivos RAW no registran el ISO y las imágenes guardadas por apps sociales no tienen EXIF. Si falta la fecha de captura, se usa la hora de modificación.
 
 #### Por qué no aparece el renombrado por lotes en el diálogo de renombrar?
 
@@ -195,7 +205,7 @@ info service: org.autojs.plugin.INFO (category batch-rename)
 capability service: org.autojs.plugin.BATCH_RENAME (category batch-rename)
 file manager service: org.autojs.plugin.EXPLORER_ACTION
 wake action: org.autojs.plugin.action.WAKE
-minimum host build: 5438
+minimum host build: 5455
 native library: libandroidx.graphics.path.so (Jetpack Compose, all ABIs)
 ```
 
@@ -214,6 +224,19 @@ Los planes, las decisiones de diseño y el progreso se registran como lista de v
 ### Historial De Versiones
 
 ******
+
+#### v1.1.0
+
+_2026/10/16_
+
+- `Aviso` Requiere AutoJs6 6.8.0 (5455) o posterior
+- `Función` Pinyin: "Caracteres chinos a pinyin" en "Limpieza del nombre" y la variable `${pinyin}`, con tonos, separador de sílabas, mayúsculas y solo iniciales opcionales; los caracteres con varias lecturas se resuelven por palabras
+- `Función` Variables de metadatos de fotos: nombrar fotos por fecha de captura, cámara, objetivo, apertura, velocidad de obturación, ISO, GPS y más, 25 valores en total; las filas sin metadatos se marcan (active "Variables de metadatos" en "Ámbito y formato")
+- `Función` Preajustes con nombre: guardar las opciones actuales como preajuste y cargarlo con un toque, renombrar, eliminar, importar y exportar preajustes con archivos o el portapapeles (acceso: botón "Preajustes" de la barra superior)
+- `Función` Historial de cambios de nombre: ver, buscar, deshacer o eliminar en AutoJs6 los lotes del gestor de archivos y de los scripts, y fijar cuántos lotes se guardan (acceso: "Más opciones" de la barra superior > "Historial de cambios de nombre")
+- `Función` Pinyin, metadatos de fotos, preajustes con nombre y cálculo de nombres sin archivos para la API de scripts files.batchRename de AutoJs6
+- `Mejora` Nuevo icono del plugin
+- `Mejora` "Borrar el historial" del menú "Más opciones" de la barra superior pasa a llamarse "Borrar usados recientemente" para no confundirlo con "Historial de cambios de nombre"
 
 #### v1.0.0
 

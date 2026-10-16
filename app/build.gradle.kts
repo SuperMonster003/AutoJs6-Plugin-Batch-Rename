@@ -18,12 +18,14 @@ plugins {
 
 val globalApplicationId = "io.github.supermonster003.autojs6.plugin.batch.rename"
 
-// Minimum host build (roadmap D26): 5438 is the first host build with every host change the plugin needs, from the
-// batch-rename contract to the files.batchRename script API (host commit 852afb776, VERSION_BUILD 3786 + 1652);
-// keep it in sync with BatchRenamePlugin.REQUIRED_HOST_VERSION and .readme/common.json.
-// zh-CN: 最低宿主构建号 (路线图 D26): 5438 是首个包含插件所需全部宿主改动 (从 batch-rename 契约到 files.batchRename 脚本 API)
-// 的宿主构建号 (宿主提交 852afb776, VERSION_BUILD 3786 + 1652); 与 BatchRenamePlugin.REQUIRED_HOST_VERSION 及 .readme/common.json 保持一致.
-val requiredHostVersion = 5438
+// Minimum host build (roadmap D26, D52): 5455 is the first host build with every host change 1.1.0 needs, from the
+// batch-rename contract to the photo metadata, the rename history page and its guidance fix (host commit dbf16a347,
+// VERSION_BUILD 3803 + 1652); 1.0.0 required 5438. Keep it in sync with BatchRenamePlugin.REQUIRED_HOST_VERSION and
+// .readme/common.json.
+// zh-CN: 最低宿主构建号 (路线图 D26, D52): 5455 是首个包含 1.1.0 所需全部宿主改动 (从 batch-rename 契约到照片元数据, 重命名历史
+// 页面及其引导修复) 的宿主构建号 (宿主提交 dbf16a347, VERSION_BUILD 3803 + 1652); 1.0.0 要求 5438. 与
+// BatchRenamePlugin.REQUIRED_HOST_VERSION 及 .readme/common.json 保持一致.
+val requiredHostVersion = 5455
 
 val buildTypeDebug = "debug"
 val buildTypeRelease = "release"

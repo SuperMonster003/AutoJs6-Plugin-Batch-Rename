@@ -21,14 +21,17 @@
   "h3_license": "Licence",
   "h3_links": "Liens",
   "text_link_autojs6": "Projet AutoJs6",
-  "p_introduction_what": "Le plugin Batch Rename ajoute le renommage par lot à AutoJs6, sur le modèle de [PowerRename]({{ powerrename_url }}) de PowerToys. Il renomme en une fois de nombreux fichiers et dossiers avec rechercher-remplacer, expressions régulières, compteurs, variables de date et chaînes aléatoires, affiche un aperçu complet avant toute modification et permet d'annuler ensuite.",
+  "p_introduction_what": "Le plugin Batch Rename ajoute le renommage par lot à AutoJs6, sur le modèle de [PowerRename]({{ powerrename_url }}) de PowerToys. Il renomme en une fois de nombreux fichiers et dossiers avec rechercher-remplacer, expressions régulières, compteurs, variables de date, chaînes aléatoires, métadonnées des photos et pinyin pour les caractères chinois, affiche un aperçu complet avant toute modification et permet d'annuler ensuite.",
   "p_introduction_how": "Le plugin est un APK installé séparément, sans icône de lanceur. Il offre deux points d'entrée: \"Renommer par lot\" dans la barre de sélection multiple, le menu des dossiers et la boîte de dialogue de renommage du gestionnaire de fichiers, et `files.batchRename` dans les scripts. Le plugin calcule seulement les nouveaux noms; AutoJs6 effectue les renommages, les contrôles de conflits et l'historique d'annulation, le plugin n'a donc besoin d'aucune autorisation de stockage.",
   "features": [
     "Rechercher et remplacer: texte brut ou expressions régulières JavaScript, toutes les occurrences ou seulement la première, avec ou sans respect de la casse, appliqué au nom, à l'extension ou aux deux.",
     "Variables: compteurs (`${start=1;increment=1;padding=3}`), variables de date tirées de la date de modification ou de l'heure actuelle (`$YYYY`, `$MM`, `$DD`, etc.) et chaînes aléatoires, avec la même syntaxe que PowerRename.",
+    "Pinyin: \"Caractères chinois en pinyin\" dans \"Nettoyage du nom\" convertit les caractères chinois du nouveau nom en pinyin, et la variable `${pinyin}` insère le pinyin du nom d'origine; tons, séparateur de syllabes, casse et initiales seules sont au choix, et les caractères à plusieurs lectures sont résolus d'après les mots.",
+    "Métadonnées des photos: avec \"Variables de métadonnées\" activé dans \"Portée et format\", les photos peuvent être nommées d'après la date de prise de vue, l'appareil, l'objectif, l'ouverture, la vitesse d'obturation, la sensibilité ISO, le GPS et plus, 25 valeurs en tout (`$DATE_TAKEN_YYYY`, `$CAMERA_MODEL`, etc.); les lignes sans métadonnées sont signalées.",
+    "Préréglages nommés: le bouton \"Préréglages\" de la barre supérieure enregistre les options actuelles comme préréglage et le charge d'un appui; les préréglages se renomment, se suppriment, s'importent et s'exportent par fichier ou presse-papiers, et les scripts peuvent aussi les utiliser.",
     "Nettoyage des noms: changement de casse, normalisation Unicode, conversion de la pleine chasse en demi-chasse, remplacement des caractères interdits, suppression des espaces aux extrémités et numérotation qui prolonge les noms existants.",
     "Aperçu avant de renommer: anciens et nouveaux noms côte à côte, décochez des éléments pour les exclure ou n'affichez que ceux qui changent; si un nouveau nom est pris, refuser, ignorer, ajouter un numéro ou remplacer l'élément existant.",
-    "Annulation: AutoJs6 conserve les 20 derniers lots de renommage, annulables depuis le gestionnaire de fichiers comme depuis les scripts; l'annulation vérifie d'abord qu'un fichier n'a pas été modifié entre-temps.",
+    "Annulation: AutoJs6 conserve les 20 derniers lots de renommage des scripts et de chaque plugin (ou 50 ou 100), annulables depuis le gestionnaire de fichiers comme depuis les scripts, ou consultables, annulables et supprimables sur la page \"Historique des renommages\" d'AutoJs6; l'annulation vérifie d'abord qu'un fichier n'a pas été modifié entre-temps.",
     "L'écran suit la couleur du thème, le mode sombre et la langue d'AutoJs6, et peut mémoriser les dernières options ainsi que les textes de recherche et de remplacement récents."
   ],
   "usage_steps": [
@@ -42,8 +45,8 @@
   "file_manager_points": [
     "Sélection multiple: sélectionnez des fichiers ou des dossiers et appuyez sur \"Renommer par lot\" dans la barre de sélection (sous \"Plus\" si plusieurs actions de plugins sont disponibles).",
     "Menu d'un dossier: choisissez \"Renommer par lot les éléments du dossier\" dans le menu d'un dossier pour renommer son contenu.",
-    "Boîte de dialogue de renommage: lorsque vous renommez un seul fichier ou dossier, ouvrez le menu \"Plus\" en haut à droite de la boîte de dialogue et choisissez \"Renommer par lot...\".",
-    "Saisissez la recherche et le remplacement sur l'écran du plugin, l'aperçu se met à jour aussitôt; décochez des éléments pour les exclure, appuyez sur \"Renommer\", puis sur \"Annuler le dernier lot\" pour rétablir les anciens noms."
+    "Boîte de dialogue de renommage: lorsque vous renommez un seul fichier ou dossier, ouvrez le menu \"Plus\" en haut à droite de la boîte de dialogue et choisissez \"Renommer par lot...\". \"Historique des renommages\", à la fin du même menu, affiche les lots passés et permet de les annuler.",
+    "Saisissez la recherche et le remplacement sur l'écran du plugin, l'aperçu se met à jour aussitôt; décochez des éléments pour les exclure, appuyez sur \"Renommer\", puis sur \"Annuler le dernier lot\" pour rétablir les anciens noms. \"Historique des renommages\", à la fin du menu \"Plus d'options\" de la barre supérieure, ouvre la page d'historique d'AutoJs6."
   ],
   "h3_variables": "Variables de remplacement",
   "p_variables_intro": "Le texte de remplacement peut contenir les variables suivantes",
@@ -52,12 +55,15 @@
   "td_variable_counter": "Compteur avec valeur de départ, pas et remplissage par des zéros; il n'avance que pour les éléments renommés",
   "td_variable_date": "Année, mois, jour, heure, minute, seconde et milliseconde de la date de modification, ou de l'heure actuelle",
   "td_variable_random": "Chaînes aléatoires alphanumériques, alphabétiques ou numériques et UUID",
+  "td_variable_pinyin": "Le pinyin du nom d'origine, dans le style des options \"Caractères chinois en pinyin\"",
+  "td_variable_metadata": "Appareil, objectif, exposition, taille, auteur, copyright, GPS, date de prise de vue, orientation et espace colorimétrique d'une photo (25 valeurs; nécessite \"Variables de métadonnées\")",
   "td_variable_regex": "Groupes de capture et correspondance complète, comme dans `String.prototype.replace` de JavaScript",
   "p_script_api_intro": "Les scripts utilisent le même moteur via `files.batchRename` d'AutoJs6; consultez la [documentation d'AutoJs6]({{ docs_batch_rename_url }}) pour la référence complète",
   "api_points": [
     "`files.batchRename.plan(paths, options)` calcule sans renommer et renvoie le nouveau nom et l'état de chaque élément; mettez `items[i].excluded` à `true` puis passez le plan à `apply`.",
     "`files.batchRename(paths, options)` fait tout en une étape; `files.batchRename.undo(result)` annule le lot et `files.batchRename.history()` liste les lots récents (y compris ceux du gestionnaire de fichiers).",
-    "Les expressions régulières se comportent comme `RegExp` dans les scripts, et un objet `RegExp` peut être passé directement. `planAsync` / `applyAsync` / `undoAsync` sont les formes asynchrones; les échecs lèvent une `BatchRenameError` avec un `code`."
+    "Les expressions régulières se comportent comme `RegExp` dans les scripts, et un objet `RegExp` peut être passé directement. `planAsync` / `applyAsync` / `undoAsync` sont les formes asynchrones; les échecs lèvent une `BatchRenameError` avec un `code`.",
+    "`files.batchRename.preview(name, options)` calcule un nouveau nom sans fichier; `presets()` et `importPresets(json)` listent et importent les préréglages, et `preset` dans les options en utilise un; `deleteHistory` et `clearHistory` suppriment des lots de l'historique; les variables de métadonnées nécessitent `metadata: true`."
   ],
   "h3_compatibility": "Compatibilité",
   "compatibility_points": [
@@ -76,7 +82,7 @@
     },
     {
       "q": "En quoi diffère-t-il de PowerRename?",
-      "a": "Les variables de date utilisent la date de modification (la date de création n'est pas fiable sur Android), et s'y ajoutent la normalisation Unicode, la conversion de la pleine chasse en demi-chasse, le remplacement des caractères interdits et des lots annulables. Les variables EXIF des photos sont prévues pour la 1.1.0."
+      "a": "Les variables de date utilisent la date de modification (la date de création n'est pas fiable sur Android), et s'y ajoutent le pinyin pour les caractères chinois, les préréglages nommés, la normalisation Unicode, la conversion de la pleine chasse en demi-chasse, le remplacement des caractères interdits et des lots annulables. Les 25 variables de métadonnées des photos de PowerRename sont prises en charge."
     },
     {
       "q": "Les expressions régulières s'écrivent-elles comme en JavaScript?",
@@ -85,6 +91,10 @@
     {
       "q": "Pourquoi le compteur n'augmente-t-il pas?",
       "a": "Activez d'abord l'option \"Compteur\" (`enumerate: true` dans les scripts), sinon `${}` reste tel quel. Le compteur ne compte que les éléments dont le nom change; les éléments inchangés ou exclus ne prennent pas de numéro."
+    },
+    {
+      "q": "Pourquoi les variables de métadonnées sont-elles vides?",
+      "a": "Activez d'abord \"Variables de métadonnées\" dans \"Portée et format\" (`metadata: true` dans les scripts). Les valeurs que la photo n'enregistre pas restent vides et la ligne est signalée par \"métadonnées manquantes\": certains fichiers RAW n'enregistrent pas la sensibilité ISO, par exemple, et les images enregistrées par les applications sociales n'ont pas d'EXIF. Sans date de prise de vue, la date de modification est utilisée."
     },
     {
       "q": "Pourquoi le renommage par lot n'apparaît-il pas dans la boîte de dialogue de renommage?",

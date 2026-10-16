@@ -27,13 +27,13 @@ internal object BatchRenamePlugin {
     const val CAPABILITY_DESCRIPTOR = IBatchRenamePlugin.DESCRIPTOR
 
     /**
-     * Minimum host build (roadmap D26): the first build with every host change the plugin needs, from the contract
-     * and protocol v25 to the `files.batchRename` script API. Mirrored by `plugin_requires_host_version` in
-     * `app/build.gradle.kts`.
-     * zh-CN: 最低宿主构建号 (路线图 D26): 首个包含插件所需全部宿主改动 (从契约与协议 v25 到 `files.batchRename` 脚本 API) 的
-     * 宿主构建号. 与 `app/build.gradle.kts` 中的 `plugin_requires_host_version` 一致.
+     * Minimum host build (roadmap D26, D52): the first build with every host change the plugin needs, from the contract
+     * and protocol v25 to the photo metadata (v26) and the rename history page. Mirrored by
+     * `plugin_requires_host_version` in `app/build.gradle.kts`.
+     * zh-CN: 最低宿主构建号 (路线图 D26, D52): 首个包含插件所需全部宿主改动 (从契约与协议 v25 到照片元数据 (v26) 与重命名历史页面)
+     * 的宿主构建号. 与 `app/build.gradle.kts` 中的 `plugin_requires_host_version` 一致.
      */
-    const val REQUIRED_HOST_VERSION = 5438L
+    const val REQUIRED_HOST_VERSION = 5455L
 
     /**
      * Optional contract features this build implements: the engine of roadmap P2 covers counters, date and time

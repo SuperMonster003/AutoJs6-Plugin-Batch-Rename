@@ -5,10 +5,27 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
-    "v1.0.0": {
+    "v1.1.0": {
       "released_date": "2026/10/16",
       "hint": [
         "Requires AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) or later"
+      ],
+      "feature": [
+        "Chinese to pinyin: \"Chinese characters to pinyin\" under \"Name cleanup\" and the `${pinyin}` variable, with optional tones, syllable separators, capitalization and initials only; polyphonic characters follow their words",
+        "Photo metadata variables: name photos by the date taken, camera, lens, aperture, shutter speed, ISO, GPS and more, 25 values in all; rows without metadata are marked (turn on \"Metadata variables\" under \"Scope and format\")",
+        "Named presets: save the current options as a preset and load it with one tap, rename, delete, import and export presets through files or the clipboard (entry: \"Presets\" button in the top bar)",
+        "Rename history: view, search, undo or delete the rename batches of the file manager and of scripts in AutoJs6, and set how many batches are kept (entry: \"More options\" in the top bar > \"Rename history\")",
+        "Chinese to pinyin, photo metadata, named presets and name previews without files for the files.batchRename script API of AutoJs6"
+      ],
+      "improvement": [
+        "New plugin icon",
+        "\"Clear history\" in the \"More options\" menu of the top bar is now \"Clear recently used\", so it is not mistaken for \"Rename history\""
+      ]
+    },
+    "v1.0.0": {
+      "released_date": "2026/10/16",
+      "hint": [
+        "Requires AutoJs6 6.8.0 (5438) or later"
       ],
       "feature": [
         "Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu \"Batch rename items inside\"/\"More\" menu of the rename dialog)",
