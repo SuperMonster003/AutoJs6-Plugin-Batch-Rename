@@ -502,7 +502,7 @@ P0 (骨架)
 ### P6.7 图标, 文档与 1.1.0 发布 (D41)
 
 - [ ] (插件) 新图标: 按 "两行文本行与一个替换箭头" 设计亮 / 暗两张矢量源图, 维护者确认后经 Icon Studio 生成, 同步更新索引目录图标. 已完成部分 (2026-10-16): 两轮候选 (按 Icon Studio 视觉尺寸 V = 0.52 归一化, 插件中心亮 / 暗底 48 / 64 / 96 / 160 px 对比): 第一轮三个 "空心旧名称行 + 箭头 + 实心新名称行" 方案, 维护者认为看起来奇怪 (简洁可取), 要求换思路; 第二轮改为不带箭头的隐喻, 维护者选定 "三行长短不一的文本行 + 贯穿三行的文本光标 (I 形)", 即同时编辑多行名称 (偏离主题原文: 不再有替换箭头). 矢量原稿 `.icons/source/batch-rename.svg`; 渲染为 512 px 透明源图 (`mipmap/ic_launcher.png` 与 `mipmap-night/ic_launcher.png`, 同一 alpha, 分别为 #272727 与 #D8D8D8, 并按摘要存入 `.icons/assets/`), 配方只改源图引用, 其余参数不变, `generate_icon_studio.py` 生成 7 个图像资源, `--check` 15 项一致. 未执行: 索引目录图标 (随 1.1.0 发布登记索引时更新), 真机插件中心与系统应用信息页的目视检查.
-- [ ] (文档) 文档, d.ts, 离线文档, Ace 同步 (新选项, 变量, `preview`, 预设, 历史清理).
+- [x] (文档) 文档, d.ts, 离线文档, Ace 同步 (新选项, 变量, `preview`, 预设, 历史清理). 证据 (2026-10-16, 均未推送): 文档仓库 `989d08a` (`api/files.md`: `preview` 两个重载, `deleteHistory`, `clearHistory`, `presets`, `importPresets` 及异步形态, 拼音 / `metadata` / `preset` 选项, `${pinyin}` 与 25 个元数据变量, 方案条目 `metadataMissing`, `history()` 省略 limit 返回全部, 错误代码补充; 6.8.0 的 files.batchRename 条目在 10 种语言中合并更新) 与 `fa3fb08` (计数 121); 离线文档插件 `f99c84d` (构建 149); 声明仓库 `aa2dfb3` (4.42.0, `Options` 改为 `search` 与 `preset` 二选一的联合类型, 冒烟用例扩充, `verify-api-coverage` 诊断 0); 宿主 `bd75aa240` (补全索引源); Ace 编辑器插件 `5ddc74f` (2.4.0, 构建 279, 推送前检查 6/6). 文档示例的输出在只读 `AVD_API_33` 上以宿主 debug 与插件 debug 实测 (试算, 拼音三种声调, `20090210_NIKON D90.NEF`, 预设导入的拒绝条目, 历史删除).
 - [ ] (发布) 10 种语言 README 与 changelog, 兼容矩阵冒烟 (含 OnePlus), R1-R6 (最低宿主版本按宿主最终提交回填).
 
 ---
