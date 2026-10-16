@@ -42,6 +42,7 @@ jobs:
         run: |
           python .python/check_repository.py
           python .python/generate_markdown.py --check
+          python .python/generate_pinyin_dictionary.py --check
 
       - name: Run unit tests, assemble APKs and lint
         run: |

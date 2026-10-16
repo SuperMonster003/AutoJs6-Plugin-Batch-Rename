@@ -1,0 +1,7 @@
+# Corrections of this repository to third_party/phrase-pinyin-data/pinyin.txt (MPL-2.0).
+# One entry per line, in the upstream format "<phrase>: <syllables separated by spaces>"; a single character changes
+# its default reading. Entries here always reach the APK and take precedence over the upstream data.
+照片: zhào piàn
+相片: xiàng piàn
+影片: yǐng piàn
+还款: huán kuǎn
