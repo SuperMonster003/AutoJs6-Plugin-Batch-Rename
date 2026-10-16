@@ -58,15 +58,24 @@ def version_code(serial: str, package: str) -> str:
 
 def run_tests(serial: str, test_class: str) -> tuple[bool, str]:
     result = adb(serial, "shell", "am", "instrument", "-w", "-r", "-e", "class", test_class, RUNNER, timeout=1200)
-    output = result.stdout
+    output = result.stdout.replace("\r", "")
+    # Status -4 is a test that skipped itself (assumption), -2 a failure; only a failure's stack is reported.
+    skipped = len(re.findall(r"^INSTRUMENTATION_STATUS_CODE: -4$", output, re.MULTILINE))
     ok = re.search(r"^OK \((\d+) tests?\)", output, re.MULTILINE)
     if ok:
-        return True, f"{ok.group(1)} passed"
+        executed = int(ok.group(1)) - skipped
+        return True, f"{executed} passed" + (f", {skipped} skipped" if skipped else "")
     failures = re.search(r"Tests run: (\d+),\s+Failures: (\d+)", output)
-    first = re.search(r"INSTRUMENTATION_STATUS: stack=(.+)", output)
-    detail = f"run {failures.group(1)}, failed {failures.group(2)}" if failures else "no result"
-    if first:
-        detail += f"; {first.group(1)[:160]}"
+    detail = f"run {failures.group(1)}, failed {failures.group(2)}, skipped {skipped}" if failures else "no result"
+    stack = None
+    for line in output.splitlines():
+        if line.startswith("INSTRUMENTATION_STATUS: stack="):
+            stack = line.split("=", 1)[1]
+        elif line.startswith("INSTRUMENTATION_STATUS_CODE: "):
+            if line.endswith(" -2") and stack:
+                detail += f"; {stack[:160]}"
+                break
+            stack = None
     return False, detail
 
 

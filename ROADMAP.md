@@ -247,7 +247,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 与真机联调已完成 2026-10-15; 剩三项失败路径) |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 已完成 (2026-10-16, v1.0.0 已发布并登记索引) |
-| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D46 定于 2026-10-16; P6.1 拼音已完成; P6.2 预设除文件选择器人工验收外已完成) |
+| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D46 定于 2026-10-16; P6.1 拼音, P6.3 脚本试算已完成; P6.2 预设除文件选择器人工验收外已完成) |
 
 依赖顺序:
 
@@ -472,8 +472,8 @@ P0 (骨架)
 
 ### P6.3 脚本单名试算 (D37)
 
-- [ ] (契约 / 宿主 / 插件) `files.batchRename.preview(nameOrItems, options)` 与 `previewAsync`: 字符串, `{ name, isDirectory, lastModified }` 或其数组; 返回 `{ newName, status, reason }` 或其数组; 数组时计数器按顺序递增, 只检查数组内重名; 不访问磁盘, `metadata` 选项被拒 (`INVALID_OPTIONS`).
-- [ ] (测试) 宿主参数解析 JVM 用例, 设备脚本用例.
+- [x] (契约 / 宿主 / 插件) `files.batchRename.preview(nameOrItems, options)` 与 `previewAsync`: 字符串, `{ name, isDirectory, lastModified }` 或其数组; 返回 `{ newName, status, reason }` 或其数组; 数组时计数器按顺序递增, 只检查数组内重名; 不访问磁盘, `metadata` 选项被拒 (`INVALID_OPTIONS`). 证据 (2026-10-16): 宿主提交 `45e535560`, 只改宿主, 契约与插件无需改动: 宿主把这些名称作为同一目录中仅有的条目 (既有名称即这些名称, 不带文件系统特征) 经现有的 `plan` 事务询问插件, 因此计数器按数组顺序递增, 冲突只来自数组本身, 不枚举也不改名任何文件; `lastModified` 接受毫秒时间戳或 `Date` (`JSON.stringify` 得到的 ISO 文本), 缺省时取调用时刻; 名称必须是 1-1024 字符且不含 `/` 的单个文件名, 至多 2000 个; 预设与其他选项同样可用; 协议文档 "Script path" 一节已补充. `metadata` 选项尚不存在, 其拒绝留待 P6.4 实现.
+- [x] (测试) 宿主参数解析 JVM 用例, 设备脚本用例. 证据: 宿主 JVM `BatchRenameScriptArgumentsTest.preview takes names, items or arrays of them` (名称, 条目, 数组, `Date` 文本, 11 种非法输入, 2001 个为 `LIMIT_EXCEEDED`), `BatchRenameScriptServiceTest.preview plans names as one directory without touching the disk`, 宿主相关 JVM 共 41 项通过; 设备 `BatchRenameScriptApiTest.scriptsPreviewNamesWithoutFiles` (Sony G8441, API 28, 2026-10-16, release 候选包 versionCode 36 与宿主 debug 5451, 由 device_smoke.py 一并运行): 单个名称, 计数器按数组顺序 (`01_a.txt`, `02_b.txt`), `includeFolders: false` 时文件夹为 `excluded`, `Date` 作 `lastModified`, 数组内重名为 `conflict`, 非法名称为 `INVALID_OPTIONS`, `previewAsync`, 磁盘内容不变. 另修正插件 `.python/device_smoke.py`: 跳过的用例 (状态 -4) 单独计数, 失败时只报告真正失败用例的堆栈 (此前会把跳过用例的 AssumptionViolatedException 当作失败原因).
 
 ### P6.4 元数据变量 (D34)
 
