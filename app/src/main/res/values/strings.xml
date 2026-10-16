@@ -63,9 +63,10 @@
     <string name="format_title">Title case</string>
     <string name="format_upper">UPPERCASE</string>
     <string name="import_rejected_entry">Entry %1$d %2$s: %3$s</string>
-    <string name="menu_clear_history">Clear history</string>
+    <string name="menu_clear_history">Clear recently used</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">Manage presets...</string>
     <string name="menu_remember_options">Remember last options</string>
+    <string name="menu_rename_history">Rename history</string>
     <string name="menu_restore_defaults">Restore default options</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">Save options as preset...</string>
     <string name="message_import_conflicts">These presets exist already: %1$s</string>

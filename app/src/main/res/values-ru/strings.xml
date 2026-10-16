@@ -63,9 +63,10 @@
     <string name="format_title">Как в заголовке</string>
     <string name="format_upper">ПРОПИСНЫЕ</string>
     <string name="import_rejected_entry">Элемент %1$d %2$s: %3$s</string>
-    <string name="menu_clear_history">Очистить историю</string>
+    <string name="menu_clear_history">Очистить недавние</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">Управление пресетами...</string>
     <string name="menu_remember_options">Запоминать последние параметры</string>
+    <string name="menu_rename_history">История переименований</string>
     <string name="menu_restore_defaults">Восстановить параметры по умолчанию</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">Сохранить параметры как пресет...</string>
     <string name="message_import_conflicts">Эти пресеты уже есть: %1$s</string>

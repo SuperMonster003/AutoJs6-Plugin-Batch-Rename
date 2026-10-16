@@ -63,9 +63,10 @@
     <string name="format_title">Casse de titre</string>
     <string name="format_upper">MAJUSCULES</string>
     <string name="import_rejected_entry">Entrée %1$d %2$s: %3$s</string>
-    <string name="menu_clear_history">Effacer l\'historique</string>
+    <string name="menu_clear_history">Effacer les éléments récemment utilisés</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">Gérer les préréglages...</string>
     <string name="menu_remember_options">Mémoriser les dernières options</string>
+    <string name="menu_rename_history">Historique des renommages</string>
     <string name="menu_restore_defaults">Rétablir les options par défaut</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">Enregistrer les options comme préréglage...</string>
     <string name="message_import_conflicts">Ces préréglages existent déjà: %1$s</string>

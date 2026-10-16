@@ -14,13 +14,14 @@ runs in its own process and needs the AIDL stubs and constants at run time.
 | --- | --- | --- | --- |
 | `common-plugin-api.aar` | `plugin-api/common-plugin-api` | `PluginInfo`, `IPluginInfoProvider`, `PluginActions`, `PluginCapabilityKeys`, `AutoJs6HostSettingsContract` | `ed7a71942ffb67255ebad8d8a2c912b01c4a3cdd8aad497baba0687b4072032a` |
 | `explorer-action-api.aar` | `plugin-api/explorer-action-api` | Explorer Action protocol v26: `IExplorerActionPlugin`, `IExplorerActionHostSession` with the rename and metadata transactions, catalog keys and values | `722cd620459e22c0a5112e57779a85575ff0211a319fdd6097aaff0c2a88ba95` |
-| `batch-rename-api.aar` | `plugin-api/batch-rename-api` | Batch Rename contract v1: `IBatchRenamePlugin`, discovery literals, request / parent / item / option / result keys, value sets, features, error codes and limits | `27fa000d137a8acb7e53e11ed7e896bf478777679be4355daef445f853453522` |
+| `batch-rename-api.aar` | `plugin-api/batch-rename-api` | Batch Rename contract v1: `IBatchRenamePlugin`, discovery literals, the host rename history action, request / parent / item / option / result keys, value sets, features, error codes and limits | `8384108eb1eb7ddbcb1e74208cbe8be7bf612d06895e8ae735c5c3cc28c9d5ff` |
 
 Provenance (2026-10-15): all were assembled with `:plugin-api:<module>:assembleRelease`.
 `common-plugin-api` comes from the host snapshot `6c151c900e` (6.8.0, versionCode 5352, roadmap P0.1)
-and last changed at host commit `aa8ebaf72e`. `batch-rename-api` comes from host commit `1e82d595d`
-(contract v1 plus the appended pinyin options of roadmap P6.1, the preset transactions, keys and feature of P6.2 and the
-photo metadata keys and feature of P6.4, restaged on 2026-10-16; first staged from `aa4fd4f6d` in P1.1); the module
+and last changed at host commit `aa8ebaf72e`. `batch-rename-api` comes from host commit `d251c1e8c`
+(contract v1 plus the appended pinyin options of roadmap P6.1, the preset transactions, keys and feature of P6.2, the
+photo metadata keys and feature of P6.4 and the rename history action `RENAME_HISTORY` of P6.5, restaged on
+2026-10-16; first staged from `aa4fd4f6d` in P1.1); the module
 depends only on `common-plugin-api`. `explorer-action-api` comes from the same host commit `1e82d595d` (protocol v26,
 roadmap P6.4: `readMetadata` appended to the session; first staged from `95c9f0455`, protocol v25, in P1.2: the
 `targetRename` catalog key, the rename dialog placement and the five rename transactions). Every earlier transaction

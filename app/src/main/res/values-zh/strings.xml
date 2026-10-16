@@ -63,9 +63,10 @@
     <string name="format_title">标题格式</string>
     <string name="format_upper">全部大写</string>
     <string name="import_rejected_entry">第 %1$d 项 %2$s: %3$s</string>
-    <string name="menu_clear_history">清除历史</string>
+    <string name="menu_clear_history">清除最近使用</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">管理预设...</string>
     <string name="menu_remember_options">记住上次选项</string>
+    <string name="menu_rename_history">重命名历史</string>
     <string name="menu_restore_defaults">恢复默认选项</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">将当前选项保存为预设...</string>
     <string name="message_import_conflicts">以下预设已存在: %1$s</string>

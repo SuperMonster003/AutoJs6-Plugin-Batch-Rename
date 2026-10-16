@@ -63,9 +63,10 @@
     <string name="format_title">حالة العنوان</string>
     <string name="format_upper">أحرف كبيرة</string>
     <string name="import_rejected_entry">العنصر %1$d %2$s: %3$s</string>
-    <string name="menu_clear_history">مسح السجل</string>
+    <string name="menu_clear_history">مسح المستخدمة مؤخرا</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">إدارة الإعدادات المسبقة...</string>
     <string name="menu_remember_options">تذكر آخر الخيارات</string>
+    <string name="menu_rename_history">سجل إعادة التسمية</string>
     <string name="menu_restore_defaults">استعادة الخيارات الافتراضية</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">حفظ الخيارات كإعداد مسبق...</string>
     <string name="message_import_conflicts">هذه الإعدادات المسبقة موجودة بالفعل: %1$s</string>

@@ -1,14 +1,15 @@
 # Host API release AARs, staged on 2026-10-15 (roadmap P0.1, P1.1 and P1.2).
 # common-plugin-api: :plugin-api:common-plugin-api:assembleRelease on host snapshot 6c151c900e (6.8.0, build 5352);
 #   module last changed at host commit aa8ebaf72e (2026-10-07).
-# batch-rename-api: :plugin-api:batch-rename-api:assembleRelease at host commit 1e82d595d (contract v1 with the pinyin
-#   options, the presets and the photo metadata, build 5452), restaged on 2026-10-16 (roadmap P6.4).
+# batch-rename-api: :plugin-api:batch-rename-api:assembleRelease at host commit d251c1e8c (contract v1 with the pinyin
+#   options, the presets, the photo metadata and the rename history action, build 5454), restaged on 2026-10-16
+#   (roadmap P6.5).
 # explorer-action-api: :plugin-api:explorer-action-api:assembleRelease at host commit 1e82d595d (protocol v26 with
 #   readMetadata, build 5452), restaged on 2026-10-16 (roadmap P6.4).
 # See libs/README.md.
 format=1
 batch-rename-api.file=batch-rename-api.aar
-batch-rename-api.sha256=27fa000d137a8acb7e53e11ed7e896bf478777679be4355daef445f853453522
+batch-rename-api.sha256=8384108eb1eb7ddbcb1e74208cbe8be7bf612d06895e8ae735c5c3cc28c9d5ff
 common-plugin-api.file=common-plugin-api.aar
 common-plugin-api.sha256=ed7a71942ffb67255ebad8d8a2c912b01c4a3cdd8aad497baba0687b4072032a
 explorer-action-api.file=explorer-action-api.aar

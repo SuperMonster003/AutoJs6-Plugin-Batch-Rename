@@ -1,10 +1,12 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename.ui
 
+import android.accessibilityservice.AccessibilityService
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
@@ -26,6 +28,7 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.BatchRenameActivity
 import io.github.supermonster003.autojs6.plugin.batch.rename.BatchRenamePlugin
 import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetStore
 import io.github.supermonster003.autojs6.plugin.batch.rename.settings.SharedPreferencesStore
+import org.autojs.plugin.common.api.AutoJs6HostSettingsContract
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
@@ -250,6 +253,37 @@ class BatchRenameScreenTest {
             compose.waitUntil(TIMEOUT) { scenario.state == Lifecycle.State.DESTROYED }
         }
         assertTrue(session.closed)
+    }
+
+    /**
+     * "Rename history" ends the "More" menu when the host has the page (roadmap D51) and opens it in the host; hosts
+     * without the page leave the entry out.
+     * zh-CN: 宿主有该页面时 "更多" 菜单末尾为 "重命名历史", 点按后在宿主中打开 (路线图 D51); 没有该页面的宿主上不显示此项.
+     */
+    @Test
+    fun renameHistoryOpensTheHostPageWhenTheHostHasOne() {
+        val session = FakeHostSession(parent = listOf("a.txt"))
+        val hostPage = HostRenameHistory.intent(context)
+        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-single", session, target("a.txt"))).use {
+            waitForTag(TAG_MORE)
+            compose.onNodeWithTag(TAG_MORE).performClick()
+            compose.waitForIdle()
+            assertEquals("the entry follows the host", hostPage != null, exists(TAG_RENAME_HISTORY))
+            if (hostPage == null) return@use
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            // The menu is a popup window, which the Compose capture of the screen leaves out. zh-CN: 菜单是弹出窗口, Compose 截图不含它.
+            automation.takeScreenshot()?.let { bitmap ->
+                val directory = java.io.File(context.filesDir, "screenshots").apply { mkdirs() }
+                java.io.File(directory, "rename-history-menu.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+            }
+            compose.onNodeWithTag(TAG_RENAME_HISTORY).performClick()
+            val deadline = SystemClock.elapsedRealtime() + TIMEOUT
+            while (automation.rootInActiveWindow?.packageName != AutoJs6HostSettingsContract.HOST_PACKAGE_NAME) {
+                check(SystemClock.elapsedRealtime() < deadline) { "the rename history of the host did not open" }
+                SystemClock.sleep(100)
+            }
+            automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
+        }
     }
 
     /**

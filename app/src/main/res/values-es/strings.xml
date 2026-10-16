@@ -63,9 +63,10 @@
     <string name="format_title">Tipo título</string>
     <string name="format_upper">MAYÚSCULAS</string>
     <string name="import_rejected_entry">Entrada %1$d %2$s: %3$s</string>
-    <string name="menu_clear_history">Borrar el historial</string>
+    <string name="menu_clear_history">Borrar usados recientemente</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">Administrar preajustes...</string>
     <string name="menu_remember_options">Recordar las últimas opciones</string>
+    <string name="menu_rename_history">Historial de cambios de nombre</string>
     <string name="menu_restore_defaults">Restablecer las opciones predeterminadas</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">Guardar opciones como preajuste...</string>
     <string name="message_import_conflicts">Estos preajustes ya existen: %1$s</string>

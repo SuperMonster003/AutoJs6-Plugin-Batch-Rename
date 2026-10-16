@@ -63,9 +63,10 @@
     <string name="format_title">タイトル形式</string>
     <string name="format_upper">大文字</string>
     <string name="import_rejected_entry">%1$d 番目 %2$s: %3$s</string>
-    <string name="menu_clear_history">履歴を消去</string>
+    <string name="menu_clear_history">最近使用した項目を消去</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">プリセットを管理...</string>
     <string name="menu_remember_options">前回のオプションを記憶</string>
+    <string name="menu_rename_history">名前の変更履歴</string>
     <string name="menu_restore_defaults">既定のオプションに戻す</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">現在のオプションをプリセットとして保存...</string>
     <string name="message_import_conflicts">次のプリセットは既にあります: %1$s</string>

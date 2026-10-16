@@ -63,9 +63,10 @@
     <string name="format_title">제목 형식</string>
     <string name="format_upper">대문자</string>
     <string name="import_rejected_entry">%1$d번째 항목 %2$s: %3$s</string>
-    <string name="menu_clear_history">기록 지우기</string>
+    <string name="menu_clear_history">최근 사용 기록 지우기</string>
     <string name="menu_manage_presets" tools:ignore="TypographyEllipsis">프리셋 관리...</string>
     <string name="menu_remember_options">마지막 옵션 기억</string>
+    <string name="menu_rename_history">이름 바꾸기 기록</string>
     <string name="menu_restore_defaults">기본 옵션 복원</string>
     <string name="menu_save_preset" tools:ignore="TypographyEllipsis">현재 옵션을 프리셋으로 저장...</string>
     <string name="message_import_conflicts">다음 프리셋이 이미 있습니다: %1$s</string>

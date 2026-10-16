@@ -52,6 +52,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -181,6 +182,8 @@ private fun messageText(message: ScreenMessage): String = when (message) {
 @Composable
 private fun TopBar(state: ScreenState, model: BatchRenameViewModel, onClose: () -> Unit) {
     var menu by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val renameHistory = remember(context) { HostRenameHistory.intent(context) }
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = onClose) {
@@ -209,7 +212,7 @@ private fun TopBar(state: ScreenState, model: BatchRenameViewModel, onClose: () 
             }
             PresetsButton(state, model)
             Box {
-                IconButton(onClick = { menu = true }) {
+                IconButton(onClick = { menu = true }, modifier = Modifier.testTag(TAG_MORE)) {
                     Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.action_more))
                 }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
@@ -233,6 +236,18 @@ private fun TopBar(state: ScreenState, model: BatchRenameViewModel, onClose: () 
                             model.clearHistory()
                         },
                     )
+                    // The host's rename history page (roadmap D38 / D51); hosts without it leave the entry out.
+                    // zh-CN: 宿主的重命名历史页面 (路线图 D38 / D51); 没有该页面的宿主上不显示此项.
+                    if (renameHistory != null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_rename_history)) },
+                            onClick = {
+                                menu = false
+                                HostRenameHistory.open(context, renameHistory)
+                            },
+                            modifier = Modifier.testTag(TAG_RENAME_HISTORY),
+                        )
+                    }
                 }
             }
         },
@@ -352,6 +367,8 @@ internal const val TAG_SEARCH = "batchRename.search"
 internal const val TAG_REPLACE = "batchRename.replace"
 internal const val TAG_APPLY = "batchRename.apply"
 internal const val TAG_UNDO = "batchRename.undo"
+internal const val TAG_RENAME_HISTORY = "batchRename.renameHistory"
+internal const val TAG_MORE = "batchRename.more"
 internal const val TAG_SUMMARY = "batchRename.summary"
 internal const val TAG_ONLY_RENAMED = "batchRename.onlyRenamed"
 internal const val TAG_SEARCH_HISTORY = "batchRename.searchHistory"
