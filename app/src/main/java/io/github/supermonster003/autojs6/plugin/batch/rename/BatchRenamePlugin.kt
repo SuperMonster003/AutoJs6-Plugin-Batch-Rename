@@ -37,9 +37,9 @@ internal object BatchRenamePlugin {
 
     /**
      * Optional contract features this build implements: the engine of roadmap P2 covers counters, date and time
-     * variables, random values and the cleanup options; 1.1.0 adds pinyin (roadmap D35). The host never relies on a
-     * feature that is not advertised.
-     * zh-CN: 本构建实现的可选契约功能: 路线图 P2 的引擎支持计数器, 日期时间变量, 随机值与清理选项; 1.1.0 加入拼音 (路线图 D35).
+     * variables, random values and the cleanup options; 1.1.0 adds pinyin (roadmap D35) and named presets (D36). The
+     * host never relies on a feature that is not advertised.
+     * zh-CN: 本构建实现的可选契约功能: 路线图 P2 的引擎支持计数器, 日期时间变量, 随机值与清理选项; 1.1.0 加入拼音 (路线图 D35) 与命名预设 (D36).
      * 宿主不会依赖未声明的功能.
      */
     val FEATURES: List<String> = listOf(
@@ -48,6 +48,7 @@ internal object BatchRenamePlugin {
         BatchRenameValues.FEATURE_RANDOM,
         BatchRenameValues.FEATURE_CLEANUP,
         BatchRenameValues.FEATURE_PINYIN,
+        BatchRenameValues.FEATURE_PRESETS,
     )
 
     /**

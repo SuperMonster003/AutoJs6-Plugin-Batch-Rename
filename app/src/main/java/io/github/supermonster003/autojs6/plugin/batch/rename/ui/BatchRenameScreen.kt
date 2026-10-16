@@ -161,6 +161,20 @@ private fun messageText(message: ScreenMessage): String = when (message) {
     ScreenMessage.NothingToUndo -> stringResource(R.string.message_nothing_to_undo)
     ScreenMessage.TooManyInOneFolder -> stringResource(R.string.error_too_many_in_one_folder)
     is ScreenMessage.Failed -> stringResource(R.string.error_host_failed, message.detail)
+    is ScreenMessage.PresetSaved -> stringResource(R.string.message_preset_saved, message.name)
+    is ScreenMessage.PresetLoaded -> stringResource(R.string.message_preset_loaded, message.name)
+    ScreenMessage.PresetsExported -> stringResource(R.string.message_presets_exported)
+    ScreenMessage.PresetsCopied -> stringResource(R.string.message_presets_copied)
+    is ScreenMessage.PresetsImported -> stringResource(R.string.message_presets_imported, message.imported, message.skipped)
+    is ScreenMessage.PresetFailed -> stringResource(
+        when (message.failure) {
+            PresetFailure.CLIPBOARD_EMPTY -> R.string.error_clipboard_empty
+            PresetFailure.NOT_PRESETS -> R.string.error_not_presets
+            PresetFailure.TOO_LARGE -> R.string.error_presets_too_large
+            PresetFailure.READ_FAILED -> R.string.error_read_failed
+            PresetFailure.WRITE_FAILED -> R.string.error_write_failed
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,6 +207,7 @@ private fun TopBar(state: ScreenState, model: BatchRenameViewModel, onClose: () 
             ) {
                 Icon(painterResource(R.drawable.ic_undo), contentDescription = stringResource(R.string.action_undo_last_batch))
             }
+            PresetsButton(state, model)
             Box {
                 IconButton(onClick = { menu = true }) {
                     Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.action_more))
@@ -342,4 +357,18 @@ internal const val TAG_ONLY_RENAMED = "batchRename.onlyRenamed"
 internal const val TAG_SEARCH_HISTORY = "batchRename.searchHistory"
 internal const val TAG_CLEANUP = "batchRename.cleanup"
 internal const val TAG_PINYIN = "batchRename.pinyin"
+internal const val TAG_PRESETS = "batchRename.presets"
+internal const val TAG_PRESET_PREFIX = "batchRename.preset:"
+internal const val TAG_SAVE_PRESET = "batchRename.savePreset"
+internal const val TAG_MANAGE_PRESETS = "batchRename.managePresets"
+internal const val TAG_PRESET_NAME = "batchRename.presetName"
+internal const val TAG_PRESET_CHECK_PREFIX = "batchRename.presetCheck:"
+internal const val TAG_PRESET_RENAME_PREFIX = "batchRename.presetRename:"
+internal const val TAG_PRESET_DELETE_PREFIX = "batchRename.presetDelete:"
+internal const val TAG_IMPORT_CLIPBOARD = "batchRename.importClipboard"
+internal const val TAG_EXPORT_CLIPBOARD = "batchRename.exportClipboard"
+internal const val TAG_CONFLICT_OVERWRITE = "batchRename.conflictOverwrite"
+internal const val TAG_CONFLICT_KEEP_BOTH = "batchRename.conflictKeepBoth"
+internal const val TAG_CONFLICT_SKIP = "batchRename.conflictSkip"
+internal const val TAG_DIALOG_CONFIRM = "batchRename.dialogConfirm"
 internal const val TAG_ROW_PREFIX = "batchRename.row:"

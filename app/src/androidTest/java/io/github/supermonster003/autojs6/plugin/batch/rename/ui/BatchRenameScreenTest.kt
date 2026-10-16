@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename.ui
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -23,6 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.batch.rename.BatchRenameActivity
 import io.github.supermonster003.autojs6.plugin.batch.rename.BatchRenamePlugin
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetStore
+import io.github.supermonster003.autojs6.plugin.batch.rename.settings.SharedPreferencesStore
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
@@ -131,6 +134,73 @@ class BatchRenameScreenTest {
         }
     }
 
+    /**
+     * Presets (roadmap P6.2): save the current options, load them back, export to the clipboard, delete, import from
+     * the clipboard and import again keeping both.
+     * zh-CN: 预设 (路线图 P6.2): 保存当前选项, 加载回来, 导出到剪贴板, 删除, 从剪贴板导入, 再次导入并保留两者.
+     */
+    @Test
+    fun presetsAreSavedLoadedAndRoundTripThroughTheClipboard() {
+        val store = PresetStore(SharedPreferencesStore(context))
+        val session = FakeHostSession(parent = listOf("IMG_1.jpg", "notes.txt"))
+        val targets = arrayOf(target("IMG_1.jpg"), target("notes.txt"))
+        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-selection", session, *targets)).use {
+            waitForTag(row("IMG_1.jpg", targetId = "IMG_1.jpg"))
+            inList(TAG_SEARCH).performTextInput("IMG_")
+            inList(TAG_REPLACE).performTextInput("Pic_")
+            compose.waitUntil(TIMEOUT) { applyEnabled() }
+
+            compose.onNodeWithTag(TAG_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_SAVE_PRESET).performClick()
+            compose.onNodeWithTag(TAG_PRESET_NAME).performTextInput("photos")
+            compose.onNodeWithTag(TAG_DIALOG_CONFIRM).performClick()
+            compose.waitUntil(TIMEOUT) { store.find("photos") != null }
+            assertEquals("Pic_", store.find("photos")!!.options.replace)
+
+            // Loading the preset brings back the replacement. zh-CN: 加载预设可恢复替换文本.
+            inList(TAG_REPLACE).performTextReplacement("Other_")
+            compose.onNodeWithTag(TAG_PRESETS).performClick()
+            screenshot("presets-menu")
+            compose.onNodeWithTag(TAG_PRESET_PREFIX + "photos").performClick()
+            compose.waitUntil(TIMEOUT) { compose.onAllNodes(hasText("Pic_")).fetchSemanticsNodes().isNotEmpty() }
+
+            compose.onNodeWithTag(TAG_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_MANAGE_PRESETS).performClick()
+            compose.waitForIdle()
+            Thread.sleep(500)
+            screenshot("presets-manage")
+            compose.onNodeWithTag(TAG_EXPORT_CLIPBOARD).performClick()
+            compose.waitForIdle()
+            assertTrue(clipboardText().orEmpty().contains("\"photos\""))
+
+            compose.onNodeWithTag(TAG_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_MANAGE_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_PRESET_DELETE_PREFIX + "photos").performClick()
+            compose.onNodeWithTag(TAG_DIALOG_CONFIRM).performClick()
+            compose.waitUntil(TIMEOUT) { store.list().isEmpty() }
+            compose.onNodeWithTag(TAG_IMPORT_CLIPBOARD).performClick()
+            compose.waitUntil(TIMEOUT) { store.find("photos") != null }
+
+            compose.onNodeWithTag(TAG_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_MANAGE_PRESETS).performClick()
+            compose.onNodeWithTag(TAG_IMPORT_CLIPBOARD).performClick()
+            compose.waitUntil(TIMEOUT) { exists(TAG_CONFLICT_KEEP_BOTH) }
+            screenshot("presets-conflict")
+            compose.onNodeWithTag(TAG_CONFLICT_KEEP_BOTH).performClick()
+            compose.waitUntil(TIMEOUT) { store.list().size == 2 }
+            assertEquals(listOf("photos", "photos (1)"), store.list().map { it.name })
+        }
+    }
+
+    private fun clipboardText(): String? {
+        var text: String? = null
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val clipboard = context.getSystemService(ClipboardManager::class.java)
+            text = clipboard.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
+        }
+        return text
+    }
+
     @Test
     fun anOlderProtocolEndsTheScreenAndClosesTheSession() {
         val session = FakeHostSession(parent = listOf("a.txt"))
@@ -156,11 +226,22 @@ class BatchRenameScreenTest {
 
     private fun applyEnabled(): Boolean = enabled(TAG_APPLY)
 
-    private fun enabled(tag: String): Boolean = compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().any { node ->
+    private fun enabled(tag: String): Boolean = nodes(tag).any { node ->
         !node.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
     }
 
-    private fun exists(tag: String) = compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+    private fun exists(tag: String) = nodes(tag).isNotEmpty()
+
+    /**
+     * Nodes with [tag]; none while the activity has not composed yet (the first launch after installing takes longer),
+     * so the waits keep waiting instead of failing.
+     * zh-CN: 带 [tag] 的节点; 活动尚未完成组合时 (安装后首次启动较慢) 视为没有, 使等待继续而不是直接失败.
+     */
+    private fun nodes(tag: String) = try {
+        compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes()
+    } catch (_: IllegalStateException) {
+        emptyList()
+    }
 
     private fun waitForTag(tag: String) {
         compose.waitUntil(TIMEOUT) {

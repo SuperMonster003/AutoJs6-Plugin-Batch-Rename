@@ -6,6 +6,7 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanExceptio
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanItemStatus
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameEngine
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameItem
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameOptions
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameOptionsParser
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameParent
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenamePlan
@@ -14,6 +15,7 @@ import org.autojs.plugin.batchrename.api.BatchRenameContract
 import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
 import org.autojs.plugin.batchrename.api.BatchRenameItemKeys
 import org.autojs.plugin.batchrename.api.BatchRenameLimits
+import org.autojs.plugin.batchrename.api.BatchRenameOptionKeys
 import org.autojs.plugin.batchrename.api.BatchRenameParentKeys
 import org.autojs.plugin.batchrename.api.BatchRenameRequestKeys
 import org.autojs.plugin.batchrename.api.BatchRenameResultKeys
@@ -41,9 +43,10 @@ internal object PlanCodec {
     data class Decoded(val request: RenameRequest, val unknownOptionKeys: Set<String>)
 
     /**
+     * @param presets the options of a preset by name (roadmap D36), null for an unknown name.
      * @throws PlanException with `UNSUPPORTED_CONTRACT_VERSION`, `INVALID_REQUEST`, `INVALID_OPTIONS` or `LIMIT_EXCEEDED`.
      */
-    fun decodeRequest(values: Map<String, Any?>): Decoded {
+    fun decodeRequest(values: Map<String, Any?>, presets: (String) -> RenameOptions? = { null }): Decoded {
         val version = contractVersionOf(values)
         if (!BatchRenameContract.supportsContractVersion(version)) {
             throw PlanException(
@@ -63,7 +66,7 @@ internal object PlanCodec {
         if (characters > BatchRenameLimits.MAX_REQUEST_CHARS) {
             throw PlanException.limitExceeded("The request holds $characters characters, more than ${BatchRenameLimits.MAX_REQUEST_CHARS}")
         }
-        val options: ParsedOptions = RenameOptionsParser.parse(values.map(BatchRenameRequestKeys.OPTIONS, "the request"))
+        val options: ParsedOptions = RenameOptionsParser.parse(withPreset(values.map(BatchRenameRequestKeys.OPTIONS, "the request"), presets))
         val parents = parentMaps.mapIndexed { position, element -> decodeParent(element.asMap("parent $position"), position) }
         val items = itemMaps.mapIndexed { position, element -> decodeItem(element.asMap("item $position"), position) }
         val locale = values.optionalString(BatchRenameRequestKeys.LOCALE, "the request")
@@ -79,9 +82,26 @@ internal object PlanCodec {
         return Decoded(RenameRequest(options.options, parents, items, locale, timeZone, now), options.unknownKeys)
     }
 
-    /** The answer of a plan; every status appears in the counts. zh-CN: 方案应答; 计数中包含全部状态. */
-    fun encodePlan(plan: RenamePlan, contractVersion: Int): Map<String, Any?> = mapOf(
+    /**
+     * The options of a request that names a preset: the preset's options, then every other key of the request
+     * (roadmap D36 / D44); other requests stay as they are.
+     * @throws PlanException with `INVALID_OPTIONS` for a preset name that is not a string or not known.
+     */
+    fun withPreset(options: Map<String, Any?>, presets: (String) -> RenameOptions?): Map<String, Any?> {
+        if (!options.containsKey(BatchRenameOptionKeys.PRESET)) return options
+        val name = options[BatchRenameOptionKeys.PRESET] as? String
+            ?: throw PlanException.invalidOptions("The option \"preset\" must be a string")
+        val preset = presets(name) ?: throw PlanException.invalidOptions("The preset \"$name\" does not exist")
+        return RenameOptionsParser.values(preset) + (options - BatchRenameOptionKeys.PRESET)
+    }
+
+    /**
+     * The answer of a plan; every status appears in the counts, and the options it used come back complete (roadmap D44).
+     * zh-CN: 方案应答; 计数中包含全部状态, 并完整回传所用的选项 (路线图 D44).
+     */
+    fun encodePlan(plan: RenamePlan, contractVersion: Int, options: RenameOptions): Map<String, Any?> = mapOf(
         BatchRenameResultKeys.CONTRACT_VERSION to contractVersion,
+        BatchRenameResultKeys.OPTIONS to RenameOptionsParser.values(options),
         BatchRenameResultKeys.REJECTED to plan.rejected,
         BatchRenameResultKeys.ITEMS to plan.items.map { item ->
             buildMap {
@@ -196,6 +216,8 @@ internal object PlanCodec {
  */
 internal class BatchRenamePlanner(
     private val engine: RenameEngine,
+    /** The options of a preset by name (roadmap D36). zh-CN: 按名称取预设的选项. */
+    private val presets: (String) -> RenameOptions? = { null },
     private val log: (String) -> Unit = {},
 ) {
 
@@ -203,9 +225,9 @@ internal class BatchRenamePlanner(
         val version = PlanCodec.contractVersionOf(request)
         if (request == null) return PlanCodec.encodeError(BatchRenameErrorCodes.INVALID_REQUEST, "The plan request is missing", version)
         return try {
-            val decoded = PlanCodec.decodeRequest(request)
+            val decoded = PlanCodec.decodeRequest(request, presets)
             if (decoded.unknownOptionKeys.isNotEmpty()) log("Ignored unknown option keys ${decoded.unknownOptionKeys.sorted()}")
-            PlanCodec.encodePlan(engine.plan(decoded.request), version)
+            PlanCodec.encodePlan(engine.plan(decoded.request), version, decoded.request.options)
         } catch (error: PlanException) {
             PlanCodec.encodeError(error.code, error.message.orEmpty(), version)
         } catch (error: Exception) {

@@ -42,9 +42,9 @@ class PluginRuntimeInfoTest {
         assertEquals(emptyList<String>(), fields.supportedAbis)
         assertEquals(BatchRenamePlugin.REQUIRED_HOST_VERSION, fields.requiredHostVersion)
         assertEquals(5438L, BatchRenamePlugin.REQUIRED_HOST_VERSION)
-        // Contract v1 capabilities; the engine of roadmap P2 and the pinyin of 1.1.0 (D35) implement every optional feature.
+        // Contract v1 capabilities; the engine of roadmap P2, the pinyin (D35) and the presets (D36) of 1.1.0 implement every optional feature.
         assertEquals(1, fields.contractVersion)
-        assertEquals(listOf("counter", "dateTime", "random", "cleanup", "pinyin"), fields.features)
+        assertEquals(listOf("counter", "dateTime", "random", "cleanup", "pinyin", "presets"), fields.features)
         assertEquals(2000, fields.maxItems)
         assertEquals("ecmascript", fields.regexDialect)
     }

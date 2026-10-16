@@ -95,43 +95,9 @@ internal class PreferencesStore(private val store: KeyValueStore) {
  */
 internal object OptionsCodec {
 
-    private val BOOLEAN_KEYS = setOf(
-        BatchRenameOptionKeys.REGEX, BatchRenameOptionKeys.MATCH_ALL, BatchRenameOptionKeys.CASE_SENSITIVE,
-        BatchRenameOptionKeys.INCLUDE_FILES, BatchRenameOptionKeys.INCLUDE_FOLDERS, BatchRenameOptionKeys.INCLUDE_SUBFOLDERS,
-        BatchRenameOptionKeys.ENUMERATE, BatchRenameOptionKeys.RANDOM, BatchRenameOptionKeys.HALF_WIDTH,
-        BatchRenameOptionKeys.SANITIZE, BatchRenameOptionKeys.TRIM, BatchRenameOptionKeys.CONTINUE_NUMBERING,
-        BatchRenameOptionKeys.PINYIN, BatchRenameOptionKeys.PINYIN_INITIALS,
-    )
+    private val BOOLEAN_KEYS: Set<String> = RenameOptionsParser.values(RenameOptions(search = "")).filterValues { it is Boolean }.keys
 
-    fun encode(options: RenameOptions): Map<String, String> = linkedMapOf(
-        BatchRenameOptionKeys.SEARCH to options.search,
-        BatchRenameOptionKeys.REPLACE to options.replace,
-        BatchRenameOptionKeys.REGEX to options.regex.toString(),
-        BatchRenameOptionKeys.REGEX_FLAGS to options.regexFlags,
-        BatchRenameOptionKeys.MATCH_ALL to options.matchAll.toString(),
-        BatchRenameOptionKeys.CASE_SENSITIVE to options.caseSensitive.toString(),
-        BatchRenameOptionKeys.TARGET to options.target.value,
-        BatchRenameOptionKeys.INCLUDE_FILES to options.includeFiles.toString(),
-        BatchRenameOptionKeys.INCLUDE_FOLDERS to options.includeFolders.toString(),
-        BatchRenameOptionKeys.INCLUDE_SUBFOLDERS to options.includeSubfolders.toString(),
-        BatchRenameOptionKeys.FORMAT to options.format.value,
-        BatchRenameOptionKeys.ENUMERATE to options.enumerate.toString(),
-        BatchRenameOptionKeys.RANDOM to options.random.toString(),
-        BatchRenameOptionKeys.DATE_TIME to options.dateTime.value,
-        BatchRenameOptionKeys.NORMALIZE to options.normalize.value,
-        BatchRenameOptionKeys.HALF_WIDTH to options.halfWidth.toString(),
-        BatchRenameOptionKeys.SANITIZE to options.sanitize.toString(),
-        BatchRenameOptionKeys.SANITIZE_REPLACEMENT to options.sanitizeReplacement,
-        BatchRenameOptionKeys.TRIM to options.trim.toString(),
-        BatchRenameOptionKeys.CONTINUE_NUMBERING to options.continueNumbering.toString(),
-        BatchRenameOptionKeys.ON_CONFLICT to options.onConflict.value,
-        BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN to options.conflictNumberPattern,
-        BatchRenameOptionKeys.PINYIN to options.pinyin.toString(),
-        BatchRenameOptionKeys.PINYIN_TONE to options.pinyinTone.value,
-        BatchRenameOptionKeys.PINYIN_SEPARATOR to options.pinyinSeparator.value,
-        BatchRenameOptionKeys.PINYIN_CASE to options.pinyinCase.value,
-        BatchRenameOptionKeys.PINYIN_INITIALS to options.pinyinInitials.toString(),
-    )
+    fun encode(options: RenameOptions): Map<String, String> = RenameOptionsParser.values(options).mapValues { (_, value) -> value.toString() }
 
     val KEYS: List<String> = encode(RenameOptions(search = "")).keys.toList()
 

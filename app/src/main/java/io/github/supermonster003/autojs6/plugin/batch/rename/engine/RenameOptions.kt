@@ -182,6 +182,42 @@ internal object RenameOptionsParser {
         return ParsedOptions(options, values.keys - KNOWN_KEYS)
     }
 
+    /**
+     * [options] as the contract option map: every key, booleans as Boolean and everything else as String. Parsing the
+     * map gives [options] back; presets, the effective options of a plan and the remembered options use it.
+     * zh-CN: 以契约选项表表示的 [options]: 包含全部键, 布尔值为 Boolean, 其余为 String. 解析该表可得回 [options]; 预设,
+     * 方案的生效选项与记住的选项都使用它.
+     */
+    fun values(options: RenameOptions): LinkedHashMap<String, Any> = linkedMapOf(
+        BatchRenameOptionKeys.SEARCH to options.search,
+        BatchRenameOptionKeys.REPLACE to options.replace,
+        BatchRenameOptionKeys.REGEX to options.regex,
+        BatchRenameOptionKeys.REGEX_FLAGS to options.regexFlags,
+        BatchRenameOptionKeys.MATCH_ALL to options.matchAll,
+        BatchRenameOptionKeys.CASE_SENSITIVE to options.caseSensitive,
+        BatchRenameOptionKeys.TARGET to options.target.value,
+        BatchRenameOptionKeys.INCLUDE_FILES to options.includeFiles,
+        BatchRenameOptionKeys.INCLUDE_FOLDERS to options.includeFolders,
+        BatchRenameOptionKeys.INCLUDE_SUBFOLDERS to options.includeSubfolders,
+        BatchRenameOptionKeys.FORMAT to options.format.value,
+        BatchRenameOptionKeys.ENUMERATE to options.enumerate,
+        BatchRenameOptionKeys.RANDOM to options.random,
+        BatchRenameOptionKeys.DATE_TIME to options.dateTime.value,
+        BatchRenameOptionKeys.NORMALIZE to options.normalize.value,
+        BatchRenameOptionKeys.HALF_WIDTH to options.halfWidth,
+        BatchRenameOptionKeys.SANITIZE to options.sanitize,
+        BatchRenameOptionKeys.SANITIZE_REPLACEMENT to options.sanitizeReplacement,
+        BatchRenameOptionKeys.TRIM to options.trim,
+        BatchRenameOptionKeys.CONTINUE_NUMBERING to options.continueNumbering,
+        BatchRenameOptionKeys.ON_CONFLICT to options.onConflict.value,
+        BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN to options.conflictNumberPattern,
+        BatchRenameOptionKeys.PINYIN to options.pinyin,
+        BatchRenameOptionKeys.PINYIN_TONE to options.pinyinTone.value,
+        BatchRenameOptionKeys.PINYIN_SEPARATOR to options.pinyinSeparator.value,
+        BatchRenameOptionKeys.PINYIN_CASE to options.pinyinCase.value,
+        BatchRenameOptionKeys.PINYIN_INITIALS to options.pinyinInitials,
+    )
+
     private fun Map<String, Any?>.text(key: String): String? {
         if (!containsKey(key)) return null
         val value = get(key) as? String ?: throw PlanException.invalidOptions("The option \"$key\" must be a string")

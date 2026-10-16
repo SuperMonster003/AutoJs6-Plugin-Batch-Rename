@@ -1,7 +1,14 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename.service
 
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.EngineFixtures
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.ConflictPolicy
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameEngine
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameOptions
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.TextFormat
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.Preset
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetDocument
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetStore
+import io.github.supermonster003.autojs6.plugin.batch.rename.settings.MemoryStore
 import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
 import org.autojs.plugin.batchrename.api.BatchRenameValues
 import org.junit.Assert.assertEquals
@@ -118,6 +125,57 @@ class PlanCodecTest {
         assertEquals(BatchRenameErrorCodes.LIMIT_EXCEEDED, code(request(parents = List(513) { parent(id = "p$it") })))
         // 300 existing names of 1000 characters exceed the 262144 characters of one request.
         assertEquals(BatchRenameErrorCodes.LIMIT_EXCEEDED, code(request(parents = listOf(parent(names = List(300) { "n".repeat(999) + it % 10 })))))
+    }
+
+    @Test
+    fun `a named preset fills the options the request leaves out and the answer shows the result`() {
+        val presets = PresetStore(MemoryStore()).apply {
+            save("photos", RenameOptions(search = "IMG", replace = "Pic", format = TextFormat.UPPER, onConflict = ConflictPolicy.SKIP))
+        }
+        val withPresets = BatchRenamePlanner(RenameEngine(random = EngineFixtures.fixedRandom), presets = { name -> presets.find(name)?.options })
+        val preset = withPresets.answer(request(options = mapOf("preset" to "photos")))
+        assertEquals(listOf("PIC_1.JPG", "PIC_2.JPG", "notes.txt"), preset.items().map { it["newName"] })
+        val overridden = withPresets.answer(request(options = mapOf("preset" to "photos", "replace" to "Shot", "format" to "none")))
+        assertEquals(listOf("Shot_1.jpg", "Shot_2.jpg", "notes.txt"), overridden.items().map { it["newName"] })
+        @Suppress("UNCHECKED_CAST")
+        val effective = overridden["options"] as Map<String, Any?>
+        assertEquals(listOf("IMG", "Shot", "none", "skip"), listOf(effective["search"], effective["replace"], effective["format"], effective["onConflict"]))
+        assertFalse(effective.containsKey("preset"))
+        // Sending the effective options back reproduces the plan without the preset. zh-CN: 回传生效选项可在没有预设时重现方案.
+        assertEquals(overridden.items(), planner.answer(request(options = effective)).items())
+
+        assertEquals(BatchRenameErrorCodes.INVALID_OPTIONS, withPresets.answer(request(options = mapOf("preset" to "missing")))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.INVALID_OPTIONS, withPresets.answer(request(options = mapOf("preset" to 3)))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.INVALID_OPTIONS, planner.answer(request(options = mapOf("preset" to "photos")))["errorCode"])
+    }
+
+    @Test
+    fun `the preset calls list and import presets with contract answers`() {
+        val store = PresetStore(MemoryStore()).apply { save("a", RenameOptions(search = "x")) }
+        val calls = PresetCalls({ store })
+        val listed = calls.list(mapOf("contractVersion" to 1))
+        @Suppress("UNCHECKED_CAST")
+        val presets = listed["presets"] as List<Map<String, Any?>>
+        assertEquals(listOf("a"), presets.map { it["name"] })
+        assertEquals("x", (presets.single()["options"] as Map<*, *>)["search"])
+
+        val document = PresetDocument.encode(listOf(Preset("a", RenameOptions(search = "y")), Preset("b", RenameOptions(search = "z"))))
+        val imported = calls.import(mapOf("contractVersion" to 1, "document" to document, "onConflict" to "overwrite"))
+        assertEquals(listOf("a", "b"), imported["imported"])
+        assertEquals(emptyList<String>(), imported["skipped"])
+        assertEquals("y", store.find("a")!!.options.search)
+        val skipped = calls.import(mapOf("contractVersion" to 1, "document" to document))
+        assertEquals(listOf("a", "b"), skipped["skipped"])
+        val refused = calls.import(
+            mapOf("contractVersion" to 1, "document" to """{"format": "autojs6-batch-rename-presets", "version": 1, "presets": [{"options": {}}]}"""),
+        )
+        assertEquals(listOf(mapOf("index" to 0, "reason" to "the name is missing or blank")), refused["rejected"])
+
+        assertEquals(BatchRenameErrorCodes.INVALID_OPTIONS, calls.import(mapOf("contractVersion" to 1, "document" to "[]"))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.INVALID_OPTIONS, calls.import(mapOf("contractVersion" to 1, "document" to document, "onConflict" to "merge"))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.INVALID_REQUEST, calls.import(mapOf("contractVersion" to 1))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.UNSUPPORTED_CONTRACT_VERSION, calls.list(mapOf("contractVersion" to 2))["errorCode"])
+        assertEquals(BatchRenameErrorCodes.INVALID_REQUEST, calls.list(null)["errorCode"])
     }
 
     @Test

@@ -1,7 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.batch.rename.ui
 
 import android.app.Application
-import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.RenameEngine
@@ -16,10 +16,15 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RenameEntr
 import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RenameRequestSplitter
 import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RenameScope
 import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RequestTarget
-import io.github.supermonster003.autojs6.plugin.batch.rename.settings.KeyValueEditor
-import io.github.supermonster003.autojs6.plugin.batch.rename.settings.KeyValueStore
 import io.github.supermonster003.autojs6.plugin.batch.rename.settings.OptionsCodec
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanException
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetConflict
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetDocument
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetImport
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetStore
+import io.github.supermonster003.autojs6.plugin.batch.rename.presets.RejectionKind
 import io.github.supermonster003.autojs6.plugin.batch.rename.settings.PreferencesStore
+import io.github.supermonster003.autojs6.plugin.batch.rename.settings.SharedPreferencesStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,6 +34,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
+import org.autojs.plugin.batchrename.api.BatchRenameLimits
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 
 /** Something the screen is busy with. zh-CN: 界面正在进行的操作. */
@@ -41,7 +48,19 @@ internal sealed interface ScreenMessage {
     data object NothingToUndo : ScreenMessage
     data object TooManyInOneFolder : ScreenMessage
     data class Failed(val detail: String) : ScreenMessage
+    data class PresetSaved(val name: String) : ScreenMessage
+    data class PresetLoaded(val name: String) : ScreenMessage
+    data object PresetsExported : ScreenMessage
+    data object PresetsCopied : ScreenMessage
+    data class PresetsImported(val imported: Int, val skipped: Int) : ScreenMessage
+    data class PresetFailed(val failure: PresetFailure) : ScreenMessage
 }
+
+/** Why presets could not be imported or exported as a whole. zh-CN: 预设整体无法导入或导出的原因. */
+internal enum class PresetFailure { CLIPBOARD_EMPTY, NOT_PRESETS, TOO_LARGE, READ_FAILED, WRITE_FAILED }
+
+/** A decoded document waiting for the user's answer about names that are taken. zh-CN: 等待用户决定同名处理的已解码文档. */
+internal data class PendingImport(val decoded: PresetDocument.Decoded, val conflicts: List<String>)
 
 /** An entry the host did not rename, for the failure list. zh-CN: 宿主未改名的条目, 用于失败列表. */
 internal data class FailedEntry(val path: String, val newName: String, val stale: Boolean)
@@ -86,6 +105,11 @@ internal data class ScreenState(
     val rememberOptions: Boolean = true,
     /** Something was renamed or restored through this screen. zh-CN: 本界面改过名或恢复过. */
     val changedFiles: Boolean = false,
+    /** Names of the presets in the store's order (roadmap D36). zh-CN: 按存储顺序排列的预设名称 (路线图 D36). */
+    val presetNames: List<String> = emptyList(),
+    val pendingImport: PendingImport? = null,
+    /** An import that refused entries; shown until dismissed. zh-CN: 有条目被拒的导入结果, 关闭前一直显示. */
+    val importResult: PresetImport? = null,
 ) {
     /** Rename is possible right now. zh-CN: 当前可以执行重命名. */
     val canApply: Boolean get() = busy == null && !planPending && preview.applicable
@@ -102,6 +126,7 @@ internal data class ScreenState(
 internal class BatchRenameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val preferences = PreferencesStore(SharedPreferencesStore(application))
+    private val presets = PresetStore(SharedPreferencesStore(application))
     private val engine = RenameEngine()
     private val now = System.currentTimeMillis()
     private val planner = PreviewPlanner(engine, now)
@@ -131,6 +156,7 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
                 recentSearches = preferences.recentSearches(),
                 recentReplacements = preferences.recentReplacements(),
                 rememberOptions = preferences.rememberOptions,
+                presetNames = presets.list().map { preset -> preset.name },
             )
         }
         viewModelScope.launch {
@@ -173,6 +199,122 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
     fun clearHistory() {
         preferences.clearHistory()
         _state.update { it.copy(recentSearches = emptyList(), recentReplacements = emptyList()) }
+    }
+
+    fun reloadPresets() = _state.update { it.copy(presetNames = presets.list().map { preset -> preset.name }) }
+
+    fun presetExists(name: String): Boolean = presets.find(name.trim()) != null
+
+    fun loadPreset(name: String) {
+        val preset = presets.find(name) ?: return reloadPresets()
+        setOptions { preset.options }
+        _state.update { it.copy(message = ScreenMessage.PresetLoaded(name)) }
+    }
+
+    /** Saves the current options; null when saved, otherwise why not. zh-CN: 保存当前选项; 成功时为 null. */
+    fun savePreset(name: String): RejectionKind? {
+        val trimmed = name.trim()
+        val problem = presets.save(trimmed, _state.value.options)
+        if (problem == null) {
+            reloadPresets()
+            _state.update { it.copy(message = ScreenMessage.PresetSaved(trimmed)) }
+        }
+        return problem
+    }
+
+    fun renamePreset(from: String, to: String): RejectionKind? = presets.rename(from, to.trim()).also { if (it == null) reloadPresets() }
+
+    fun deletePreset(name: String) {
+        presets.delete(listOf(name))
+        reloadPresets()
+    }
+
+    fun exportPresets(names: Collection<String>): String = presets.export(names)
+
+    fun presetsCopied() = _state.update { it.copy(message = ScreenMessage.PresetsCopied) }
+
+    /** Writes the document of [names] to a file the user picked. zh-CN: 把 [names] 的文档写入用户选择的文件. */
+    fun writePresets(uri: Uri, names: Collection<String>) {
+        val document = presets.export(names)
+        viewModelScope.launch {
+            val written = withContext(Dispatchers.IO) {
+                runCatching {
+                    getApplication<Application>().contentResolver.openOutputStream(uri, "wt")!!.use { it.write(document.toByteArray(Charsets.UTF_8)) }
+                }.isSuccess
+            }
+            _state.update { it.copy(message = if (written) ScreenMessage.PresetsExported else ScreenMessage.PresetFailed(PresetFailure.WRITE_FAILED)) }
+        }
+    }
+
+    /** Reads a document from a file the user picked, then imports it. zh-CN: 读取用户选择的文件中的文档并导入. */
+    fun readPresets(uri: Uri) {
+        viewModelScope.launch {
+            val text = withContext(Dispatchers.IO) {
+                runCatching {
+                    getApplication<Application>().contentResolver.openInputStream(uri)!!.use { stream ->
+                        // One character more than the limit is enough to report the document as too large.
+                        // zh-CN: 比上限多读一个字符即可判定文档过大.
+                        val buffer = CharArray(BatchRenameLimits.MAX_PRESET_DOCUMENT_CHARS + 1)
+                        val reader = stream.reader(Charsets.UTF_8)
+                        var length = 0
+                        while (length < buffer.size) {
+                            val read = reader.read(buffer, length, buffer.size - length)
+                            if (read < 0) break
+                            length += read
+                        }
+                        String(buffer, 0, length)
+                    }
+                }.getOrNull()
+            }
+            if (text == null) _state.update { it.copy(message = ScreenMessage.PresetFailed(PresetFailure.READ_FAILED)) } else prepareImport(text)
+        }
+    }
+
+    /**
+     * Decodes a document from a file or the clipboard; imports it at once when no name is taken, otherwise waits for
+     * [finishImport].
+     * zh-CN: 解码来自文件或剪贴板的文档; 没有名称被占用时立即导入, 否则等待 [finishImport].
+     */
+    fun prepareImport(text: String?) {
+        if (text.isNullOrBlank()) {
+            _state.update { it.copy(message = ScreenMessage.PresetFailed(PresetFailure.CLIPBOARD_EMPTY)) }
+            return
+        }
+        val decoded = try {
+            PresetDocument.decode(text)
+        } catch (error: PlanException) {
+            val failure = if (error.code == BatchRenameErrorCodes.LIMIT_EXCEEDED) PresetFailure.TOO_LARGE else PresetFailure.NOT_PRESETS
+            _state.update { it.copy(message = ScreenMessage.PresetFailed(failure)) }
+            return
+        }
+        val taken = presets.list().map { it.name }.toSet()
+        val conflicts = decoded.entries.map { it.preset.name }.filter { it in taken }
+        if (conflicts.isEmpty()) {
+            completeImport(decoded, PresetConflict.SKIP)
+        } else {
+            _state.update { it.copy(pendingImport = PendingImport(decoded, conflicts)) }
+        }
+    }
+
+    /** The user's answer for taken names; null cancels the import. zh-CN: 用户对同名的处理; null 取消导入. */
+    fun finishImport(conflict: PresetConflict?) {
+        val pending = _state.value.pendingImport ?: return
+        _state.update { it.copy(pendingImport = null) }
+        if (conflict != null) completeImport(pending.decoded, conflict)
+    }
+
+    fun importResultShown() = _state.update { it.copy(importResult = null) }
+
+    private fun completeImport(decoded: PresetDocument.Decoded, conflict: PresetConflict) {
+        val result = presets.import(decoded, conflict)
+        reloadPresets()
+        _state.update {
+            if (result.rejected.isEmpty()) {
+                it.copy(message = ScreenMessage.PresetsImported(result.imported.size, result.skipped.size))
+            } else {
+                it.copy(importResult = result)
+            }
+        }
     }
 
     fun restoreDefaults() {
@@ -344,26 +486,6 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
             entry.relativePath.isEmpty() -> target
             _state.value.scope == RenameScope.INSIDE_DIRECTORY -> entry.relativePath
             else -> "$target/${entry.relativePath}"
-        }
-    }
-
-    private class SharedPreferencesStore(context: Context) : KeyValueStore {
-        private val preferences = context.getSharedPreferences("batch-rename", Context.MODE_PRIVATE)
-
-        override fun getString(key: String): String? = preferences.getString(key, null)
-
-        override fun edit(block: KeyValueEditor.() -> Unit) {
-            val editor = preferences.edit()
-            object : KeyValueEditor {
-                override fun putString(key: String, value: String) {
-                    editor.putString(key, value)
-                }
-
-                override fun remove(key: String) {
-                    editor.remove(key)
-                }
-            }.block()
-            editor.apply()
         }
     }
 
