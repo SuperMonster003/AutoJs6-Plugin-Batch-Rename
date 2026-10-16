@@ -201,6 +201,47 @@ class BatchRenameScreenTest {
         return text
     }
 
+    /**
+     * Metadata variables (roadmap P6.4): hidden on hosts before v26; on a v26 host the screen reads the metadata of the
+     * listed files once and names the rows, an image without the value gets an empty one.
+     * zh-CN: 元数据变量 (路线图 P6.4): v26 之前的宿主上不显示; v26 宿主上界面读取一次已列出文件的元数据并为各行命名, 缺少该值的图片得到空值.
+     */
+    @Test
+    fun metadataVariablesNameRowsFromTheHostMetadata() {
+        val metadata = mapOf("IMG_1.jpg" to Bundle().apply {
+            putString("cameraModel", "Pixel 9")
+            putString("dateTaken", "2026-10-15T08:30:00")
+        })
+        val session = FakeHostSession(parent = listOf("IMG_1.jpg", "IMG_2.jpg"), metadata = metadata)
+        val targets = arrayOf(target("IMG_1.jpg"), target("IMG_2.jpg"))
+        ActivityScenario.launch<BatchRenameActivity>(request("batch-rename-selection", session, *targets)).use {
+            waitForTag(row("IMG_1.jpg", targetId = "IMG_1.jpg"))
+            inList(TAG_OPTIONS).performClick()
+            compose.waitForIdle()
+            assertTrue("hidden on a host before v26", !exists(TAG_METADATA))
+        }
+        val v26 = request("batch-rename-selection", session, *targets).putExtra(ExplorerActionIntentExtras.HOST_VERSION_CODE, BatchRenamePlugin.METADATA_HOST_VERSION)
+        ActivityScenario.launch<BatchRenameActivity>(v26).use {
+            waitForTag(row("IMG_1.jpg", targetId = "IMG_1.jpg"))
+            inList(TAG_OPTIONS).performClick()
+            inList(TAG_METADATA).performClick()
+            inList(TAG_SEARCH).performTextInput("IMG")
+            inList(TAG_REPLACE).performTextInput("\$CAMERA_MODEL\$DATE_TAKEN_YYYY")
+            compose.waitUntil(TIMEOUT) { applyEnabled() }
+            // The rows lie below the opened options; scroll them into view for the screenshot. zh-CN: 行位于展开的选项之下, 截图前滚动到可见.
+            inList(row("IMG_2.jpg", targetId = "IMG_2.jpg"))
+            compose.waitForIdle()
+            screenshot("metadata")
+            compose.onNodeWithTag(TAG_APPLY).performClick()
+            compose.waitUntil(TIMEOUT) { session.renameRequests.isNotEmpty() }
+            assertEquals(listOf("Pixel 92026_1.jpg", year(1_700_000_000_000L) + "_2.jpg"), session.renameRequests.single().map { it.third })
+            assertEquals(listOf(listOf("IMG_1.jpg", "IMG_2.jpg")), session.metadataRequests.toList())
+        }
+    }
+
+    /** The year of [millis] on this device, the fallback of `$DATE_TAKEN_YYYY`. zh-CN: 设备时区中的年份. */
+    private fun year(millis: Long): String = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneId.systemDefault()).year.toString()
+
     @Test
     fun anOlderProtocolEndsTheScreenAndClosesTheSession() {
         val session = FakeHostSession(parent = listOf("a.txt"))

@@ -98,6 +98,30 @@ internal class HostSessionClient(private val session: IExplorerActionHostSession
 
     fun undo(batchId: String): RenameBatchResult = batch(session.undoRenameBatch(batchId))
 
+    /**
+     * Photo metadata of entries this session listed (Explorer Action v26, roadmap D34), [ExplorerActionProtocol.MAX_METADATA_ENTRIES_PER_REQUEST]
+     * per call; null for an entry the host read nothing from. Values keep their Bundle types (String, Int, Double).
+     * zh-CN: 本会话列出过的条目的照片元数据 (Explorer Action v26, 路线图 D34), 每次调用至多
+     * [ExplorerActionProtocol.MAX_METADATA_ENTRIES_PER_REQUEST] 个; 宿主未读到内容的条目为 null. 值保持 Bundle 中的类型.
+     */
+    fun readMetadata(entries: List<Pair<String, String>>): List<Map<String, Any>?> =
+        entries.chunked(ExplorerActionProtocol.MAX_METADATA_ENTRIES_PER_REQUEST).flatMap { chunk ->
+            val answer = session.readMetadata(Bundle().apply {
+                putParcelableArrayList(ExplorerActionHostSessionKeys.METADATA_ENTRIES, ArrayList(chunk.map { (targetId, relativePath) ->
+                    Bundle().apply {
+                        putString(ExplorerActionHostSessionKeys.RENAME_TARGET_ID, targetId)
+                        putString(ExplorerActionHostSessionKeys.RELATIVE_PATH, relativePath)
+                    }
+                }))
+            })
+            val items = bundles(answer, ExplorerActionHostSessionKeys.METADATA_ITEMS)
+            check(items.size == chunk.size) { "the host answered ${items.size} metadata items for ${chunk.size} entries" }
+            items.map { item -> item.getBundle(ExplorerActionHostSessionKeys.METADATA)?.let(::values) }
+        }
+
+    @Suppress("DEPRECATION")
+    private fun values(bundle: Bundle): Map<String, Any> = bundle.keySet().mapNotNull { key -> bundle.get(key)?.let { key to it } }.toMap()
+
     fun close() {
         if (closed) return
         closed = true

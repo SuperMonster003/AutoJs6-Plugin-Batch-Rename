@@ -27,11 +27,22 @@ internal class VariableExpander(
 ) {
 
     /**
+     * Whether a metadata variable of the template has no value in [metadata] and expands to nothing; the date taken
+     * falls back to the modification time and never counts.
+     * zh-CN: 模板中的元数据变量在 [metadata] 中是否缺少值而展开为空; 拍摄时间会回退到修改时间, 不计入.
+     */
+    fun missesMetadata(metadata: Map<String, Any>?): Boolean =
+        template.metadataFields.any { field -> MetadataFormatter.format(field, metadata, EPOCH) == null }
+
+    /**
      * @param dateMillis epoch milliseconds of the date variables (modification time or `now`).
      * @param renamedBefore items renamed before this one, plus the continued numbering offset.
      * @param original the original text of the `target` part, for `${pinyin}`.
+     * @param metadata the item's photo metadata, for the metadata variables.
+     * @param modified epoch milliseconds of the modification time, the fallback of `$DATE_TAKEN_*`.
      */
-    fun expand(dateMillis: Long, renamedBefore: Long, original: String = ""): String = buildString {
+    fun expand(dateMillis: Long, renamedBefore: Long, original: String = "", metadata: Map<String, Any>? = null, modified: Long = dateMillis): String = buildString {
+        val modifiedTime by lazy(LazyThreadSafetyMode.NONE) { dates.localDateTime(modified) }
         val romanized by lazy(LazyThreadSafetyMode.NONE) { JsRegexSyntax.escapeReplacement(pinyin(original)) }
         template.parts.forEach { part ->
             when (part) {
@@ -41,16 +52,23 @@ internal class VariableExpander(
                 is TemplatePart.Date -> append(JsRegexSyntax.escapeReplacement(dates.format(part.field, dateMillis)))
                 is TemplatePart.Random -> append(JsRegexSyntax.escapeReplacement(random.next(part.kind, part.length)))
                 TemplatePart.Pinyin -> append(romanized)
+                is TemplatePart.Metadata -> append(JsRegexSyntax.escapeReplacement(MetadataFormatter.format(part.field, metadata, modifiedTime).orEmpty()))
             }
         }
     }
 }
+
+/** Any time: [VariableExpander.missesMetadata] never formats a date. zh-CN: 任意时间: 判定缺失时不格式化日期. */
+private val EPOCH: java.time.LocalDateTime = java.time.LocalDateTime.of(1970, 1, 1, 0, 0)
 
 /**
  * Formats the date variables like PowerRename: 24-hour clock, Gregorian year, names in the request locale.
  * zh-CN: 像 PowerRename 一样格式化日期变量: 24 小时制, 公历年份, 名称使用请求的区域.
  */
 internal class DateFieldFormatter(private val locale: Locale, private val zone: ZoneId) {
+
+    /** [epochMillis] as the wall time of the request time zone. zh-CN: [epochMillis] 在请求时区中的本地时间. */
+    fun localDateTime(epochMillis: Long): java.time.LocalDateTime = Instant.ofEpochMilli(epochMillis).atZone(zone).toLocalDateTime()
 
     fun format(field: DateField, epochMillis: Long): String {
         val time = Instant.ofEpochMilli(epochMillis).atZone(zone)

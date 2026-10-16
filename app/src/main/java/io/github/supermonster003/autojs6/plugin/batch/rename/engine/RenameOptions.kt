@@ -104,6 +104,8 @@ internal data class RenameOptions(
     val pinyinSeparator: PinyinSeparator = PinyinSeparator.NONE,
     val pinyinCase: PinyinCase = PinyinCase.LOWER,
     val pinyinInitials: Boolean = false,
+    /** Expands the photo metadata variables (roadmap D34); they stay literal when off. zh-CN: 展开照片元数据变量; 关闭时保持字面. */
+    val metadata: Boolean = false,
 ) {
     /** The ECMAScript source of [search]: plain text is escaped (roadmap D15). zh-CN: [search] 对应的 ECMAScript 源码. */
     val pattern: String
@@ -138,7 +140,7 @@ internal object RenameOptionsParser {
         BatchRenameOptionKeys.SANITIZE_REPLACEMENT, BatchRenameOptionKeys.TRIM, BatchRenameOptionKeys.CONTINUE_NUMBERING,
         BatchRenameOptionKeys.ON_CONFLICT, BatchRenameOptionKeys.CONFLICT_NUMBER_PATTERN,
         BatchRenameOptionKeys.PINYIN, BatchRenameOptionKeys.PINYIN_TONE, BatchRenameOptionKeys.PINYIN_SEPARATOR,
-        BatchRenameOptionKeys.PINYIN_CASE, BatchRenameOptionKeys.PINYIN_INITIALS,
+        BatchRenameOptionKeys.PINYIN_CASE, BatchRenameOptionKeys.PINYIN_INITIALS, BatchRenameOptionKeys.METADATA,
     )
 
     /** Characters a sanitize replacement or a number pattern must not bring into a name. */
@@ -178,6 +180,7 @@ internal object RenameOptionsParser {
                 ?: defaults.pinyinSeparator,
             pinyinCase = values.choice(BatchRenameOptionKeys.PINYIN_CASE, PinyinCase.entries, PinyinCase::value) ?: defaults.pinyinCase,
             pinyinInitials = values.flag(BatchRenameOptionKeys.PINYIN_INITIALS) ?: defaults.pinyinInitials,
+            metadata = values.flag(BatchRenameOptionKeys.METADATA) ?: defaults.metadata,
         )
         return ParsedOptions(options, values.keys - KNOWN_KEYS)
     }
@@ -216,6 +219,7 @@ internal object RenameOptionsParser {
         BatchRenameOptionKeys.PINYIN_SEPARATOR to options.pinyinSeparator.value,
         BatchRenameOptionKeys.PINYIN_CASE to options.pinyinCase.value,
         BatchRenameOptionKeys.PINYIN_INITIALS to options.pinyinInitials,
+        BatchRenameOptionKeys.METADATA to options.metadata,
     )
 
     private fun Map<String, Any?>.text(key: String): String? {

@@ -45,7 +45,7 @@ class RenameOptionsParserTest {
                 "format" to "capitalize", "enumerate" to true, "random" to true, "dateTime" to "now", "normalize" to "nfd",
                 "halfWidth" to true, "sanitize" to true, "sanitizeReplacement" to "-", "trim" to true, "continueNumbering" to true,
                 "onConflict" to "number", "conflictNumberPattern" to "_{n}", "pinyin" to true, "pinyinTone" to "number",
-                "pinyinSeparator" to "hyphen", "pinyinCase" to "capitalize", "pinyinInitials" to true,
+                "pinyinSeparator" to "hyphen", "pinyinCase" to "capitalize", "pinyinInitials" to true, "metadata" to true,
             ),
         ).options
         assertEquals(
@@ -55,7 +55,7 @@ class RenameOptionsParserTest {
                 format = TextFormat.CAPITALIZE, enumerate = true, random = true, dateTime = DateTimeSource.NOW, normalize = Normalization.NFD,
                 halfWidth = true, sanitize = true, sanitizeReplacement = "-", trim = true, continueNumbering = true,
                 onConflict = ConflictPolicy.NUMBER, conflictNumberPattern = "_{n}", pinyin = true, pinyinTone = PinyinTone.NUMBER,
-                pinyinSeparator = PinyinSeparator.HYPHEN, pinyinCase = PinyinCase.CAPITALIZE, pinyinInitials = true,
+                pinyinSeparator = PinyinSeparator.HYPHEN, pinyinCase = PinyinCase.CAPITALIZE, pinyinInitials = true, metadata = true,
             ),
             options,
         )
@@ -92,6 +92,7 @@ class RenameOptionsParserTest {
             mapOf("search" to "a", "pinyinSeparator" to "_"),
             mapOf("search" to "a", "pinyinCase" to "upper"),
             mapOf("search" to "a", "pinyinInitials" to 1),
+            mapOf("search" to "a", "metadata" to "true"),
         )
         invalid.forEach { values -> assertEquals(values.toString(), BatchRenameErrorCodes.INVALID_OPTIONS, errorCode(values)) }
         assertEquals(BatchRenameErrorCodes.LIMIT_EXCEEDED, errorCode(mapOf("search" to "a".repeat(4097))))

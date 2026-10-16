@@ -29,6 +29,8 @@ internal data class RenameItem(
     val length: Long = -1L,
     /** Excluded by the caller: keeps its name and does not advance counters. zh-CN: 调用方排除: 保持原名, 不推进计数器. */
     val excluded: Boolean = false,
+    /** Photo metadata the host read ([org.autojs.plugin.batchrename.api.BatchRenameMetadataKeys]). zh-CN: 宿主读取的照片元数据. */
+    val metadata: Map<String, Any>? = null,
 )
 
 /** A directory holding targets, with every name already present in it. zh-CN: 目标所在目录及其中已有的全部名称. */
@@ -89,6 +91,8 @@ internal data class PlanItem(
     val twoPhase: Boolean = false,
     /** Replaces an existing entry (overwrite policy). zh-CN: 覆盖已有条目 (覆盖策略). */
     val overwrites: Boolean = false,
+    /** A metadata variable had no value and became empty (roadmap D34). zh-CN: 有元数据变量缺少值而展开为空 (路线图 D34). */
+    val metadataMissing: Boolean = false,
 )
 
 internal data class RenamePlan(

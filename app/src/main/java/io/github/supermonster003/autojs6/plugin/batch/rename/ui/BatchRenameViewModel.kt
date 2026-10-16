@@ -18,6 +18,8 @@ import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RenameScop
 import io.github.supermonster003.autojs6.plugin.batch.rename.explorer.RequestTarget
 import io.github.supermonster003.autojs6.plugin.batch.rename.settings.OptionsCodec
 import io.github.supermonster003.autojs6.plugin.batch.rename.engine.PlanException
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.ReplacementTemplate
+import io.github.supermonster003.autojs6.plugin.batch.rename.engine.variables.TemplatePart
 import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetConflict
 import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetDocument
 import io.github.supermonster003.autojs6.plugin.batch.rename.presets.PresetImport
@@ -110,6 +112,8 @@ internal data class ScreenState(
     val pendingImport: PendingImport? = null,
     /** An import that refused entries; shown until dismissed. zh-CN: 有条目被拒的导入结果, 关闭前一直显示. */
     val importResult: PresetImport? = null,
+    /** The host reads photo metadata for this screen (Explorer Action v26). zh-CN: 宿主可为本界面读取照片元数据. */
+    val metadataAvailable: Boolean = false,
 ) {
     /** Rename is possible right now. zh-CN: 当前可以执行重命名. */
     val canApply: Boolean get() = busy == null && !planPending && preview.applicable
@@ -140,6 +144,9 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
     private var enumeratedSubfolders: Boolean? = null
     private var planJob: Job? = null
 
+    /** Photo metadata by candidate key; null for entries the host read nothing from. zh-CN: 按候选项键缓存的照片元数据. */
+    private val metadata = HashMap<String, Map<String, Any>?>()
+
     val attached: Boolean get() = request != null
 
     fun attach(request: ExplorerRequest) {
@@ -157,6 +164,7 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
                 recentReplacements = preferences.recentReplacements(),
                 rememberOptions = preferences.rememberOptions,
                 presetNames = presets.list().map { preset -> preset.name },
+                metadataAvailable = request.metadataAvailable,
             )
         }
         viewModelScope.launch {
@@ -446,13 +454,39 @@ internal class BatchRenameViewModel(application: Application) : AndroidViewModel
             val state = _state.value
             val set = state.candidates ?: return@launch
             val refused = OptionsCodec.check(state.options)
+            if (refused == null && !loadMetadata(state, set)) return@launch
             val preview = if (refused != null) {
                 Preview.EMPTY.copy(error = refused)
             } else {
-                withContext(Dispatchers.Default) { planner.plan(set, state.options, state.excludedKeys) }
+                val known = HashMap(metadata)
+                withContext(Dispatchers.Default) { planner.plan(set, state.options, state.excludedKeys, known) }
             }
             _state.update { it.copy(preview = preview, optionsError = (refused ?: preview.error)?.message, planPending = it.options != state.options || it.excludedKeys != state.excludedKeys) }
             if (preferences.rememberOptions) preferences.saveOptions(state.options)
+        }
+    }
+
+    /**
+     * Reads the photo metadata the options need (roadmap D34): only with "Metadata variables" on, a metadata variable
+     * in the replacement and a v26 host, and only for files not read before. False when the session failed.
+     * zh-CN: 读取选项所需的照片元数据 (路线图 D34): 仅在开启 "元数据变量", 替换文本含元数据变量且宿主为 v26 时, 只读取尚未读过的文件.
+     * 会话失败时返回 false.
+     */
+    private suspend fun loadMetadata(state: ScreenState, set: CandidateSet): Boolean {
+        val client = client ?: return true
+        if (!state.metadataAvailable || !state.options.metadata) return true
+        val template = ReplacementTemplate.parse(state.options.replace, enumerate = false, random = false, dateTime = false, metadata = true)
+        if (template.parts.none { it is TemplatePart.Metadata }) return true
+        val missing = set.candidates.filter { !it.directory && it.key !in metadata }
+        if (missing.isEmpty()) return true
+        _state.update { it.copy(busy = it.busy ?: Busy.LISTING) }
+        try {
+            val read = runSession { client.readMetadata(missing.map { it.targetId to it.relativePath }) } ?: return false
+            missing.zip(read).forEach { (candidate, values) -> metadata[candidate.key] = values }
+            return true
+        } finally {
+            // Also when a newer keystroke cancels this plan. zh-CN: 被更新的输入取消时同样复位.
+            _state.update { it.copy(busy = if (it.busy == Busy.LISTING) null else it.busy) }
         }
     }
 

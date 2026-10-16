@@ -24,6 +24,9 @@ internal class ReplacementTemplate private constructor(val parts: List<TemplateP
 
     val hasVariables: Boolean = parts.any { it !is TemplatePart.Literal && it !is TemplatePart.Dollar }
 
+    /** Metadata variables other than the date taken, whose absence the plan reports. zh-CN: 缺失时方案会报告的元数据变量. */
+    val metadataFields: Set<MetadataField> = parts.filterIsInstance<TemplatePart.Metadata>().map { it.field }.filterNot { it.dateTaken }.toSet()
+
     companion object {
 
         private const val PINYIN = "pinyin"
@@ -31,7 +34,7 @@ internal class ReplacementTemplate private constructor(val parts: List<TemplateP
         /**
          * @throws PlanException with `LIMIT_EXCEEDED` for a random string longer than [BatchRenameLimits.MAX_RANDOM_LENGTH].
          */
-        fun parse(replace: String, enumerate: Boolean, random: Boolean, dateTime: Boolean): ReplacementTemplate {
+        fun parse(replace: String, enumerate: Boolean, random: Boolean, dateTime: Boolean, metadata: Boolean = false): ReplacementTemplate {
             val parts = mutableListOf<TemplatePart>()
             val literal = StringBuilder()
             fun flushLiteral() {
@@ -57,6 +60,19 @@ internal class ReplacementTemplate private constructor(val parts: List<TemplateP
                     flushLiteral()
                     parts += braced.first
                     index = braced.second
+                    continue
+                }
+                // Metadata variables come before the date variables and stay literal while their option is off.
+                // zh-CN: 元数据变量先于日期变量匹配, 选项关闭时保持字面.
+                val metadataField = MetadataField.matchAt(replace, index + 1)
+                if (metadataField != null) {
+                    if (metadata) {
+                        flushLiteral()
+                        parts += TemplatePart.Metadata(metadataField)
+                    } else {
+                        literal.append(char).append(metadataField.token)
+                    }
+                    index += 1 + metadataField.token.length
                     continue
                 }
                 val field = if (dateTime) DateField.matchAt(replace, index + 1) else null
@@ -115,6 +131,9 @@ internal sealed interface TemplatePart {
 
     /** `${pinyin}`: the original text of the `target` part in pinyin. zh-CN: `target` 部分原文的拼音. */
     data object Pinyin : TemplatePart
+
+    /** `$CAMERA_MAKE` ... `$COLOR_SPACE` (roadmap D34). zh-CN: 照片元数据变量 (路线图 D34). */
+    data class Metadata(val field: MetadataField) : TemplatePart
 }
 
 /**

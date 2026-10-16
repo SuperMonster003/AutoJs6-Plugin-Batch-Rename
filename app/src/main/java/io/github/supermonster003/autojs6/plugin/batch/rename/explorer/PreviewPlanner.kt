@@ -21,6 +21,8 @@ internal data class PreviewRow(
     val overwrites: Boolean,
     /** The user unchecked the row. zh-CN: 用户取消勾选了该行. */
     val excluded: Boolean,
+    /** A metadata variable had no value for this row (roadmap D34). zh-CN: 该行缺少某个元数据变量的值 (路线图 D34). */
+    val metadataMissing: Boolean = false,
 ) {
     val renames: Boolean get() = status == PlanItemStatus.RENAME
 }
@@ -61,7 +63,8 @@ internal class PreviewPlanner(
     private val timeZone: ZoneId = ZoneId.systemDefault(),
 ) {
 
-    fun plan(set: CandidateSet, options: RenameOptions, excludedKeys: Set<String>): Preview {
+    /** @param metadata photo metadata by candidate key, for the metadata variables. */
+    fun plan(set: CandidateSet, options: RenameOptions, excludedKeys: Set<String>, metadata: Map<String, Map<String, Any>?> = emptyMap()): Preview {
         if (set.candidates.isEmpty()) return Preview.EMPTY
         val request = RenameRequest(
             options = options,
@@ -76,6 +79,7 @@ internal class PreviewPlanner(
                     lastModified = candidate.lastModified,
                     length = candidate.size,
                     excluded = candidate.key in excludedKeys,
+                    metadata = metadata[candidate.key],
                 )
             },
             locale = locale,
@@ -90,7 +94,7 @@ internal class PreviewPlanner(
         return Preview(
             rows = set.candidates.mapIndexed { index, candidate ->
                 val item = plan.items[index]
-                PreviewRow(candidate, item.newName, item.status, item.reason, item.overwrites, candidate.key in excludedKeys)
+                PreviewRow(candidate, item.newName, item.status, item.reason, item.overwrites, candidate.key in excludedKeys, item.metadataMissing)
             },
             rejected = plan.rejected,
         )

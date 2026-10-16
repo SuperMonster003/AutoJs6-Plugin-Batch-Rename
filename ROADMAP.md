@@ -86,6 +86,10 @@ D13-D30 据第 1 节派生, 进入对应阶段前可推翻 (推翻点见各条),
 | D44 | 带预设的 `plan.options` | 显示合并后的完整选项: 插件在应答中回传 "默认值 < 预设 < 显式选项" 的结果 (契约追加 `options` 结果键), `apply` 按这份选项重算, 预设在 plan 与 apply 之间被改不影响结果 (同日选择) |
 | D45 | 预设导出范围 | 管理面板中可多选, 默认全选; 文件与剪贴板使用同一种带版本号的 JSON 格式, 导入两者通用 (同日选择) |
 | D46 | 预设入口 | 顶栏新增 "预设" 按钮: 下拉列出预设 (点按即加载), 末尾 "将当前选项保存为预设..." 与 "管理预设..." (管理面板内重命名 / 删除 / 导入 / 导出); 顶栏共 3 个图标 (同日选择) |
+| D47 | 元数据数值格式 | 带单位且文件名安全: 光圈 `f2.8`, 快门 `1-250s` (分数用短横线; 1 秒及以上写 `2s` / `1.5s`), 焦距 `50mm`, 曝光补偿 `+0.3EV`, 海拔 `120m` (2026-10-16 维护者选择) |
+| D48 | 拍摄时间 | `$DATE_TAKEN_*` 用 EXIF DateTimeOriginal 记录的当地时间原样展开, 不换算时区; 缺失时回退到修改时间 (D34) (同日选择) |
+| D49 | 枚举文字 | 固定英文词: `$FLASH` 为 `On` / `Off`; `$ORIENTATION` 为 `0` / `90` / `180` / `270`, 镜像时加 `M` (如 `90M`); `$COLOR_SPACE` 为 `sRGB` / `AdobeRGB` / `Uncalibrated` (同日选择) |
+| D50 | GPS 格式 | 十进制度, 6 位小数, 南纬与西经为负 (`31.230416` / `-121.473701`) (同日选择) |
 
 ---
 
@@ -247,7 +251,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 与真机联调已完成 2026-10-15; 剩三项失败路径) |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 已完成 (2026-10-16, v1.0.0 已发布并登记索引) |
-| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D46 定于 2026-10-16; P6.1 拼音, P6.3 脚本试算已完成; P6.2 预设除文件选择器人工验收外已完成) |
+| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D50 定于 2026-10-16; P6.1 拼音, P6.3 脚本试算已完成; P6.2 预设除文件选择器人工验收外已完成; P6.4 元数据变量已实现, 待 API 33 真机实测与 HEIF / DNG 样本) |
 
 依赖顺序:
 
@@ -477,10 +481,10 @@ P0 (骨架)
 
 ### P6.4 元数据变量 (D34)
 
-- [ ] (契约 / 插件) 选项 `metadata` 与 PowerRename 第 2 组 25 个变量; 条目携带元数据字段 (契约追加键), 引擎按字段展开; 缺失为空串, `$DATE_TAKEN_*` 缺失时回退到修改时间; 预览标出缺少元数据的条目; 元数据变量先于日期变量匹配 (最长名称优先).
-- [ ] (宿主) 脚本路径: `metadata` 开启且模板含元数据变量时, 对图片条目用 `androidx.exifinterface` 读 EXIF, 缺作者 / 版权等时解析 XMP 包, 字段随请求发送; 懒读取, 并发上限; 2000 项在 API 33 真机上的读取耗时实测并记录.
-- [ ] (宿主 / 插件) 文件管理器路径: Explorer Action v26 新增会话事务, 插件按需批量请求已列出条目的元数据 (宿主读取, 插件仍不接触文件); v25 宿主上界面隐藏 "元数据变量".
-- [ ] (测试) 宿主读取用例 (无 EXIF, 截图, JPEG / PNG / WebP / HEIF / DNG, XMP 作者与版权), 引擎用例, 两条路径的设备联调.
+- [x] (契约 / 插件) 选项 `metadata` 与 PowerRename 第 2 组 25 个变量; 条目携带元数据字段 (契约追加键), 引擎按字段展开; 缺失为空串, `$DATE_TAKEN_*` 缺失时回退到修改时间; 预览标出缺少元数据的条目; 元数据变量先于日期变量匹配 (最长名称优先). 证据 (2026-10-16): 宿主提交 `1e82d595d` (契约 v1 追加选项 `metadata`, 条目键 `metadata` / `metadataMissing`, `BatchRenameMetadataKeys` 19 个原始值键, `METADATA_VARIABLES` 25 个名称, 色彩空间取值与功能 `metadata`; `VERSION_BUILD=3800`), 插件 AAR 由此重新暂存. 插件 `engine/variables/MetadataVariables.kt`: 元数据变量先于日期变量匹配, 最长名称优先, 区分大小写; 选项关闭时整段保持字面 (因此 `$DATE_TAKEN_YYYY` 不会被当作 `$D`); 按 D47-D50 格式化 (文本中的 `/` 改为 `-`); 缺失值展开为空并在应答条目上标 `metadataMissing`, 拍摄时间缺失时回退到请求时区中的修改时间且不算缺失. 实施细节: 宿主只发送原始值, 格式化全部在插件, 两条路径因此一致.
+- [ ] (宿主) 脚本路径: `metadata` 开启且模板含元数据变量时, 对图片条目用 `androidx.exifinterface` 读 EXIF, 缺作者 / 版权等时解析 XMP 包, 字段随请求发送; 懒读取, 并发上限; 2000 项在 API 33 真机上的读取耗时实测并记录. 已完成部分: 宿主 `1e82d595d` / `bb4d06061`: `BatchRenameMetadataReader` 经 `androidx.exifinterface` (原为传递依赖 1.3.6, 现显式声明同一版本, APK 不变) 读取 EXIF, 作者与版权缺失时读 XMP `dc:creator` / `dc:rights` (按命名空间与本地名匹配: `Xml.newPullParser` 会解析命名空间, 首版按带前缀的名称匹配而读不到, 设备测试发现后修正); 只有 `metadata: true` 且 `replace` 含元数据变量时才读取, 只读文件, 每次并发 4 个; 插件未声明 `metadata` 时 `metadata: true` 为 `PLUGIN_INCOMPATIBLE`, `preview` 带 `metadata: true` 为 `INVALID_OPTIONS` (D37); 脚本方案条目带 `metadataMissing`. 读取耗时: 2000 张生成的小 JPEG 在 `AVD_API_35_16K` 上 415 / 378 / 396 ms (`BatchRenameMetadataBenchmarkTest`). 未执行: API 33 真机上的 2000 项读取实测 (XQ-DQ72 当时用于维护者的人工验收).
+- [x] (宿主 / 插件) 文件管理器路径: Explorer Action v26 新增会话事务, 插件按需批量请求已列出条目的元数据 (宿主读取, 插件仍不接触文件); v25 宿主上界面隐藏 "元数据变量". 证据: Explorer Action v26 (宿主 `1e82d595d`, 协议文档 `docs/dev/explorer-action-protocol-v26.md`): `IExplorerActionHostSession` 末尾追加 `readMetadata`, 只对声明 `targetRename` 的动作开放, 只能读请求目标与本会话列出过的后代, 每次至多 128 个, 应答 `ExplorerPhotoMetadataKeys` (与 `BatchRenameMetadataKeys` 同值, 宿主测试断言两者一致). 插件按 `HOST_VERSION_CODE >= METADATA_HOST_VERSION` (5452, 发布前按宿主最终提交回填) 判断宿主是否支持 (请求中的协议版本是动作目录声明的版本, 不能用来判断); 开关打开且替换文本含元数据变量时才按 128 个一批读取已列出的文件, 结果按条目缓存; 旧宿主上隐藏开关与变量组. 界面: "范围与格式" 中的 "元数据变量" 开关, 变量面板 "照片元数据" 组 25 项, 缺值的行标 "缺少元数据"; 10 种语言 28 条字符串. E4: `AVD_API_35_16K` 上 Compose 测试截图 `.bak/visual/1.1.0/metadata.png` 已检查 (有元数据的行 `Pixel 92026_1.jpg`, 缺值的行 `2023_2.jpg` 并标 "missing metadata").
+- [ ] (测试) 宿主读取用例 (无 EXIF, 截图, JPEG / PNG / WebP / HEIF / DNG, XMP 作者与版权), 引擎用例, 两条路径的设备联调. 已完成部分 (2026-10-16): 插件 JVM `MetadataVariablesTest` 5 项 (25 个变量的格式, 取整与单位, 缺失与回退, 先于日期变量且关闭时为字面, 引擎按条目展开并标记缺失), 选项解析扩充, 共 145 项通过; 插件设备 19 项在 `AVD_API_35_16K` 上通过 (含 `metadataVariablesNameRowsFromTheHostMetadata`, 测试替身实现 `readMetadata`). 宿主 JVM: 参数与门控, 只在需要时读取, 两套键一致, 共 175 项相关测试通过; 宿主设备 (`AVD_API_35_16K`, 宿主 debug 5452, release 候选包 versionCode 37): `BatchRenameMetadataReaderDeviceTest` 4 项 (生成的 JPEG 全部字段, EXIF 作者优先而 XMP 补版权, AdobeRGB 判定, PNG 与 WebP 的 EXIF, 无 EXIF 的截图只有尺寸, 非图片与伪图片), `ExplorerActionMetadataV26InstrumentationTest` 2 项, `BatchRenameScriptApiTest.scriptsExpandMetadataVariables`, `BatchRenamePluginRoundTripTest.metadataTravelsWithTheItems` (R8 后的 release 包) 与 `device_smoke.py` 其余用例通过; 换回 1.0.0 后 `metadata: true` 为 `PLUGIN_INCOMPATIBLE`. 未执行: HEIF 与 DNG 样本 (无法在测试中生成, 需要真实样本文件), 真机上的两条路径联调.
 
 ### P6.5 重命名历史页面与保留策略 (D38, D39)
 

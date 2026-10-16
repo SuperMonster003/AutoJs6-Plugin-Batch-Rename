@@ -13,17 +13,19 @@ runs in its own process and needs the AIDL stubs and constants at run time.
 | File | Host module | Content | SHA-256 |
 | --- | --- | --- | --- |
 | `common-plugin-api.aar` | `plugin-api/common-plugin-api` | `PluginInfo`, `IPluginInfoProvider`, `PluginActions`, `PluginCapabilityKeys`, `AutoJs6HostSettingsContract` | `ed7a71942ffb67255ebad8d8a2c912b01c4a3cdd8aad497baba0687b4072032a` |
-| `explorer-action-api.aar` | `plugin-api/explorer-action-api` | Explorer Action protocol v25: `IExplorerActionPlugin`, `IExplorerActionHostSession` with the rename transactions, catalog keys and values | `df4bcec8f68f502476c2eb41c8ff3ef513f30abfd28e06b94d1d235041cf3855` |
-| `batch-rename-api.aar` | `plugin-api/batch-rename-api` | Batch Rename contract v1: `IBatchRenamePlugin`, discovery literals, request / parent / item / option / result keys, value sets, features, error codes and limits | `f1fe6ab17c71c85c189317f97d1a392e404f4c7cf5a18c0f4842dcd4ef8b6a16` |
+| `explorer-action-api.aar` | `plugin-api/explorer-action-api` | Explorer Action protocol v26: `IExplorerActionPlugin`, `IExplorerActionHostSession` with the rename and metadata transactions, catalog keys and values | `722cd620459e22c0a5112e57779a85575ff0211a319fdd6097aaff0c2a88ba95` |
+| `batch-rename-api.aar` | `plugin-api/batch-rename-api` | Batch Rename contract v1: `IBatchRenamePlugin`, discovery literals, request / parent / item / option / result keys, value sets, features, error codes and limits | `27fa000d137a8acb7e53e11ed7e896bf478777679be4355daef445f853453522` |
 
 Provenance (2026-10-15): all were assembled with `:plugin-api:<module>:assembleRelease`.
 `common-plugin-api` comes from the host snapshot `6c151c900e` (6.8.0, versionCode 5352, roadmap P0.1)
-and last changed at host commit `aa8ebaf72e`. `batch-rename-api` comes from host commit `bc65c8256`
-(contract v1 plus the appended pinyin options of roadmap P6.1 and the preset transactions, keys and feature of P6.2,
-restaged on 2026-10-16; first staged from `aa4fd4f6d` in P1.1); the module depends only on `common-plugin-api`. `explorer-action-api`
-comes from host commit `95c9f0455` (protocol v25, roadmap P1.2): the `targetRename` catalog key, the
-rename dialog placement and the five appended session transactions. Every v1-v24 transaction code is
-unchanged, and the plugin only implements `IExplorerActionPlugin`, whose order did not change.
+and last changed at host commit `aa8ebaf72e`. `batch-rename-api` comes from host commit `1e82d595d`
+(contract v1 plus the appended pinyin options of roadmap P6.1, the preset transactions, keys and feature of P6.2 and the
+photo metadata keys and feature of P6.4, restaged on 2026-10-16; first staged from `aa4fd4f6d` in P1.1); the module
+depends only on `common-plugin-api`. `explorer-action-api` comes from the same host commit `1e82d595d` (protocol v26,
+roadmap P6.4: `readMetadata` appended to the session; first staged from `95c9f0455`, protocol v25, in P1.2: the
+`targetRename` catalog key, the rename dialog placement and the five rename transactions). Every earlier transaction
+code is unchanged; the plugin implements `IExplorerActionPlugin`, whose order did not change, and its test double of
+the host session implements `readMetadata`.
 
 ## Rhino jar (lock `../locks/rhino-jar.lock`, roadmap P2.1 / D15)
 

@@ -15,6 +15,7 @@ import org.autojs.plugin.batchrename.api.BatchRenameContract
 import org.autojs.plugin.batchrename.api.BatchRenameErrorCodes
 import org.autojs.plugin.batchrename.api.BatchRenameItemKeys
 import org.autojs.plugin.batchrename.api.BatchRenameLimits
+import org.autojs.plugin.batchrename.api.BatchRenameMetadataKeys
 import org.autojs.plugin.batchrename.api.BatchRenameOptionKeys
 import org.autojs.plugin.batchrename.api.BatchRenameParentKeys
 import org.autojs.plugin.batchrename.api.BatchRenameRequestKeys
@@ -111,6 +112,7 @@ internal object PlanCodec {
                 item.reason?.let { put(BatchRenameItemKeys.REASON, it.value) }
                 put(BatchRenameItemKeys.TWO_PHASE, item.twoPhase)
                 put(BatchRenameItemKeys.OVERWRITES, item.overwrites)
+                if (item.metadataMissing) put(BatchRenameItemKeys.METADATA_MISSING, true)
             }
         },
         BatchRenameResultKeys.COUNTS to PlanItemStatus.entries.associate { status -> status.value to (plan.counts[status] ?: 0) },
@@ -155,8 +157,16 @@ internal object PlanCodec {
             lastModified = values.optionalLong(BatchRenameItemKeys.LAST_MODIFIED, subject) ?: 0L,
             length = values.optionalLong(BatchRenameItemKeys.LENGTH, subject) ?: -1L,
             excluded = values.optionalBoolean(BatchRenameItemKeys.EXCLUDED, subject) ?: false,
+            metadata = values[BatchRenameItemKeys.METADATA]?.let { decodeMetadata(it.asMap("the metadata of $subject")) },
         )
     }
+
+    /**
+     * Known metadata keys with text or number values; anything else is dropped, since metadata only fills variables.
+     * zh-CN: 只保留已知键且值为文本或数值的元数据; 其余丢弃, 因为元数据只用于填充变量.
+     */
+    private fun decodeMetadata(values: Map<String, Any?>): Map<String, Any> =
+        values.filter { (key, value) -> key in BatchRenameMetadataKeys.ALL && (value is String || value is Number) }.mapValues { it.value!! }
 
     /** Characters of every string in the request, including nested lists and maps. zh-CN: 请求中全部字符串的字符数. */
     private fun countCharacters(value: Any?): Long = when (value) {

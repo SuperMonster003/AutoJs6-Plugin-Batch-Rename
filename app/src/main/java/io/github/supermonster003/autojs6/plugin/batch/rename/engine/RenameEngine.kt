@@ -52,6 +52,7 @@ internal class RenameEngine(
             enumerate = options.enumerate,
             random = options.random,
             dateTime = options.dateTime != DateTimeSource.NONE,
+            metadata = options.metadata,
         )
         val style = options.pinyinStyle
         val expander = VariableExpander(template, options.regex, DateFieldFormatter(request.locale, request.timeZone), random) { text ->
@@ -101,7 +102,9 @@ internal class RenameEngine(
         }
         if (regex != null && !session.test(editable, regex)) return item.keep(PlanItemStatus.UNCHANGED, PlanReason.NO_MATCH)
         val dateMillis = if (options.dateTime == DateTimeSource.NOW) request.now else item.lastModified
-        val replaced = regex?.let { session.replace(editable, it, expander.expand(dateMillis, counterIndex, editable)) } ?: editable
+        val replaced = regex?.let { session.replace(editable, it, expander.expand(dateMillis, counterIndex, editable, item.metadata, item.lastModified)) } ?: editable
+        // An empty metadata variable is reported, but only when the replacement ran. zh-CN: 仅在替换实际执行时报告空的元数据变量.
+        val metadataMissing = regex != null && expander.missesMetadata(item.metadata)
         val romanized = if (options.pinyin) pinyin().convert(replaced, options.pinyinStyle) else replaced
         val formatted = TextFormatter.format(romanized, options.format, request.locale)
         val cleaned = NameNormalizer.apply(formatted, options, holdsStem = options.target != RenameTarget.EXTENSION)
@@ -110,7 +113,8 @@ internal class RenameEngine(
             RenameTarget.EXTENSION -> NameParts(parts.stem, cleaned).join()
             RenameTarget.ALL -> cleaned
         }
-        return if (newName == item.name) item.keep(PlanItemStatus.UNCHANGED, PlanReason.SAME_NAME) else PlanItem(item.index, newName, PlanItemStatus.RENAME)
+        val planned = if (newName == item.name) item.keep(PlanItemStatus.UNCHANGED, PlanReason.SAME_NAME) else PlanItem(item.index, newName, PlanItemStatus.RENAME)
+        return planned.copy(metadataMissing = metadataMissing)
     }
 
     private fun RenameOptions.includes(item: RenameItem): Boolean = when {

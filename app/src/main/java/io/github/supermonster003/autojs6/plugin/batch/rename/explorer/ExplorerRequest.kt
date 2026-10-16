@@ -25,7 +25,12 @@ internal data class ExplorerRequest(
     val parentDisplayPath: String,
     val targets: List<RequestTarget>,
     val session: IExplorerActionHostSession,
-)
+    /** The host build, or [Long.MIN_VALUE] when the host did not say. zh-CN: 宿主构建号; 宿主未提供时为 [Long.MIN_VALUE]. */
+    val hostVersion: Long = Long.MIN_VALUE,
+) {
+    /** The host reads photo metadata for the screen (Explorer Action v26). zh-CN: 宿主可为界面读取照片元数据. */
+    val metadataAvailable: Boolean get() = hostVersion >= BatchRenamePlugin.METADATA_HOST_VERSION
+}
 
 /** What came of reading a request. zh-CN: 读取请求的结果. */
 internal sealed interface ExplorerRequestResult {
@@ -79,7 +84,7 @@ internal object ExplorerRequestParser {
         }
         val session = sessionOf(intent) ?: return ExplorerRequestResult.Rejected("the request has no host session")
         val parent = intent.getStringExtra(ExplorerActionIntentExtras.PARENT_DISPLAY_PATH).orEmpty()
-        return ExplorerRequestResult.Accepted(ExplorerRequest(action, requestId, parent, targets, session))
+        return ExplorerRequestResult.Accepted(ExplorerRequest(action, requestId, parent, targets, session, hostVersion))
     }
 
     private fun target(bundle: Bundle): RequestTarget {

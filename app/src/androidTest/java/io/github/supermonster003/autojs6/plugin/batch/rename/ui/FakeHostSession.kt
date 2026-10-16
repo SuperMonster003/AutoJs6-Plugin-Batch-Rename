@@ -18,7 +18,12 @@ import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 internal class FakeHostSession(
     private val parent: List<String>,
     private val tree: Map<String, List<String>> = emptyMap(),
+    /** v26 photo metadata by entry name; entries without one answer none. zh-CN: 按条目名称给出的 v26 照片元数据. */
+    private val metadata: Map<String, Bundle> = emptyMap(),
 ) : IExplorerActionHostSession.Stub() {
+
+    /** Names `readMetadata` was asked about, call by call. zh-CN: 每次 `readMetadata` 调用所询问的名称. */
+    val metadataRequests = mutableListOf<List<String>>()
 
     val renameRequests = mutableListOf<List<Triple<String, String, String>>>()
     val undone = mutableListOf<String>()
@@ -75,6 +80,19 @@ internal class FakeHostSession(
     }
 
     override fun queryRenameBatch(renameBatchId: String): Bundle = unsupported()
+
+    override fun readMetadata(request: Bundle): Bundle {
+        val names = bundles(request, ExplorerActionHostSessionKeys.METADATA_ENTRIES).map { entry ->
+            val relativePath = entry.getString(ExplorerActionHostSessionKeys.RELATIVE_PATH).orEmpty()
+            relativePath.ifEmpty { entry.getString(ExplorerActionHostSessionKeys.RENAME_TARGET_ID)!! }.substringAfterLast('/')
+        }
+        synchronized(this) { metadataRequests += names }
+        return Bundle().apply {
+            putParcelableArrayList(ExplorerActionHostSessionKeys.METADATA_ITEMS, ArrayList(names.map { name ->
+                Bundle().apply { metadata[name]?.let { putBundle(ExplorerActionHostSessionKeys.METADATA, it) } }
+            }))
+        }
+    }
 
     override fun attachClient(clientToken: IBinder) {
         attached = true

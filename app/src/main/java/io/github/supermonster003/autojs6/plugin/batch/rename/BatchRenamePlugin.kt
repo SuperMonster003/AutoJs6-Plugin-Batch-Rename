@@ -49,7 +49,16 @@ internal object BatchRenamePlugin {
         BatchRenameValues.FEATURE_CLEANUP,
         BatchRenameValues.FEATURE_PINYIN,
         BatchRenameValues.FEATURE_PRESETS,
+        BatchRenameValues.FEATURE_METADATA,
     )
+
+    /**
+     * First host build with Explorer Action v26 `readMetadata` (roadmap D34): older hosts get the screen without
+     * "Metadata variables". Backfilled with the host's final commit before the release, like [REQUIRED_HOST_VERSION].
+     * zh-CN: 首个提供 Explorer Action v26 `readMetadata` 的宿主构建号 (路线图 D34): 更旧的宿主上界面不显示 "元数据变量". 发布前与
+     * [REQUIRED_HOST_VERSION] 一样按宿主最终提交回填.
+     */
+    const val METADATA_HOST_VERSION = 5452L
 
     /**
      * Explorer Action protocol the catalog declares and requests must carry: v25 adds `targetRename` and the rename

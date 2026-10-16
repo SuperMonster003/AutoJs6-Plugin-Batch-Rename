@@ -112,7 +112,7 @@ internal fun OptionsPanel(state: ScreenState, model: BatchRenameViewModel) {
         ToggleChip(R.string.option_case_sensitive, options.caseSensitive) { value -> model.setOptions { it.copy(caseSensitive = value) } }
     }
 
-    ExpandableSection(R.string.section_options) {
+    ExpandableSection(R.string.section_options, Modifier.testTag(TAG_OPTIONS)) {
         SectionTitle(stringResource(R.string.section_apply_to))
         val targets = listOf(RenameTarget.ALL to R.string.target_all, RenameTarget.NAME to R.string.target_name, RenameTarget.EXTENSION to R.string.target_extension)
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -157,6 +157,10 @@ internal fun OptionsPanel(state: ScreenState, model: BatchRenameViewModel) {
             selected = options.dateTime,
             onSelect = { value -> model.setOptions { it.copy(dateTime = value) } },
         )
+        // Hosts before Explorer Action v26 cannot read metadata for the screen (roadmap D34). zh-CN: v26 之前的宿主无法读取元数据.
+        if (state.metadataAvailable) {
+            SwitchRow(R.string.option_metadata, options.metadata, Modifier.testTag(TAG_METADATA)) { value -> model.setOptions { it.copy(metadata = value) } }
+        }
     }
 
     ExpandableSection(R.string.section_cleanup, Modifier.testTag(TAG_CLEANUP)) {
@@ -193,7 +197,7 @@ internal fun OptionsPanel(state: ScreenState, model: BatchRenameViewModel) {
 
     if (variables) {
         ModalBottomSheet(onDismissRequest = { variables = false }) {
-            VariablesSheet(options) { token ->
+            VariablesSheet(options, state.metadataAvailable) { token ->
                 variables = false
                 val selection = replaceField.selection
                 val text = replaceField.text.replaceRange(selection.min, selection.max, token)
@@ -390,6 +394,35 @@ private fun ConflictChoices(options: RenameOptions, model: BatchRenameViewModel)
     }
 }
 
+/** The 25 photo metadata variables in PowerRename order (roadmap D34). zh-CN: 按 PowerRename 顺序排列的 25 个照片元数据变量. */
+private val METADATA_VARIABLES = listOf(
+    "CAMERA_MAKE" to R.string.variable_meta_camera_make,
+    "CAMERA_MODEL" to R.string.variable_meta_camera_model,
+    "LENS" to R.string.variable_meta_lens,
+    "ISO" to R.string.variable_meta_iso,
+    "APERTURE" to R.string.variable_meta_aperture,
+    "SHUTTER" to R.string.variable_meta_shutter,
+    "FOCAL" to R.string.variable_meta_focal,
+    "FLASH" to R.string.variable_meta_flash,
+    "WIDTH" to R.string.variable_meta_width,
+    "HEIGHT" to R.string.variable_meta_height,
+    "AUTHOR" to R.string.variable_meta_author,
+    "COPYRIGHT" to R.string.variable_meta_copyright,
+    "LATITUDE" to R.string.variable_meta_latitude,
+    "LONGITUDE" to R.string.variable_meta_longitude,
+    "ALTITUDE" to R.string.variable_meta_altitude,
+    "DATE_TAKEN_YYYY" to R.string.variable_meta_date_taken_year,
+    "DATE_TAKEN_YY" to R.string.variable_meta_date_taken_year_two_digits,
+    "DATE_TAKEN_MM" to R.string.variable_meta_date_taken_month,
+    "DATE_TAKEN_DD" to R.string.variable_meta_date_taken_day,
+    "DATE_TAKEN_HH" to R.string.variable_meta_date_taken_hour,
+    "DATE_TAKEN_mm" to R.string.variable_meta_date_taken_minute,
+    "DATE_TAKEN_SS" to R.string.variable_meta_date_taken_second,
+    "EXPOSURE_BIAS" to R.string.variable_meta_exposure_bias,
+    "ORIENTATION" to R.string.variable_meta_orientation,
+    "COLOR_SPACE" to R.string.variable_meta_color_space,
+).map { (name, description) -> Variable("$" + name, description) }
+
 /** The variable that writes the original text in pinyin (roadmap D35). zh-CN: 以拼音书写原文的变量 (路线图 D35). */
 private const val PINYIN_VARIABLE = "\${pinyin}"
 
@@ -397,7 +430,7 @@ private const val PINYIN_VARIABLE = "\${pinyin}"
 private data class Variable(val token: String, val description: Int)
 
 @Composable
-private fun VariablesSheet(options: RenameOptions, onInsert: (String) -> Unit) {
+private fun VariablesSheet(options: RenameOptions, metadataAvailable: Boolean, onInsert: (String) -> Unit) {
     val groups = buildList {
         add(R.string.variables_counter to listOf(Variable("\${}", R.string.variable_counter), Variable("\${start=1;padding=3}", R.string.variable_counter_options)))
         add(
@@ -421,6 +454,7 @@ private fun VariablesSheet(options: RenameOptions, onInsert: (String) -> Unit) {
             ),
         )
         add(R.string.variables_pinyin to listOf(Variable(PINYIN_VARIABLE, R.string.variable_pinyin)))
+        if (metadataAvailable) add(R.string.variables_metadata to METADATA_VARIABLES)
         if (options.regex) add(R.string.variables_regex to listOf(Variable("\$1", R.string.variable_group), Variable("\$&", R.string.variable_match)))
     }
     LazyColumn(Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
@@ -494,6 +528,13 @@ internal fun PreviewRowItem(row: PreviewRow, onToggle: () -> Unit) {
 /** Why a row keeps its name or how it is renamed, or null for a plain rename. */
 @Composable
 private fun statusText(row: PreviewRow): String? {
+    val note = if (row.metadataMissing) stringResource(R.string.note_metadata_missing) else null
+    val text = reasonText(row)
+    return if (text != null && note != null) "$text, $note" else text ?: note
+}
+
+@Composable
+private fun reasonText(row: PreviewRow): String? {
     val reason = row.reason ?: return null
     if (row.status == PlanItemStatus.UNCHANGED || row.status == PlanItemStatus.EXCLUDED) {
         if (reason == PlanReason.NO_MATCH || reason == PlanReason.SAME_NAME || reason == PlanReason.EXCLUDED_BY_CALLER) return null
