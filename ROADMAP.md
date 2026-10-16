@@ -252,7 +252,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P3 | 宿主 6.8.0 | 宿主执行器, 撤销日志, 脚本 API `files.batchRename` | 已完成 (2026-10-15; 宿主提交在本地, 待维护者合并) |
 | P4 | 1.0.0 | 插件服务, 管理器入口, Compose 界面 | 进行中 (P4.1 - P4.3 与真机联调已完成 2026-10-15; 剩三项失败路径) |
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 已完成 (2026-10-16, v1.0.0 已发布并登记索引) |
-| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D51 定于 2026-10-16; P6.1 拼音, P6.3 脚本试算已完成; P6.2 预设已完成; P6.4 元数据变量, P6.5 重命名历史已完成; 下一步 P6.6 P4.4 补测) |
+| P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 进行中 (D31-D51 定于 2026-10-16; P6.1 拼音, P6.3 脚本试算已完成; P6.2 预设已完成; P6.4 元数据变量, P6.5 重命名历史已完成; P6.6 补测除 exFAT 与三星 SD 卡复核外已完成; 下一步 P6.7) |
 
 依赖顺序:
 
@@ -424,7 +424,7 @@ P0 (骨架)
 ### P4.4 本阶段联调
 
 - [x] (测试) 三处入口在 API 24 AVD, API 28 / 33 / 35 真机上各走一遍: 多选 (文件 + 文件夹混合, 含子文件夹), 文件夹菜单 (含 / 不含子文件夹), 重命名对话框 "更多" (单文件与单文件夹); 撤销后文件名与版本历史均恢复; 宿主列表即时刷新. 证据 (E3, 2026-10-15): 宿主测试 `BatchRenameExplorerFlowTest` (宿主提交 `f1088b0f7`, `805cf4f7c`, `24588bd1e`, 本地, 待维护者合并) 经宿主真实的 Explorer Action 注册表与启动器打开插件界面 (真实 v25 会话), 用 `UiAutomation` 按插件暴露为资源 ID 的测试标签输入并点击, 在磁盘上核对宿主执行器改名与插件撤销恢复; 三处入口为多选 (文件 + 含子项的文件夹), 文件夹菜单 (含子文件夹), 重命名对话框 (单个文件). 全部 5 个用例 (含下一条的两个失败路径) 通过: Sony G8441 (BH900ASK9E, API 28), Sony XQ-AT72 (QV710AF65F, API 31, 两轮), Sony XQ-DQ72 (QV770340J7, API 33, 两轮), 小米平板 23046RP50C (968e9f18, API 35, 两轮, 宽屏), OnePlus OPD2413 (63751f63, API 35, ColorOS; 维护者在手机上确认了插件安装), `AVD_API_24` (debug 插件两轮, 签名 release 插件一轮), `AVD_API_35_16K`; 真机上使用宿主 debug 构建 versionCode 5441 与 debug 插件 (维护者同意在真机上安装宿主 debug). 偏差: (1) 版本历史的恢复由宿主执行器的 `relocateHistory` 负责 (P3.1), 本条只核对文件名; 宿主列表刷新由执行器的 `notifyChanged` 触发, 未目视核对; (2) 单个文件夹走重命名对话框未单列 (与单文件同一动作, 文件夹目标在多选用例中覆盖); (3) 发现 ColorOS 拒绝绑定从未运行过的插件, 文件管理器的 Explorer Action 注册表刷新时不会像插件选择那样自动唤醒, 动作因此不出现 (同机的其他插件同样如此); 已由宿主提交 `0a7ab1864` (本地, 待维护者合并; `VERSION_BUILD=3793`) 修复: 注册表刷新时唤醒服务绑定失败且在插件中心已启用, 已授权的插件 (每个包每分钟至多一次, 新增 `PluginDiscoveryRecovery` 与 JVM 测试 5 项) 并对这些包重新发现一次; 测试去掉了手动唤醒, OnePlus 上插件处于 stopped 状态时两轮 5/5 通过, 日志确认由宿主唤醒插件 (同机三个已停用的插件不被唤醒).
-- [ ] (测试) 失败路径: 插件未安装 / 未启用 / 版本过低 / 宿主协议 24 (旧宿主) / 目标在执行前被删除 / 可移动存储 (FAT32) 上仅大小写改名. 进展: 已执行: 插件在插件中心被停用时三处入口都不出现, 重命名对话框保留 "批量重命名..." 引导, 重新启用后动作恢复 (`BatchRenameExplorerFlowTest`, 上条全部设备); 目标在预览后被删除时, 其余条目照常改名, 被删条目列入失败清单, 撤销正常 (同上); 旧协议请求结束界面并关闭会话 (`BatchRenameScreenTest`); 插件未安装时重命名对话框的引导 (P1.4). 未执行: 版本过低的插件 (需要专门构建要求更高宿主版本的插件包), 旧宿主 (协议 24) 上的表现 (由宿主目录策略测试的协议门覆盖, 未在旧宿主上实测), 可移动存储 (FAT32) 上仅大小写改名 (可用设备都没有 SD 卡或 U 盘).
+- [x] (测试) 失败路径: 插件未安装 / 未启用 / 版本过低 / 宿主协议 24 (旧宿主) / 目标在执行前被删除 / 可移动存储 (FAT32) 上仅大小写改名. 进展: 已执行: 插件在插件中心被停用时三处入口都不出现, 重命名对话框保留 "批量重命名..." 引导, 重新启用后动作恢复 (`BatchRenameExplorerFlowTest`, 上条全部设备); 目标在预览后被删除时, 其余条目照常改名, 被删条目列入失败清单, 撤销正常 (同上); 旧协议请求结束界面并关闭会话 (`BatchRenameScreenTest`); 插件未安装时重命名对话框的引导 (P1.4). 2026-10-16 在 P6.6 补测: 要求更高宿主的插件, 旧宿主 (协议 24) 上的表现与 FAT32 虚拟 SD 卡上的仅大小写改名均已执行 (见 P6.6). 未执行: exFAT 与真实 SD 卡 (三星设备) 上的复核, 列在 P6.6.
 - [x] (宿主) `.changelog/lang_zh-Hans.json` 6.8.0 条目 (由 P1.3 移入; 其他语言由维护者同步): `feature` 文件管理器支持批量重命名 (多选工具栏 / 文件夹菜单 / 重命名对话框 "更多" 菜单, 需要安装 Batch Rename 插件), 插件中心与安装向导的 Batch Rename 条目并入同一条或列为 `improvement`. 措辞按 `AUTOJS6_CHANGELOG_RELEASE_ISSUE_AGENTS.md`, 不写协议号与 Binder 细节. 证据: 宿主提交 `f1088b0f7` (本地, 待维护者合并; `VERSION_BUILD=3790`, versionCode 5442); 一条 feature (文件管理器经 Batch Rename 插件批量重命名, 列出三处入口), 插件中心条目并入该条, 不单列; 生成的 zh-Hans README 与 CHANGELOG 随提交更新.
 
 ---
@@ -496,8 +496,8 @@ P0 (骨架)
 
 ### P6.6 P4.4 失败路径补测 (D40)
 
-- [ ] (测试) 版本过低的插件 (专门构建要求更高宿主版本的包) 与旧宿主 (协议 24) 上的表现.
-- [ ] (测试) FAT32 / exFAT 上只改大小写: 挂载 FAT32 虚拟 SD 卡的模拟器; 发布前在维护者租用的带 SD 卡三星设备上复核.
+- [x] (测试) 版本过低的插件 (专门构建要求更高宿主版本的包) 与旧宿主 (协议 24) 上的表现. 证据 (2026-10-16): (1) 要求更高宿主的插件: 特制包的做法是临时把 `app/build.gradle.kts` 的 `requiredHostVersion` 与 `BatchRenamePlugin.REQUIRED_HOST_VERSION` 改为 9999, 构建 debug 包后立即还原 (不提交). 装在 XQ-DQ72 (API 33, 宿主 debug 5454) 上, 宿主 `BatchRenameNewerHostPluginDeviceTest` 2 项通过 (宿主 `dbf16a347`; 正常插件下按设计跳过): 脚本 `isAvailable()` 为 false, `plan` 为 `PLUGIN_INCOMPATIBLE`, 消息为 "需要升级 AutoJs6" 的提示 (要求 9999, 当前 5454); 文件管理器所有入口都不提供该插件的动作, 重命名对话框菜单为 "批量重命名..." 与 "重命名历史". 发现并修复: 此时 "批量重命名..." 的引导原先提示 "插件协议与当前 AutoJs6 不兼容, 需升级插件版本", 方向相反; 宿主 `dbf16a347` 改为读取插件服务的 `requiresHostVersion` meta-data, 说明要求与当前 versionCode 并提示升级 AutoJs6 (`ExplorerBatchRenameAvailabilityPolicyTest` 新增 1 项). E4: `.bak/visual/1.1.0/newer-host-guidance.png`, `newer-host-plugin-center.png` 已检查. 插件中心显示列表时会把要求更高宿主的插件写为停用 (宿主既有行为, 对所有插件一致; 据代码, 宿主升级后需在插件中心重新启用); 测试后装回正常包, 并经 `BatchRenameExplorerFlowTest` 的停用用例恢复启用, 脚本往返用例随后通过. (2) 旧宿主 (协议 24): 只读 `AVD_API_33` 上装宿主 5352 (提交 `8acb4e75f`, Explorer Action 协议 24, 尚无 `files.batchRename`; x86_64 debug 包取自宿主 `.bak/maple-host-acceptance-20261015/`, 未使用维护者为 MCP Server 保留旧宿主的 Redmi) 与当前插件 (versionCode 39, 已获 PLUGIN 权限): 宿主运行正常; 脚本中 `typeof files.batchRename` 为 `"undefined"`; 文件管理器多选工具栏与其 "More" 菜单只有宿主自带的项 ("Copy path"); 插件页中 Batch Rename 的开关为关, 点按时提示 "需要 versionCode 5438, 当前 5352, 需要升级 AutoJs6". E4: `.bak/visual/1.1.0/old-host-selection.png`, `old-host-selection-more.png`, `old-host-plugins.png`, `old-host-plugin-toggle.png` 已检查. 插件界面收到协议 24 请求时结束并关闭会话, 由 `BatchRenameScreenTest.anOlderProtocolEndsTheScreenAndClosesTheSession` 覆盖 (旧宿主不收录插件的动作, 实际不会发出这种请求).
+- [ ] (测试) FAT32 / exFAT 上只改大小写: 挂载 FAT32 虚拟 SD 卡的模拟器; 发布前在维护者租用的带 SD 卡三星设备上复核. 已完成部分 (2026-10-16): `mksdcard` 制作 512 MB FAT32 镜像, 以 `-sdcard` 挂到只读 `AVD_API_33` (公共卷 `0000-0000`, 底层 `vfat`); 宿主 `BatchRenameRemovableStorageDeviceTest` (宿主 `450d2b4b5`) 在 SD 卡上宿主自有目录中先确认该卷不区分大小写, 再经 `files.batchRename` 把 `IMG_1.JPG`, `Notes.TXT`, 文件夹 `Album` 及其中的 `Cover.PNG` 改为小写并撤销, 从目录读回的确切名称与预期一致, 通过. 未执行: exFAT (模拟器上未制作 exFAT 卷), 维护者租用的带 SD 卡三星设备上的复核 (发布前).
 
 ### P6.7 图标, 文档与 1.1.0 发布 (D41)
 
