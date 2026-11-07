@@ -17,7 +17,7 @@ The Batch Rename plugin adds batch renaming to AutoJs6, modeled on [PowerRename]
 Once the plugin is installed and enabled, the AutoJs6 file manager offers three entries:
 
 - Multiple selection: select files or folders and tap "Batch rename" in the selection bar (under "More" when several plugin actions are available).
-- Folder menu: choose "Batch rename items inside" in the menu of a folder to rename what it contains.
+- Folder menu: choose "Batch rename items inside" in the menu of a folder (under the top-level menu "Batch Rename" since AutoJs6 6.8.1) to rename what it contains.
 - Rename dialog: while renaming a single file or folder, open the "More" menu in the top right corner of the dialog and choose "Batch rename...". "Rename history" at the end of the same menu shows past batches and undoes them.
 - Type what to search and replace on the plugin screen and the preview updates at once; uncheck items to exclude them, tap "Rename", and tap "Undo last batch" to restore the old names. "Rename history" at the end of the "More options" menu in the top bar opens the rename history page of AutoJs6.
 

@@ -83,7 +83,7 @@ The plugin is a separately installed APK without a launcher icon. It has two ent
 Once the plugin is installed and enabled, the AutoJs6 file manager offers three entries:
 
 - Multiple selection: select files or folders and tap "Batch rename" in the selection bar (under "More" when several plugin actions are available).
-- Folder menu: choose "Batch rename items inside" in the menu of a folder to rename what it contains.
+- Folder menu: choose "Batch rename items inside" in the menu of a folder (under the top-level menu "Batch Rename" since AutoJs6 6.8.1) to rename what it contains.
 - Rename dialog: while renaming a single file or folder, open the "More" menu in the top right corner of the dialog and choose "Batch rename...". "Rename history" at the end of the same menu shows past batches and undoes them.
 - Type what to search and replace on the plugin screen and the preview updates at once; uncheck items to exclude them, tap "Rename", and tap "Undo last batch" to restore the old names. "Rename history" at the end of the "More options" menu in the top bar opens the rename history page of AutoJs6.
 
@@ -225,6 +225,13 @@ Plans, design decisions and progress are tracked as a checklist in ROADMAP.md. U
 
 ******
 
+#### v1.1.2
+
+_2026/11/07_
+
+- `Hint` Requires AutoJs6 6.8.0 (5455) or later
+- `Improvement` "Batch rename items inside" now sits under the top-level menu "Batch Rename" in the folder menu of AutoJs6 6.8.1 and later (the entries in the multi-select toolbar and the rename dialog, and the position in older AutoJs6 versions, are unchanged)
+
 #### v1.1.1
 
 _2026/10/16_
@@ -244,26 +251,6 @@ _2026/10/16_
 - `Feature` Chinese to pinyin, photo metadata, named presets and name previews without files for the files.batchRename script API of AutoJs6
 - `Improvement` New plugin icon
 - `Improvement` "Clear history" in the "More options" menu of the top bar is now "Clear recently used", so it is not mistaken for "Rename history"
-
-#### v1.0.0
-
-_2026/10/16_
-
-- `Hint` Requires AutoJs6 6.8.0 (5438) or later
-- `Feature` Batch renaming of files and folders in the AutoJs6 file manager (entries: multiple-selection toolbar/folder menu "Batch rename items inside"/"More" menu of the rename dialog)
-- `Feature` Search and replace with plain text or JavaScript regular expressions, every match, case sensitivity, and renaming of only the name or the extension
-- `Feature` Counters, date variables from the modification time or the current time, random strings and UUIDs
-- `Feature` Case conversion, Unicode normalization, full-width to half-width, replacement of characters that are not allowed, trimming of surrounding spaces and numbering that continues existing names
-- `Feature` Preview of the new names before renaming, per-item exclusion or only the items that change, and a choice to refuse, skip, add a number or replace the existing entry when a new name is taken
-- `Feature` Undo of recent rename batches (AutoJs6 keeps the last 20, shared by the file manager and scripts)
-- `Feature` Computes the new names for the files.batchRename script API of AutoJs6
-- `Feature` The screen follows the AutoJs6 theme color, dark mode and language, and can remember the last options and recent search and replace texts
-- `Dependency` Attach Jetpack Compose BOM 2026.09.00
-- `Dependency` Attach AndroidX Activity Compose 1.12.2
-- `Dependency` Attach AndroidX Core KTX 1.15.0
-- `Dependency` Attach Kotlin Coroutines 1.11.0
-- `Dependency` Attach Desugar JDK Libs 2.1.5
-- `Dependency` Attach Rhino (the slim AutoJs6 build, for regular expressions)
 
 ##### For more release history, refer to
 

@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Mejora",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "Requiere AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) o posterior"
+      ],
+      "improvement": [
+        "En el menú de carpetas de AutoJs6 6.8.1 y posteriores, \"Renombrar por lotes los elementos del interior\" está en el menú de primer nivel \"Batch Rename\" (las entradas de la barra de selección múltiple y del diálogo de cambio de nombre, y la posición en versiones anteriores de AutoJs6, no cambian)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

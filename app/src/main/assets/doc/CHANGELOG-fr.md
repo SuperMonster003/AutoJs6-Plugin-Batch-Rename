@@ -4,6 +4,13 @@
 
 ******
 
+# v1.1.2
+
+###### 2026/11/07
+
+* `Note` Nécessite AutoJs6 6.8.0 (5455) ou ultérieur
+* `Amélioration` Dans le menu de dossier d'AutoJs6 6.8.1 et versions ultérieures, "Renommer par lot les éléments du dossier" se trouve dans le menu de premier niveau "Batch Rename" (les entrées de la barre de sélection multiple et de la boîte de dialogue de renommage, ainsi que la position dans les versions antérieures d'AutoJs6, sont inchangées)
+
 # v1.1.1
 
 ###### 2026/10/16

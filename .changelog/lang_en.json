@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "Requires AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) or later"
+      ],
+      "improvement": [
+        "\"Batch rename items inside\" now sits under the top-level menu \"Batch Rename\" in the folder menu of AutoJs6 6.8.1 and later (the entries in the multi-select toolbar and the rename dialog, and the position in older AutoJs6 versions, are unchanged)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

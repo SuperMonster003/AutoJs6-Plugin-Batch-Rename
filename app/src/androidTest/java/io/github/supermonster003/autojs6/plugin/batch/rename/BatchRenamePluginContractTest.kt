@@ -191,6 +191,11 @@ class BatchRenamePluginContractTest {
             // getActionCatalog() is the second transaction of IExplorerActionPlugin.
             val catalog = transactBundle(binder, IExplorerActionPlugin.DESCRIPTOR, IBinder.FIRST_CALL_TRANSACTION + 1) {}
             assertEquals(BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION, catalog.getInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION))
+            // The first-level menu in the host's folder menu (host explorer-action protocol v27), named like the plugin.
+            assertEquals("app_name", catalog.getString("menuGroupLabelResourceName"))
+            assertEquals("Batch Rename", catalog.getString("menuGroupLabelFallback"))
+            val menuGroupLabel = context.resources.getIdentifier("app_name", "string", context.packageName)
+            assertEquals(context.getString(menuGroupLabel), catalog.getString("menuGroupLabelFallback"))
             @Suppress("DEPRECATION")
             val actions = catalog.getParcelableArrayList<Bundle>(ExplorerActionCatalogKeys.ACTIONS)
             assertNotNull("the catalog carries an explicit action list", actions)

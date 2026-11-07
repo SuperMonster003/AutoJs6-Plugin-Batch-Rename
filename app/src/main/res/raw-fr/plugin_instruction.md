@@ -17,7 +17,7 @@ Le plugin Batch Rename ajoute le renommage par lot à AutoJs6, sur le modèle de
 Une fois le plugin installé et activé, le gestionnaire de fichiers d'AutoJs6 propose trois entrées:
 
 - Sélection multiple: sélectionnez des fichiers ou des dossiers et appuyez sur "Renommer par lot" dans la barre de sélection (sous "Plus" si plusieurs actions de plugins sont disponibles).
-- Menu d'un dossier: choisissez "Renommer par lot les éléments du dossier" dans le menu d'un dossier pour renommer son contenu.
+- Menu d'un dossier: choisissez "Renommer par lot les éléments du dossier" dans le menu d'un dossier (depuis AutoJs6 6.8.1, dans le menu de premier niveau "Batch Rename") pour renommer son contenu.
 - Boîte de dialogue de renommage: lorsque vous renommez un seul fichier ou dossier, ouvrez le menu "Plus" en haut à droite de la boîte de dialogue et choisissez "Renommer par lot...". "Historique des renommages", à la fin du même menu, affiche les lots passés et permet de les annuler.
 - Saisissez la recherche et le remplacement sur l'écran du plugin, l'aperçu se met à jour aussitôt; décochez des éléments pour les exclure, appuyez sur "Renommer", puis sur "Annuler le dernier lot" pour rétablir les anciens noms. "Historique des renommages", à la fin du menu "Plus d'options" de la barre supérieure, ouvre la page d'historique d'AutoJs6.
 

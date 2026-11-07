@@ -68,10 +68,39 @@ internal object BatchRenameCatalog {
         ),
     )
 
+    /**
+     * Catalog-level key of the first-level menu that holds the plugin's actions in the host's file and folder menus
+     * (AutoJs6 6.8.1+, host explorer-action protocol v27 `menuGroupLabel`, same form as an action label). The bundled
+     * explorer-action-api AAR predates `ExplorerActionCatalogKeys.MENU_GROUP_LABEL_RESOURCE_NAME` /
+     * `MENU_GROUP_LABEL_FALLBACK`, so the key names are written out. Hosts read them from catalogs of every protocol
+     * version and older hosts ignore them, so the catalog keeps [BatchRenamePlugin.EXPLORER_PROTOCOL_VERSION].
+     * zh-CN: 宿主文件与文件夹菜单中收纳插件动作的一级菜单的 catalog 级键 (AutoJs6 6.8.1 起, 宿主 explorer-action 协议 v27 的
+     * `menuGroupLabel`, 与动作标签同形式). 内置的 explorer-action-api AAR 早于这两个键常量, 因此直接写出键名. 宿主从任何协议版本的
+     * catalog 读取它们, 旧宿主忽略它们, 所以 catalog 的协议版本不变.
+     */
+    const val MENU_GROUP_LABEL_RESOURCE_NAME_KEY = "menuGroupLabelResourceName"
+
+    /** Text the host shows when it cannot read the resource. zh-CN: 宿主无法读取资源时显示的文本的键. */
+    const val MENU_GROUP_LABEL_FALLBACK_KEY = "menuGroupLabelFallback"
+
+    /**
+     * The menu is named after the plugin, as in the Plugin Center (explorer roadmap Q27): `app_name`, an untranslated
+     * build resource. zh-CN: 菜单以插件名命名, 与插件中心一致 (explorer 路线图 Q27): 不翻译的构建资源 `app_name`.
+     */
+    const val MENU_GROUP_LABEL_RESOURCE_NAME = "app_name"
+    const val MENU_GROUP_LABEL_FALLBACK = "Batch Rename"
+
+    /** The catalog-level entries of the menu name. zh-CN: 菜单名的 catalog 级条目. */
+    val menuGroupLabel: List<Pair<String, String>> = listOf(
+        MENU_GROUP_LABEL_RESOURCE_NAME_KEY to MENU_GROUP_LABEL_RESOURCE_NAME,
+        MENU_GROUP_LABEL_FALLBACK_KEY to MENU_GROUP_LABEL_FALLBACK,
+    )
+
     fun action(id: String?): CatalogAction? = actions.firstOrNull { it.id == id }
 
     fun catalog(protocolVersion: Int): Bundle = Bundle().apply {
         putInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION, protocolVersion)
+        menuGroupLabel.forEach { (key, value) -> putString(key, value) }
         putParcelableArrayList(ExplorerActionCatalogKeys.ACTIONS, ArrayList(actions.map(::bundleOf)))
     }
 

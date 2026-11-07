@@ -5,6 +5,15 @@
   "changelog_label_improvement": "تحسين",
   "changelog_label_dependency": "تبعية",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "يتطلب AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) أو أحدث"
+      ],
+      "improvement": [
+        "في قائمة المجلد في AutoJs6 6.8.1 والإصدارات الأحدث, يقع \"إعادة تسمية العناصر الداخلية دفعة واحدة\" ضمن القائمة من المستوى الأول \"Batch Rename\" (لا تتغير نقاط الدخول في شريط التحديد المتعدد ومربع حوار إعادة التسمية, ولا الموضع في إصدارات AutoJs6 الأقدم)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

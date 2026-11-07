@@ -4,6 +4,13 @@
 
 ******
 
+# v1.1.2
+
+###### 2026/11/07
+
+* `Hint` Requires AutoJs6 6.8.0 (5455) or later
+* `Improvement` "Batch rename items inside" now sits under the top-level menu "Batch Rename" in the folder menu of AutoJs6 6.8.1 and later (the entries in the multi-select toolbar and the rename dialog, and the position in older AutoJs6 versions, are unchanged)
+
 # v1.1.1
 
 ###### 2026/10/16

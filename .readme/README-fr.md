@@ -83,7 +83,7 @@ Le plugin est un APK installé séparément, sans icône de lanceur. Il offre de
 Une fois le plugin installé et activé, le gestionnaire de fichiers d'AutoJs6 propose trois entrées:
 
 - Sélection multiple: sélectionnez des fichiers ou des dossiers et appuyez sur "Renommer par lot" dans la barre de sélection (sous "Plus" si plusieurs actions de plugins sont disponibles).
-- Menu d'un dossier: choisissez "Renommer par lot les éléments du dossier" dans le menu d'un dossier pour renommer son contenu.
+- Menu d'un dossier: choisissez "Renommer par lot les éléments du dossier" dans le menu d'un dossier (depuis AutoJs6 6.8.1, dans le menu de premier niveau "Batch Rename") pour renommer son contenu.
 - Boîte de dialogue de renommage: lorsque vous renommez un seul fichier ou dossier, ouvrez le menu "Plus" en haut à droite de la boîte de dialogue et choisissez "Renommer par lot...". "Historique des renommages", à la fin du même menu, affiche les lots passés et permet de les annuler.
 - Saisissez la recherche et le remplacement sur l'écran du plugin, l'aperçu se met à jour aussitôt; décochez des éléments pour les exclure, appuyez sur "Renommer", puis sur "Annuler le dernier lot" pour rétablir les anciens noms. "Historique des renommages", à la fin du menu "Plus d'options" de la barre supérieure, ouvre la page d'historique d'AutoJs6.
 
@@ -225,6 +225,13 @@ Les plans, décisions de conception et l'avancement sont suivis sous forme de li
 
 ******
 
+#### v1.1.2
+
+_2026/11/07_
+
+- `Note` Nécessite AutoJs6 6.8.0 (5455) ou ultérieur
+- `Amélioration` Dans le menu de dossier d'AutoJs6 6.8.1 et versions ultérieures, "Renommer par lot les éléments du dossier" se trouve dans le menu de premier niveau "Batch Rename" (les entrées de la barre de sélection multiple et de la boîte de dialogue de renommage, ainsi que la position dans les versions antérieures d'AutoJs6, sont inchangées)
+
 #### v1.1.1
 
 _2026/10/16_
@@ -244,26 +251,6 @@ _2026/10/16_
 - `Fonctionnalité` Pinyin, métadonnées des photos, préréglages nommés et calcul de noms sans fichier pour l'API de script files.batchRename d'AutoJs6
 - `Amélioration` Nouvelle icône du plugin
 - `Amélioration` "Effacer l'historique" du menu "Plus d'options" de la barre supérieure devient "Effacer les éléments récemment utilisés" pour ne pas le confondre avec "Historique des renommages"
-
-#### v1.0.0
-
-_2026/10/16_
-
-- `Note` Nécessite AutoJs6 6.8.0 (5438) ou ultérieur
-- `Fonctionnalité` Renommage par lot de fichiers et de dossiers dans le gestionnaire de fichiers d'AutoJs6 (entrées: barre de sélection multiple/menu d'un dossier "Renommer par lot les éléments du dossier"/menu "Plus" de la boîte de dialogue de renommage)
-- `Fonctionnalité` Rechercher et remplacer en texte brut ou par expressions régulières JavaScript, toutes les occurrences, respect de la casse et renommage du nom ou de l'extension seulement
-- `Fonctionnalité` Compteurs, variables de date tirées de la date de modification ou de l'heure actuelle, chaînes aléatoires et UUID
-- `Fonctionnalité` Changement de casse, normalisation Unicode, conversion de la pleine chasse en demi-chasse, remplacement des caractères interdits, suppression des espaces aux extrémités et numérotation qui prolonge les noms existants
-- `Fonctionnalité` Aperçu des nouveaux noms avant de renommer, exclusion par élément ou affichage des seuls éléments qui changent, et choix de refuser, ignorer, ajouter un numéro ou remplacer l'élément existant lorsqu'un nouveau nom est pris
-- `Fonctionnalité` Annulation des lots de renommage récents (AutoJs6 conserve les 20 derniers, partagés par le gestionnaire de fichiers et les scripts)
-- `Fonctionnalité` Calcule les nouveaux noms pour l'API de scripts files.batchRename d'AutoJs6
-- `Fonctionnalité` L'écran suit la couleur du thème, le mode sombre et la langue d'AutoJs6, et peut mémoriser les dernières options ainsi que les textes de recherche et de remplacement récents
-- `Dépendance` Ajout de Jetpack Compose BOM 2026.09.00
-- `Dépendance` Ajout de AndroidX Activity Compose 1.12.2
-- `Dépendance` Ajout de AndroidX Core KTX 1.15.0
-- `Dépendance` Ajout de Kotlin Coroutines 1.11.0
-- `Dépendance` Ajout de Desugar JDK Libs 2.1.5
-- `Dépendance` Ajout de Rhino (version allégée d'AutoJs6, pour les expressions régulières)
 
 ##### Pour plus d'historique des versions
 

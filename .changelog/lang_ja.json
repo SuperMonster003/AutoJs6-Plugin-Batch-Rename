@@ -5,6 +5,15 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 以降が必要です"
+      ],
+      "improvement": [
+        "AutoJs6 6.8.1 以降のフォルダーメニューでは, \"中の項目を一括で名前変更\" を最上位メニュー \"Batch Rename\" の中に表示 (複数選択ツールバーと名前の変更ダイアログの入口, および以前の AutoJs6 での位置は変わらない)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

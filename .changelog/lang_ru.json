@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Улучшение",
   "changelog_label_dependency": "Зависимость",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "Требуется AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) или новее"
+      ],
+      "improvement": [
+        "В меню папки AutoJs6 6.8.1 и новее пункт \"Пакетно переименовать содержимое\" находится в меню первого уровня \"Batch Rename\" (пункты на панели множественного выбора и в диалоге переименования, а также положение в более ранних версиях AutoJs6 не меняются)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

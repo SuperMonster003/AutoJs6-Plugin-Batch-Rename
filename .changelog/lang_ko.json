@@ -5,6 +5,15 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 이상이 필요합니다"
+      ],
+      "improvement": [
+        "AutoJs6 6.8.1 이상의 폴더 메뉴에서 \"내부 항목 일괄 이름 바꾸기\" 항목이 최상위 메뉴 \"Batch Rename\" 아래에 표시됨 (다중 선택 도구 모음과 이름 변경 대화상자의 진입점, 그리고 이전 버전의 AutoJs6 에서의 위치는 바뀌지 않음)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

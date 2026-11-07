@@ -5,6 +5,15 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "需要 AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) 或更高版本"
+      ],
+      "improvement": [
+        "AutoJs6 6.8.1 及以上版本的文件夹菜单中, \"批量重命名其中的项目\" 位于一级菜单 \"Batch Rename\" 之下 (多选工具栏与重命名对话框中的入口, 以及旧版本 AutoJs6 中的位置不变)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [

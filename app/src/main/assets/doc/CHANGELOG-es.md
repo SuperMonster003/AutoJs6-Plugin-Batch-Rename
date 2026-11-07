@@ -4,6 +4,13 @@
 
 ******
 
+# v1.1.2
+
+###### 2026/11/07
+
+* `Aviso` Requiere AutoJs6 6.8.0 (5455) o posterior
+* `Mejora` En el menú de carpetas de AutoJs6 6.8.1 y posteriores, "Renombrar por lotes los elementos del interior" está en el menú de primer nivel "Batch Rename" (las entradas de la barra de selección múltiple y del diálogo de cambio de nombre, y la posición en versiones anteriores de AutoJs6, no cambian)
+
 # v1.1.1
 
 ###### 2026/10/16

@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v1.1.2": {
+      "released_date": "2026/11/07",
+      "hint": [
+        "Nécessite AutoJs6 {{ required_host_version_name }} ({{ required_host_version_code }}) ou ultérieur"
+      ],
+      "improvement": [
+        "Dans le menu de dossier d'AutoJs6 6.8.1 et versions ultérieures, \"Renommer par lot les éléments du dossier\" se trouve dans le menu de premier niveau \"Batch Rename\" (les entrées de la barre de sélection multiple et de la boîte de dialogue de renommage, ainsi que la position dans les versions antérieures d'AutoJs6, sont inchangées)"
+      ]
+    },
     "v1.1.1": {
       "released_date": "2026/10/16",
       "hint": [
