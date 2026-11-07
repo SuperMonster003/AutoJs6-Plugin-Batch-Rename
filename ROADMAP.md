@@ -257,6 +257,7 @@ docs/dev/batch-rename-plugin-protocol-v1.md, docs/dev/explorer-action-protocol-v
 | P5 | 1.0.0 | 文档, 声明, 四仓库同步, 兼容矩阵, 发布与索引登记 | 已完成 (2026-10-16, v1.0.0 已发布并登记索引) |
 | P6 | 1.1.0 | 拼音, 命名预设, 脚本单名试算, 元数据变量, 宿主重命名历史页面, P4.4 补测, 新图标 | 已完成 (2026-10-16, v1.1.0 已发布并登记索引; D31-D54 定于同日) |
 | P7 | 1.1.1 | 应用图标不透明底板 (ColorOS 应用信息页) | 已完成 (2026-10-16, v1.1.1 已发布并登记索引) |
+| P8 | 1.1.2 | AutoJs6 6.8.1 文件夹菜单的一级菜单名 (宿主 explorer P8.1) | 已完成 (2026-11-07, v1.1.2 已发布并登记索引) |
 
 依赖顺序:
 
@@ -515,6 +516,13 @@ P0 (骨架)
 
 - [x] (插件) 应用图标改为不透明底板: ColorOS (OnePlus OPD2413, API 35) 的系统应用信息页把自适应图标的透明背景画成黑色底板, 1.1.0 的深色文本行图形在上面难以辨认 (同机其他 21 个官方插件的图标均可辨认: 彩色图形或已有不透明底板); 配方 `params.backgrounds` 改为日间 `#FAFAFA` / 夜间 `#212121` (与 AutoJs4 Runtime 相同), `generate_icon_studio.py` 只重新生成两张 `ic_icon_studio_application.png` 与两份 `icon_studio_backgrounds.xml`, 插件中心目录图标 (`ic_plugin_center.png`) 不变, 宿主插件中心的圆形底色仍以索引的 `transparent` 为准. 证据: 插件 `bbe2bb6` (`VERSION_BUILD=49`, 10 种语言 v1.1.1 changelog, v1.1.0 的提示改为字面 5455), 同机应用信息页对比截图 (1.1.0 黑底, 1.1.1 浅色底板).
 - [x] (发布) R1-R5. 证据 (2026-10-16): `prepush_check.py` 6/6; `autojs6-plugin-batch-rename-v1.1.1-fdbdf848.apk` (versionCode 49, 2,676,576 字节, SHA-256 `acb19314a1719220db4d8d3d051300181cfdc08c26a77cde887d5f9517be8d44`, 签名证书 SHA-256 `31a681fc...c213`), 由提交后的干净源码构建; 手机上验证用的提交前候选包只差 `META-INF/version-control-info.textproto`. 轻量 tag `v1.1.1` = `bbe2bb6`, GitHub Release "Batch Rename v1.1.1" (Latest, APK + `SHA256SUMS`, 中英说明), 下载复核哈希一致. 索引 `80b839f` (已推送): `49.json`, 目录图标的 sourceCommit 与 recipe SHA-256 (`9a7bb940...`) 指向 v1.1.1, PNG 不变. OnePlus 上由宿主插件中心全新安装候选包: 自动启用 (含 ColorOS 唤醒) 后显示 "新安装" 并已启用, 应用信息页图标为浅色底板. 未执行: 其他设备的冒烟 (代码与 1.1.0 相同, 只改图标资源).
+
+---
+
+## P8: 1.1.2 一级菜单名 (宿主 explorer P8.1)
+
+- [x] (插件) catalog 声明 `menuGroupLabelResourceName` = `app_name` 与 `menuGroupLabelFallback` = "Batch Rename" (宿主 `docs/explorer/ROADMAP.md` D21 / T24, 附录 B Q27 (a) / Q41 (a)): AutoJs6 6.8.1 起文件夹菜单中 "批量重命名其中的项目" 位于一级菜单 "Batch Rename" 之下, 多选工具栏与重命名对话框中的入口不变 (宿主 Q44 平铺); 不提高 catalog `protocolVersion` 与最低宿主 (5455), 旧宿主忽略这两个键. 插件 libs 的 explorer-action-api AAR 没有这两个常量, 用字面量键名 (`BatchRenameCatalog` 中的常量与注释). 证据: 插件 `3e7c18f` (`VERSION_BUILD=51`, 10 种语言 v1.1.2 changelog, README 文件管理器一节 10 语言注明 6.8.1 起的位置); JVM 单测 `BatchRenameCatalogTest` (两键, 菜单名与 `app_name` resValue 一致) 与仪器测试 `BatchRenamePluginContractTest` (真实 Bundle) 通过, 本地单测 146 例. 一级菜单名在所有语言都是英文显示名, 与插件中心一致 (宿主附录 B Q50).
+- [x] (发布) R1-R5. 证据 (2026-11-07): `prepush_check.py` 通过; CI 三个工作流在 `3e7c18f` 通过; `autojs6-plugin-batch-rename-v1.1.2-e4421595.apk` (versionCode 51, 2,678,320 字节, SHA-256 `1c7d5ceeea16ee29bff24233cb6e392dc5f355b0d34d79a7a64d48f857565970`, 签名证书 SHA-256 `31a681fc...c213`), 由提交后的干净源码构建; 轻量 tag `v1.1.2` = `3e7c18f`, GitHub Release "Batch Rename v1.1.2" (APK + `SHA256SUMS`, 中英说明), 下载复核哈希一致; 索引 `2aa22e2` (已推送): `51.json`. 真机: Redmi 22120RN86C (Android 13, 宿主应用语言中文) 装宿主 6.8.1 debug 与本包, 文件夹菜单中一级 "Batch Rename" 位于 "更多" 之前, 其下为 "批量重命名其中的项目" (宿主 `tools/explorer/device_plugin_group_check.py`, 截图 `docs/explorer/evidence/p8a-redmi-batch-rename.png`). 未执行: 附录 F 其他设备的冒烟 (引擎, 服务与界面代码与 1.1.1 相同, 只改 catalog).
 
 ---
 
